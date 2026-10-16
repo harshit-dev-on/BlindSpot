@@ -516,6 +516,68 @@ Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) (or view the Swagger 
 
 ---
 
+### 🔌 Model Context Protocol (MCP) Server for AI Coding Agents
+
+BlindSpot includes an official **Model Context Protocol (MCP)** server that allows compatible AI coding agents (such as Claude Desktop, Cursor, and Antigravity) to autonomously inspect websites, monitor test journeys, extract prioritized findings, and verify bug fixes via standard stdio transport.
+
+#### 1. Install MCP Dependencies
+```powershell
+pip install "blindspot[mcp]"
+# or directly:
+pip install mcp
+```
+
+#### 2. Launch the MCP Server via CLI
+```powershell
+# Launches the stdio MCP server for agent communication
+blindspot mcp
+
+# Or run directly with Python
+python -m blindspot.mcp.server
+```
+
+#### 3. Available MCP Tools
+
+| Tool | Purpose | Key Inputs |
+|---|---|---|
+| `inspect_website` | Starts an asynchronous BlindSpot UX inspection run in the background. | `url`, `context`, `personas` (optional), `headed` (optional) |
+| `get_test_status` | Polls current stage, progress message, task count, and status. | `run_id` |
+| `get_test_results` | Retrieves concise metrics, defect counts, and artifact paths. | `run_id` |
+| `get_findings` | Extracts detailed findings with reproduction steps and suggested fixes. | `run_id`, `severity` (optional), `category` (optional) |
+| `verify_fixes` | Objectively verifies bug fixes against a reference run (Resolved, Recurring, New, Inconclusive). | `run_id` & `reference_run_id`, or `url`, `context`, & `reference_run_id` |
+
+#### 4. Configuring AI Coding Agents (Windows Examples)
+
+##### A. Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json`)
+```json
+{
+  "mcpServers": {
+    "blindspot": {
+      "command": "d:\\Projects\\BlindSpot\\.venv\\Scripts\\blindspot.exe",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+##### B. Cursor (`.cursor/mcp.json`)
+```json
+{
+  "mcpServers": {
+    "blindspot": {
+      "command": "python",
+      "args": ["-m", "blindspot.mcp.server"],
+      "cwd": "d:\\Projects\\BlindSpot"
+    }
+  }
+}
+```
+
+> [!NOTE]
+> Tool availability and invocation syntax depend on the specific client agent's MCP specification support. BlindSpot uses standard stdio JSON-RPC 2.0 communication.
+
+---
+
 ## 🗺️ Roadmap & Next Steps
 
 - [x] Clean `src/` layout and PEP 621 packaging (`pyproject.toml`)
@@ -536,7 +598,7 @@ Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) (or view the Swagger 
 - [x] **Automated persona-based browser task execution (Milestone 4)**
 - [x] **Consolidated evidence-backed UX improvement report generator (Milestone 5)**
 - [x] **Web-based demonstration UI (Milestone 6)**
-- [ ] **Model Context Protocol (MCP)** server integration for AI coding agents
+- [x] **Model Context Protocol (MCP)** server integration for AI coding agents (Milestone 7)
 
 ---
 

@@ -795,6 +795,36 @@ def web(
     uvicorn.run("blindspot.web.app:app", host=host, port=port, reload=reload)
 
 
+@app.command(
+    name="mcp",
+    help="Launch the BlindSpot Model Context Protocol (MCP) server for AI coding agents.",
+)
+def mcp_cmd(
+    transport: Annotated[
+        str,
+        typer.Option(
+            "--transport",
+            "-t",
+            help="Transport mechanism: 'stdio' (default for AI coding agents) or 'sse'.",
+            show_default=True,
+        ),
+    ] = "stdio",
+) -> None:
+    """Launch the BlindSpot MCP server for local AI coding agent pair programming."""
+    try:
+        from blindspot.mcp.server import run_mcp_server
+    except ImportError as exc:
+        print_error(
+            title="MCP Dependencies Missing",
+            message=f"The BlindSpot MCP server requires the official 'mcp' SDK ({exc}).",
+            suggestion="Install with:\n    pip install \"blindspot[mcp]\"\nor:\n    pip install mcp",
+        )
+        raise typer.Exit(code=1)
+
+    run_mcp_server(transport=transport)
+
+
 if __name__ == "__main__":
     app()
+
 
