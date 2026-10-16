@@ -1,5 +1,6 @@
 """Automated tests for BlindSpot Typer CLI commands."""
 
+from pathlib import Path
 from typer.testing import CliRunner
 from blindspot.cli import app
 
@@ -27,6 +28,9 @@ def test_inspect_help():
     assert result.exit_code == 0
     assert "--url" in result.stdout
     assert "--context" in result.stdout
+    assert "--output-dir" in result.stdout
+    assert "--browser" in result.stdout
+    assert "--headless" in result.stdout
 
 
 def test_inspect_missing_all_arguments():
@@ -50,8 +54,68 @@ def test_inspect_valid_arguments():
         ],
     )
     assert result.exit_code == 0
-    assert "Input validated successfully" in result.stdout
+    assert "BlindSpot Browser Inspection Complete" in result.stdout
+    assert "Inspection successful" in result.stdout
     assert "https://example.com" in result.stdout
+
+
+def test_inspect_custom_output_dir(tmp_path: Path):
+    """Verify inspect command respects custom --output-dir option."""
+    out_dir = tmp_path / "custom_cli_out"
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--output-dir",
+            str(out_dir),
+        ],
+    )
+    assert result.exit_code == 0
+    assert (out_dir / "screenshot.png").exists()
+    assert (out_dir / "inspection_result.json").exists()
+
+
+def test_inspect_headed_flag(tmp_path: Path):
+    """Verify inspect command accepts --headed flag without error."""
+    out_dir = tmp_path / "headed_out"
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--output-dir",
+            str(out_dir),
+            "--headed",
+        ],
+    )
+    assert result.exit_code == 0
+    assert (out_dir / "screenshot.png").exists()
+
+
+
+def test_inspect_invalid_browser():
+    """Verify inspect command rejects unsupported browser choice."""
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--browser",
+            "unsupported_engine",
+        ],
+    )
+    assert result.exit_code == 1
+    assert "Invalid Browser" in result.output or "not supported" in result.output
 
 
 def test_inspect_invalid_url():

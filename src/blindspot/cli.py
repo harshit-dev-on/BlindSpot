@@ -1,13 +1,20 @@
 """Command-line interface for BlindSpot using Typer."""
 
+from pathlib import Path
 from typing import Optional
 import typer
 from typing_extensions import Annotated
 
 from blindspot import __version__
+from blindspot.browser import inspect_website
 from blindspot.core.models import InspectConfig
 from blindspot.core.validation import validate_context, validate_url
-from blindspot.utils.console import print_error, print_inspection_summary
+from blindspot.utils.console import (
+    print_browser_inspection_summary,
+    print_error,
+    print_inspection_start,
+    print_inspection_summary,
+)
 
 app = typer.Typer(
     name="blindspot",
@@ -17,6 +24,8 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
+
+SUPPORTED_BROWSERS = ("chromium", "firefox", "webkit")
 
 
 def version_callback(value: bool) -> None:
@@ -45,9 +54,9 @@ def main(
 
 @app.command(
     name="inspect",
-    help="Prepare and validate a website inspection session.\n\n"
-    "Requires a target website URL and a context description of the website's "
-    "purpose and target audience.",
+    help="Inspect a target website using browser automation.\n\n"
+    "Navigates to the website with Playwright, captures interactive elements, "
+    "page content, full-page screenshot, and structured inspection data.",
     no_args_is_help=True,
 )
 def inspect(
@@ -69,8 +78,45 @@ def inspect(
             show_default=False,
         ),
     ],
+    output_dir: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--output-dir",
+            "-o",
+            help="Custom directory to store artifacts (default: unique folder in reports/).",
+            show_default=False,
+        ),
+    ] = None,
+    browser: Annotated[
+        str,
+        typer.Option(
+            "--browser",
+            "-b",
+            help="Browser engine to use: chromium, firefox, webkit.",
+            show_default=True,
+        ),
+    ] = "chromium",
+    headless: Annotated[
+        bool,
+        typer.Option(
+            "--headless/--no-headless",
+            help="Run browser in headless mode or visible window.",
+            show_default=True,
+        ),
+    ] = True,
+    headed: Annotated[
+        bool,
+        typer.Option(
+            "--headed",
+            help="Run browser in visible window (alias for --no-headless).",
+            show_default=False,
+        ),
+    ] = False,
 ) -> None:
-    """Run website inspection input validation and session preparation."""
+    """Run website inspection, capture page state, screenshot, and elements."""
+    # Determine effective headless mode
+    effective_headless = False if headed else headless
+
     # 1. Validate Target URL
     url_res = validate_url(url)
     if not url_res.is_valid:
@@ -91,9 +137,53 @@ def inspect(
         )
         raise typer.Exit(code=1)
 
-    # 3. Create Validated Configuration & Print Summary
+    # 3. Validate Browser Choice
+    selected_browser = browser.lower().strip()
+    if selected_browser not in SUPPORTED_BROWSERS:
+        print_error(
+            title="Invalid Browser Selected",
+            message=f"Browser engine '{browser}' is not supported.",
+            suggestion=f"Please choose one of: {', '.join(SUPPORTED_BROWSERS)} (e.g. --browser chromium).",
+        )
+        raise typer.Exit(code=1)
+
+    # 4. Display Input Validation Summary
     config = InspectConfig(url=url.strip(), context=resolved_context)
     print_inspection_summary(url=config.url, context=config.context)
+    print_inspection_start(url=config.url, browser=selected_browser)
+
+    # 5. Launch Browser Inspection
+    try:
+        result = inspect_website(
+            url=config.url,
+            context=config.context,
+            output_dir=output_dir,
+            browser_type=selected_browser,
+            headless=effective_headless,
+        )
+    except Exception as exc:
+        print_error(
+            title="Browser Inspection Failed",
+            message=str(exc),
+            suggestion="Verify the URL is accessible. If browser binaries are missing, run 'playwright install chromium'.",
+        )
+        raise typer.Exit(code=1)
+
+    # 6. Display Result Summary
+    print_browser_inspection_summary(
+        title=result.title,
+        final_url=result.final_url,
+        viewport_width=result.viewport.width,
+        viewport_height=result.viewport.height,
+        browser=result.browser,
+        total_elements=result.summary.total_interactive_elements,
+        links_count=result.summary.links_count,
+        buttons_count=result.summary.buttons_count,
+        form_fields_count=result.summary.form_fields_count,
+        text_length=result.summary.text_length,
+        screenshot_path=result.screenshot_path,
+        result_json_path=result.result_json_path,
+    )
 
 
 if __name__ == "__main__":

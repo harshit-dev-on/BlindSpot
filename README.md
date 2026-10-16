@@ -27,25 +27,30 @@ BlindSpot follows the modern Python `src/` layout:
 
 ```text
 BlindSpot/
-├── .gitignore               # Excludes venvs, secrets, caches, and test artifacts
-├── pyproject.toml           # PEP 621 package metadata, dependencies & CLI entry point
-├── README.md                # Project documentation & Windows quickstart
+├── .gitignore                   # Excludes venvs, secrets, caches, and test artifacts
+├── pyproject.toml               # PEP 621 package metadata, dependencies & CLI entry point
+├── README.md                    # Project documentation & Windows quickstart
 ├── src/
 │   └── blindspot/
-│       ├── __init__.py      # Package version & metadata
-│       ├── __main__.py      # python -m blindspot entry point
-│       ├── cli.py           # Typer CLI application (blindspot, inspect)
+│       ├── __init__.py          # Package version & metadata
+│       ├── __main__.py          # python -m blindspot entry point
+│       ├── cli.py               # Typer CLI application (blindspot, inspect)
+│       ├── browser/             # Playwright browser inspection engine
+│       │   ├── __init__.py      # Exports BrowserInspector, inspect_website, models
+│       │   ├── models.py        # Pydantic models for elements, viewport, results
+│       │   └── inspector.py     # Browser automation, navigation, and DOM harvesting
 │       ├── core/
 │       │   ├── __init__.py
-│       │   ├── models.py    # Dataclasses & models (InspectConfig, ValidationResult)
-│       │   └── validation.py# URL & context validation with friendly error hints
+│       │   ├── models.py        # Core dataclasses & models (InspectConfig, ValidationResult)
+│       │   └── validation.py    # URL & context validation with friendly error hints
 │       └── utils/
 │           ├── __init__.py
-│           └── console.py   # Rich terminal output formatting & panels
+│           └── console.py       # Rich terminal output formatting & panels
 └── tests/
     ├── __init__.py
-    ├── test_cli.py          # Typer CLI command tests
-    └── test_validation.py   # Unit tests for URL and context validation
+    ├── test_browser.py          # Browser automation and element extraction tests
+    ├── test_cli.py              # Typer CLI command tests
+    └── test_validation.py       # Unit tests for URL and context validation
 ```
 
 ---
@@ -109,6 +114,16 @@ pip install -e ".[dev]"
 
 ---
 
+### Step 5: Install Playwright Browsers
+
+Download Chromium (or all browsers) for automated browser testing:
+
+```powershell
+playwright install chromium
+```
+
+---
+
 ## 🚀 Usage
 
 Once installed, the `blindspot` command is available in your activated environment.
@@ -117,23 +132,6 @@ Once installed, the `blindspot` command is available in your activated environme
 
 ```powershell
 blindspot --help
-```
-
-Output:
-```text
-Usage: blindspot [OPTIONS] COMMAND [ARGS]...
-
-  BlindSpot: Open-source AI-powered website UX testing tool.
-
-  Simulates real user personas exploring websites to uncover UX flaws,
-  accessibility barriers, and confusing user journeys.
-
-Options:
-  -v, --version  Show the version of BlindSpot and exit.
-  --help         Show this message and exit.
-
-Commands:
-  inspect  Prepare and validate a website inspection session.
 ```
 
 ### 2. View Inspect Command Help
@@ -146,34 +144,83 @@ Output:
 ```text
 Usage: blindspot inspect [OPTIONS]
 
-  Prepare and validate a website inspection session.
+  Inspect a target website using browser automation.
 
-  Requires a target website URL and a context description of the website's
-  purpose and target audience.
+  Navigates to the website with Playwright, captures interactive elements, page
+  content, full-page screenshot, and structured inspection data.
 
 Options:
-  -u, --url TEXT      Target website URL to test (e.g. https://example.com).
-                      [required]
-  -c, --context TEXT  Context describing website purpose & audience, or path
-                      to text file.  [required]
-  --help              Show this message and exit.
+  -u, --url TEXT                  Target website URL to test (e.g.
+                                  https://example.com).  [required]
+  -c, --context TEXT              Context describing website purpose & audience,
+                                  or path to text file.  [required]
+  -o, --output-dir PATH           Custom directory to store artifacts (default:
+                                  unique folder in reports/).
+  -b, --browser TEXT              Browser engine to use: chromium, firefox,
+                                  webkit.  [default: chromium]
+  --headless / --no-headless      Run browser in headless mode or visible
+                                  window.  [default: headless]
+  --help                          Show this message and exit.
 ```
 
-### 3. Run Inspect with Valid Inputs
+### 3. Run Browser Inspection
 
-Pass an inspection target URL and context directly:
+Execute an inspection on a live website:
 
 ```powershell
-blindspot inspect --url https://example.com --context "An online bookstore for technical software developers looking for reference guides."
+blindspot inspect --url "https://example.com" --context "A demo website"
 ```
 
-You can also pass a file reference using the `@` prefix or a direct path:
+Output:
+```text
+┌───────────────────── BlindSpot Website Inspection Plan ─────────────────────┐
+│                                                                             │
+│   Website URL       https://example.com                                     │
+│   Context           A demo website                                          │
+│   Context Length    14 characters                                           │
+│                                                                             │
+└────────────────────── Status: Input validation passed ──────────────────────┘
+→ Launching chromium to inspect https://example.com...
+┌─────────────────── BlindSpot Browser Inspection Complete ───────────────────┐
+│                                                                             │
+│   Page Title              Example Domain                                    │
+│   Final URL               https://example.com/                              │
+│   Browser / Viewport      chromium (1280x800)                               │
+│   Interactive Elements    1 total (1 links, 0 buttons, 0 form fields)       │
+│   Page Text Length        917 characters                                    │
+│   Screenshot Saved        reports\run_example_com_20261016_113645\screen…   │
+│   Structured Data Saved   reports\run_example_com_20261016_113645\inspec…   │
+│                                                                             │
+└──────────────────────── Status: Artifacts captured ─────────────────────────┘
+[OK] Inspection successful. Artifacts saved to directory.
+```
+
+### 4. Custom Output Directory and Browser Options
+
+Store inspection artifacts in a designated directory:
 
 ```powershell
-blindspot inspect --url https://example.com --context @my-context.txt
+blindspot inspect --url "https://example.com" --context "A demo website" --output-dir "./my_test_run"
 ```
 
-### 4. Beginner-Friendly Error Messages
+Or watch the browser live using `--no-headless`:
+
+```powershell
+blindspot inspect --url "https://example.com" --context "A demo website" --no-headless
+```
+
+### 5. Generated Artifacts
+
+Each inspection run generates:
+- **`screenshot.png`**: High-resolution full-page screenshot of the rendered website.
+- **`inspection_result.json`**: Structured metadata containing:
+  - Page title and final landing URL (accounting for redirects)
+  - Viewport dimensions and browser engine
+  - Extracted body text content
+  - Discovered visible interactive elements (links, buttons, form inputs, textareas, selects) with their tags, labels, attributes, and bounding box coordinates
+  - Aggregate statistics (total elements, link counts, button counts, field counts)
+
+### 6. Beginner-Friendly Error Handling
 
 BlindSpot validates all inputs and provides actionable, clear tips if something is wrong:
 
@@ -182,12 +229,14 @@ BlindSpot validates all inputs and provides actionable, clear tips if something 
 blindspot inspect --url example.com --context "E-commerce store"
 ```
 ```text
-╭─ Invalid URL Provided ───────────────────────────────────────────────────╮
-│ ❌ URL is missing a protocol scheme (http:// or https://).               │
-│                                                                          │
-│ 💡 Tip: Did you mean 'https://example.com'? BlindSpot requires an        │
-│ explicit 'https://' or 'http://' prefix.                                 │
-╰──────────────────────────────────────────────────────────────────────────╯
+┌─ Invalid URL Provided ──────────────────────────────────────────────────────┐
+│                                                                             │
+│  [ERROR] URL is missing a protocol scheme (http:// or https://).            │
+│                                                                             │
+│  [TIP] Did you mean 'https://example.com'? BlindSpot requires an explicit   │
+│  'https://' or 'http://' prefix.                                            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Context Too Brief:**
@@ -195,19 +244,21 @@ blindspot inspect --url example.com --context "E-commerce store"
 blindspot inspect --url https://example.com --context "store"
 ```
 ```text
-╭─ Invalid Context Provided ───────────────────────────────────────────────╮
-│ ❌ Context description is too brief (5 characters).                      │
-│                                                                          │
-│ 💡 Tip: Provide more context (at least 10 characters) describing the     │
-│ website's purpose and target audience.                                   │
-╰──────────────────────────────────────────────────────────────────────────╯
+┌─ Invalid Context Provided ──────────────────────────────────────────────────┐
+│                                                                             │
+│  [ERROR] Context description is too brief (5 characters).                   │
+│                                                                             │
+│  [TIP] Provide more context (at least 10 characters) describing the         │
+│  website's purpose and target audience.                                     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## 🧪 Running Automated Tests
 
-Run the test suite using `pytest`:
+Run the full test suite using `pytest`:
 
 ```powershell
 pytest
@@ -226,11 +277,13 @@ pytest -v
 - [x] Clean `src/` layout and PEP 621 packaging (`pyproject.toml`)
 - [x] Typer CLI foundation (`blindspot` and `blindspot inspect`)
 - [x] Input validation for URL and context with beginner-friendly errors
-- [x] Automated test suite
-- [ ] Browser automation core using **Playwright**
+- [x] Automated test suite (unit and CLI tests)
+- [x] Browser automation inspection engine using **Playwright**
+- [x] Full-page screenshot capture & interactive element discovery
+- [x] Dedicated artifact run directories & structured JSON export
 - [ ] Provider-agnostic AI persona generation (starting with **Gemma 4**)
-- [ ] Action recording (DOM snapshots, user journeys, console logs, screenshots)
-- [ ] Analysis engine and consolidate UX report generator
+- [ ] Action recording (DOM snapshots, user journeys, console logs, error states)
+- [ ] Analysis engine and consolidated UX report generator
 - [ ] **Model Context Protocol (MCP)** server integration for AI coding agents
 - [ ] Web-based demonstration UI
 

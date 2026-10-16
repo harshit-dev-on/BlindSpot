@@ -76,6 +76,69 @@ def print_inspection_summary(url: str, context: str) -> None:
         padding=(1, 2),
     )
     console.print(panel)
+
+
+def print_inspection_start(url: str, browser: str) -> None:
+    """Print an indicator that browser inspection has started."""
     console.print(
-        "[bold green][OK] Input validated successfully.[/bold green] Ready to run UX inspection."
+        f"[bold cyan]→[/bold cyan] Launching [bold]{browser}[/bold] to inspect [underline]{url}[/underline]..."
     )
+
+
+def print_browser_inspection_summary(
+    title: str,
+    final_url: str,
+    viewport_width: int,
+    viewport_height: int,
+    browser: str,
+    total_elements: int,
+    links_count: int,
+    buttons_count: int,
+    form_fields_count: int,
+    text_length: int,
+    screenshot_path: str,
+    result_json_path: str,
+) -> None:
+    """Print a structured summary of the browser inspection results and artifacts.
+
+    Args:
+        title: Inspected page title.
+        final_url: Final landing URL after any redirects.
+        viewport_width: Viewport width in pixels.
+        viewport_height: Viewport height in pixels.
+        browser: Browser engine used ('chromium', etc.).
+        total_elements: Total interactive elements discovered.
+        links_count: Number of links discovered.
+        buttons_count: Number of buttons discovered.
+        form_fields_count: Number of form fields discovered.
+        text_length: Length of extracted readable text.
+        screenshot_path: Path to captured full-page screenshot.
+        result_json_path: Path to saved structured JSON inspection file.
+    """
+    table = Table(show_header=False, box=None, padding=(0, 1))
+    table.add_column("Metric", style="bold cyan", width=22)
+    table.add_column("Value", style="white")
+
+    table.add_row("Page Title", title or "[dim](No title)[/dim]")
+    table.add_row("Final URL", f"[underline]{final_url}[/underline]")
+    table.add_row("Browser / Viewport", f"{browser} ({viewport_width}x{viewport_height})")
+    table.add_row(
+        "Interactive Elements",
+        f"{total_elements} total ({links_count} links, {buttons_count} buttons, {form_fields_count} form fields)",
+    )
+    table.add_row("Page Text Length", f"{text_length:,} characters")
+    table.add_row("Screenshot Saved", f"[green]{screenshot_path}[/green]")
+    table.add_row("Structured Data Saved", f"[green]{result_json_path}[/green]")
+
+    panel = Panel(
+        table,
+        title="[bold green]BlindSpot Browser Inspection Complete[/bold green]",
+        subtitle="[dim]Status: Artifacts captured[/dim]",
+        border_style="green",
+        padding=(1, 2),
+    )
+    console.print(panel)
+    console.print(
+        f"[bold green][OK] Inspection successful.[/bold green] Artifacts saved to directory."
+    )
+
