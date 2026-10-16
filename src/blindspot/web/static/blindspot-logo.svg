@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="BlindSpot eye icon">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <g fill="none" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M150 132 H120 Q104 132 104 148 V178"/>
+    <path d="M362 132 H392 Q408 132 408 148 V178"/>
+    <path d="M104 334 V364 Q104 380 120 380 H150"/>
+    <path d="M408 334 V364 Q408 380 392 380 H362"/>
+    <path d="M126 256 Q188 177 256 177 Q324 177 386 256 Q324 335 256 335 Q188 335 126 256 Z"/>
+  </g>
+  <circle cx="256" cy="256" r="48" fill="#000000"/>
+  <circle cx="239" cy="239" r="10" fill="#ffffff"/>
+</svg>
