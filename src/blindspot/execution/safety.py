@@ -28,13 +28,15 @@ SENSITIVE_FIELD_PATTERNS: Tuple[re.Pattern, ...] = (
 )
 
 
-def is_ip_private_or_restricted(host: str) -> bool:
+def is_ip_private_or_restricted(host: str, allow_loopback: bool = False) -> bool:
     """Check if a hostname or IP address resolves to a loopback, private, or link-local range."""
     # Strip brackets if IPv6
     clean_host = host.strip("[]")
 
     try:
         ip = ipaddress.ip_address(clean_host)
+        if allow_loopback and ip.is_loopback:
+            return False
         return (
             ip.is_private
             or ip.is_loopback
@@ -51,6 +53,7 @@ def validate_navigation_url(
     url: str,
     allowed_domains: Optional[Set[str]] = None,
     allow_external_http: bool = True,
+    allow_local: bool = False,
 ) -> Tuple[bool, Optional[str]]:
     """Validate that a target URL is safe to visit.
 
@@ -58,6 +61,8 @@ def validate_navigation_url(
     - Only HTTP and HTTPS schemes.
     - No localhost, private IP ranges (10.x, 192.168.x, 172.16.x), or link-local/cloud metadata.
     - Allowed domain restrictions if specified.
+    - If allow_local=True, permits loopback (localhost, 127.0.0.1, ::1) while keeping
+      cloud metadata and private subnets strictly blocked.
 
     Returns:
         (is_safe, error_reason)
@@ -80,15 +85,24 @@ def validate_navigation_url(
     if not host:
         return False, "URL must include a valid hostname."
 
-    if host in BLOCKED_HOSTNAMES:
+    # Cloud metadata is unconditionally blocked
+    if host in ("metadata.google.internal", "instance-data"):
+        return False, f"Access to cloud metadata '{host}' is strictly blocked."
+
+    if host == "localhost":
+        if not allow_local:
+            return False, f"Access to '{host}' is blocked for security (use --allow-local for local testing)."
+    elif host in BLOCKED_HOSTNAMES:
         return False, f"Access to '{host}' is blocked for security."
 
     for suffix in BLOCKED_DOMAINS_SUFFIXES:
         if host.endswith(suffix):
+            if suffix == ".localhost" and allow_local:
+                continue
             return False, f"Access to local/internal domains ('{host}') is forbidden."
 
     # 3. IP range checks (Cloud metadata 169.254.169.254, RFC 1918 private IPs, loopback)
-    if is_ip_private_or_restricted(host):
+    if is_ip_private_or_restricted(host, allow_loopback=allow_local):
         return False, f"Access to private or link-local IP '{host}' is strictly blocked."
 
     # 4. Optional domain whitelist check

@@ -122,10 +122,12 @@ class PersonaTaskAgent:
         provider: BaseAIProvider,
         max_actions: int = 8,
         action_timeout_ms: int = 8000,
+        allow_local: bool = False,
     ) -> None:
         self.provider = provider
         self.max_actions = max_actions
         self.action_timeout_ms = action_timeout_ms
+        self.allow_local = allow_local
 
     def execute_task(
         self,
@@ -149,7 +151,7 @@ class PersonaTaskAgent:
         # 1. Baseline Navigation / Starting State
         try:
             if page.url == "about:blank" or not page.url.startswith("http"):
-                is_safe, reason = validate_navigation_url(initial_url)
+                is_safe, reason = validate_navigation_url(initial_url, allow_local=self.allow_local)
                 if not is_safe:
                     return TaskExecutionResult(
                         task_id=task.id,
@@ -195,7 +197,7 @@ class PersonaTaskAgent:
                 break
 
             # Check safety of current URL after any redirects
-            is_safe, reason = validate_navigation_url(page.url)
+            is_safe, reason = validate_navigation_url(page.url, allow_local=self.allow_local)
             if not is_safe:
                 failure_reason = f"Navigation redirected to restricted URL: {reason}"
                 task_status = TaskStatus.FAILURE
@@ -406,7 +408,7 @@ class PersonaTaskAgent:
             if act_type == ActionType.NAVIGATE:
                 if not target:
                     return False, "Navigate action requires a target URL."
-                is_safe, reason = validate_navigation_url(target)
+                is_safe, reason = validate_navigation_url(target, allow_local=self.allow_local)
                 if not is_safe:
                     return False, f"Navigation blocked: {reason}"
                 page.goto(target, wait_until="domcontentloaded", timeout=self.action_timeout_ms)

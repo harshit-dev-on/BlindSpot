@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Agile Project Management for Modern Teams</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#home" class="logo">⚡ TaskFlow</a>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+        <a href="#contact" class="btn-primary-nav">Get Started</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero-section">
+    <div class="hero-container">
+      <span class="badge">New: AI Sprint Planner 2.0</span>
+      <h1 class="hero-title">Ship high-impact software faster, without the chaos.</h1>
+      <p class="hero-subtitle">
+        TaskFlow unifies sprint tracking, automated task estimation, and asynchronous team updates in one intuitive, blazingly fast workspace.
+      </p>
+      <div class="hero-cta-group">
+        <a href="#contact" class="btn-hero-primary" id="hero-cta-btn">Request Early Access</a>
+        <a href="#features" class="btn-hero-secondary" id="hero-learn-more">Explore Features</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="features-section">
+    <div class="section-container">
+      <h2 class="section-title">Designed for Engineers & Designers</h2>
+      <p class="section-desc">Everything your product team needs to stay aligned and eliminate friction.</p>
+
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Kanban & Scrum Boards</h3>
+          <p>Flexible boards with real-time WIP limits, swimlanes, and automated dependency warnings.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Automated Sprint Insights</h3>
+          <p>Instant velocity forecasting, burndown analytics, and blockers detection powered by machine learning.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Enterprise Security</h3>
+          <p>End-to-end data encryption, SOC2 Type II compliance, and granular role-based permissions.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Form Section -->
+  <section id="contact" class="contact-section">
+    <div class="form-card">
+      <h2 class="form-title">Request Early Beta Access</h2>
+      <p class="form-subtitle">Fill in your team details below to unlock 3 months of complimentary Pro access.</p>
+
+      <!-- Feedback / Confirmation State -->
+      <div id="confirmation-banner" class="confirmation-box" style="display: none;" role="alert">
+        <div class="confirmation-icon">✅</div>
+        <h3 id="confirmation-heading">Request Received!</h3>
+        <p id="confirmation-message">Thank you for signing up. We will send your beta invite within 24 hours.</p>
+        <button type="button" id="reset-form-btn" class="btn-secondary">Submit Another Request</button>
+      </div>
+
+      <!-- Lead Capture Form -->
+      <form id="lead-form" novalidate>
+        <div class="form-group">
+          <label for="full-name">Full Name <span class="required">*</span></label>
+          <input
+            type="text"
+            id="full-name"
+            name="fullName"
+            placeholder="Alex Morgan"
+            required
+            autocomplete="name"
+          />
+          <span class="field-error" id="name-error" style="display: none;">Please provide your name.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="work-email">Work Email <span class="required">*</span></label>
+          <input
+            type="email"
+            id="work-email"
+            name="workEmail"
+            placeholder="alex@company.com"
+            required
+            autocomplete="email"
+          />
+          <span class="field-error" id="email-error" style="display: none;">Please provide a valid email address.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="user-role">Your Role</label>
+          <select id="user-role" name="role">
+            <option value="Software Engineer">Software Engineer</option>
+            <option value="Product Manager">Product Manager</option>
+            <option value="UX Designer">UX Designer</option>
+            <option value="Engineering Manager">Engineering Manager</option>
+            <option value="Founder / Executive">Founder / Executive</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="team-size">Team Size</label>
+          <select id="team-size" name="teamSize">
+            <option value="1-10">1 - 10 people</option>
+            <option value="11-50">11 - 50 people</option>
+            <option value="51-200">51 - 200 people</option>
+            <option value="200+">200+ people</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="project-notes">Primary Team Pain Point (Optional)</label>
+          <textarea
+            id="project-notes"
+            name="notes"
+            rows="3"
+            placeholder="e.g. Too many manual status meetings, slow sprint planning..."
+          ></textarea>
+        </div>
+
+        <button type="submit" id="submit-lead-btn" class="btn-submit">
+          Submit Beta Application
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="pricing-section">
+    <div class="section-container">
+      <h2 class="section-title">Transparent, Predictable Pricing</h2>
+      <p class="section-desc">Start free today. Scale as your engineering team grows.</p>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Starter</h3>
+          <div class="price">$0 <span class="period">/ month</span></div>
+          <p class="price-desc">For small teams up to 5 members exploring agile sprint tracking.</p>
+          <ul class="pricing-features">
+            <li>✓ Unlimited Kanban Boards</li>
+            <li>✓ Basic Sprint Reports</li>
+            <li>✓ Community Support</li>
+          </ul>
+          <a href="#contact" class="btn-pricing">Start Free</a>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="popular-ribbon">Most Popular</div>
+          <h3>Pro Team</h3>
+          <div class="price">$15 <span class="period">/ user / mo</span></div>
+          <p class="price-desc">For fast-growing organizations requiring automated ML velocity tracking.</p>
+          <ul class="pricing-features">
+            <li>✓ Everything in Starter</li>
+            <li>✓ AI Sprint Velocity Planning</li>
+            <li>✓ Automated Dependency Alerts</li>
+            <li>✓ Priority 24/7 Slack Support</li>
+          </ul>
+          <a href="#contact" class="btn-pricing-featured">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 TaskFlow Inc. Sample test application for BlindSpot UX Testing Tool.</p>
+      <div class="footer-links">
+        <a href="#home">Back to Top</a>
+        <a href="#features">Features</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive Form Handling -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("lead-form");
+      const confirmation = document.getElementById("confirmation-banner");
+      const resetBtn = document.getElementById("reset-form-btn");
+      const nameInput = document.getElementById("full-name");
+      const emailInput = document.getElementById("work-email");
+      const roleSelect = document.getElementById("user-role");
+      const heading = document.getElementById("confirmation-heading");
+      const message = document.getElementById("confirmation-message");
+      const nameError = document.getElementById("name-error");
+      const emailError = document.getElementById("email-error");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        // Validation
+        let hasError = false;
+        const nameVal = nameInput.value.trim();
+        const emailVal = emailInput.value.trim();
+
+        if (!nameVal) {
+          nameError.style.display = "block";
+          hasError = true;
+        } else {
+          nameError.style.display = "none";
+        }
+
+        if (!emailVal || !emailVal.includes("@")) {
+          emailError.style.display = "block";
+          hasError = true;
+        } else {
+          emailError.style.display = "none";
+        }
+
+        if (hasError) return;
+
+        // Dynamic success state
+        heading.textContent = `Welcome aboard, ${nameVal}!`;
+        message.textContent = `Your early access beta request as a ${roleSelect.value} has been successfully recorded. Check ${emailVal} for onboarding instructions.`;
+
+        form.style.display = "none";
+        confirmation.style.display = "block";
+      });
+
+      resetBtn.addEventListener("click", () => {
+        form.reset();
+        confirmation.style.display = "none";
+        form.style.display = "block";
+      });
+    });
+  </script>
+</body>
+</html>

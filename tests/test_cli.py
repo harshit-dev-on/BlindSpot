@@ -92,7 +92,7 @@ def mock_inspect_ai(monkeypatch):
         ],
     )
 
-    def _mock_exec(plan, provider, output_dir, browser_type="chromium", headless=True, max_actions_per_task=8):
+    def _mock_exec(plan, provider, output_dir, browser_type="chromium", headless=True, max_actions_per_task=8, **kwargs):
         res_file = Path(output_dir) / "execution_results.json"
         res_file.parent.mkdir(parents=True, exist_ok=True)
         res_file.write_text(sample_run.model_dump_json(indent=2), encoding="utf-8")

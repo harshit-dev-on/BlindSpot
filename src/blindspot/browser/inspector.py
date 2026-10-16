@@ -106,12 +106,14 @@ class BrowserInspector:
         viewport_width: int = 1280,
         viewport_height: int = 800,
         timeout_ms: int = 30000,
+        allow_local: bool = False,
     ) -> None:
         self.browser_type = browser_type.lower()
         self.headless = headless
         self.viewport_width = viewport_width
         self.viewport_height = viewport_height
         self.timeout_ms = timeout_ms
+        self.allow_local = allow_local
 
         valid_browsers = ("chromium", "firefox", "webkit")
         if self.browser_type not in valid_browsers:
@@ -181,9 +183,24 @@ class BrowserInspector:
                     )
                     page = context_obj.new_page()
 
+                    # Enforce SSRF & URL safety check
+                    from blindspot.execution.safety import validate_navigation_url
+                    if url.startswith(("http://", "https://")):
+                        is_safe, reason = validate_navigation_url(url, allow_local=self.allow_local)
+                        if not is_safe:
+                            raise ValueError(f"Security Policy Blocked: {reason}")
+                    elif not url.startswith("file://") and not self.allow_local:
+                        raise ValueError("Forbidden URL scheme. Only HTTP and HTTPS are permitted.")
+
                     # Reliable loading strategy:
                     # 1. Wait for domcontentloaded first (ensures DOM is parsed without stalling on slow trackers)
                     page.goto(url, wait_until="domcontentloaded", timeout=self.timeout_ms)
+
+                    # Check for redirect to blocked destination
+                    if page.url.startswith(("http://", "https://")):
+                        is_safe, reason = validate_navigation_url(page.url, allow_local=self.allow_local)
+                        if not is_safe:
+                            raise ValueError(f"Redirect blocked by Security Policy: {reason}")
 
                     # 2. Try waiting for full load state with a short grace period
                     try:
@@ -295,6 +312,7 @@ def inspect_website(
     output_dir: Optional[Union[str, Path]] = None,
     browser_type: str = "chromium",
     headless: bool = True,
+    allow_local: bool = False,
 ) -> BrowserInspectionResult:
     """Convenience helper to inspect a website and generate artifacts.
 
@@ -304,9 +322,14 @@ def inspect_website(
         output_dir: Optional output directory for artifacts.
         browser_type: Browser to use ('chromium', 'firefox', 'webkit').
         headless: Whether to run in headless mode.
+        allow_local: Whether to permit testing local loopback addresses (localhost/127.0.0.1).
 
     Returns:
         BrowserInspectionResult object.
     """
-    inspector = BrowserInspector(browser_type=browser_type, headless=headless)
+    inspector = BrowserInspector(
+        browser_type=browser_type,
+        headless=headless,
+        allow_local=allow_local,
+    )
     return inspector.inspect(url=url, context=context, output_dir=output_dir)

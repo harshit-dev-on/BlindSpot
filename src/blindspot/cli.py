@@ -528,6 +528,14 @@ def inspect(
             show_default=False,
         ),
     ] = False,
+    allow_local: Annotated[
+        bool,
+        typer.Option(
+            "--allow-local",
+            help="Permit testing local loopback servers (localhost / 127.0.0.1).",
+            show_default=False,
+        ),
+    ] = False,
 ) -> None:
     """Run website inspection, capture page state, screenshot, elements, and synthesize AI personas."""
     # Determine effective headless mode
@@ -540,6 +548,17 @@ def inspect(
             title="Invalid URL Provided",
             message=url_res.error_message or "Invalid URL.",
             suggestion=url_res.suggestion,
+        )
+        raise typer.Exit(code=1)
+
+    # SSRF & Private Network Security Check
+    from blindspot.execution.safety import validate_navigation_url
+    is_safe, ssrf_reason = validate_navigation_url(url, allow_local=allow_local)
+    if not is_safe:
+        print_error(
+            title="Security Policy Blocked URL",
+            message=ssrf_reason or "Target URL failed safety policies.",
+            suggestion="Target URL must be a publicly accessible HTTP/HTTPS address, or pass '--allow-local' if testing a local development server.",
         )
         raise typer.Exit(code=1)
 
@@ -576,6 +595,7 @@ def inspect(
             output_dir=output_dir,
             browser_type=selected_browser,
             headless=effective_headless,
+            allow_local=allow_local,
         )
     except Exception as exc:
         print_error(
@@ -670,6 +690,7 @@ def inspect(
                 browser_type=selected_browser,
                 headless=effective_headless,
                 max_actions_per_task=max_actions,
+                allow_local=allow_local,
             )
             print_execution_summary(execution_result)
         except Exception as exc:

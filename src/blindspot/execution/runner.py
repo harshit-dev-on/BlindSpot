@@ -28,6 +28,7 @@ class PersonaTestRunner:
         viewport_height: int = 800,
         max_actions_per_task: int = 8,
         action_timeout_ms: int = 8000,
+        allow_local: bool = False,
     ) -> None:
         self.provider = provider
         self.browser_type = browser_type.lower().strip()
@@ -36,6 +37,7 @@ class PersonaTestRunner:
         self.viewport_height = viewport_height
         self.max_actions_per_task = max_actions_per_task
         self.action_timeout_ms = action_timeout_ms
+        self.allow_local = allow_local
 
     def run_plan(
         self,
@@ -65,6 +67,7 @@ class PersonaTestRunner:
             provider=self.provider,
             max_actions=self.max_actions_per_task,
             action_timeout_ms=self.action_timeout_ms,
+            allow_local=self.allow_local,
         )
 
         with sync_playwright() as p:
@@ -179,6 +182,7 @@ def execute_persona_tasks(
     browser_type: str = "chromium",
     headless: bool = True,
     max_actions_per_task: int = 8,
+    allow_local: bool = False,
     on_event: Optional[Callable[[Dict[str, Any]], None]] = None,
     cancel_check: Optional[Callable[[], bool]] = None,
 ) -> ExecutionRunResult:
@@ -188,6 +192,7 @@ def execute_persona_tasks(
         browser_type=browser_type,
         headless=headless,
         max_actions_per_task=max_actions_per_task,
+        allow_local=allow_local,
     )
     return runner.run_plan(
         plan=plan,

@@ -1,142 +1,193 @@
-# BlindSpot 👁️
+# BlindSpot Technical Documentation
 
-> **AI-Powered Website UX Testing Tool**
->
-> Uncover hidden user experience flaws, confusing user journeys, and accessibility barriers using autonomous AI user personas and browser automation.
+### Autonomous AI-Powered Website UX and Accessibility Auditing Engine
 
----
-
-## 🎯 Project Vision
-
-BlindSpot accepts two core inputs:
-1. **Website URL** – The target web application or site to inspect.
-2. **Context** – A description of the website's purpose, target audience, and primary user goals.
-
-Its automated workflow:
-1. **Understand & Model** – Analyzes the website context and structure.
-2. **Synthesize Personas** – Generates diverse AI user personas (varying in technical proficiency, accessibility needs, and user goals).
-3. **Execute Website Tasks** – Directs Playwright browser automation to realistically navigate and attempt tasks.
-4. **Capture Evidence** – Records detailed user actions, DOM state, console errors, and screenshots.
-5. **Analyze & Recommend** – Evaluates observations with AI (demonstrated with Gemma 4) to produce actionable, evidence-backed UX improvements.
+| Specification | Details |
+|---|---|
+| **Document Version** | 1.0.0 |
+| **Software Version** | 0.1.0 |
+| **Supported Platforms** | Windows 10/11, macOS 12+, Linux (Ubuntu 22.04+, Debian 12+, Fedora 38+) |
+| **Runtime Environment** | Python 3.10, 3.11, 3.12, 3.13, 3.14+ |
+| **Browser Engine** | Chromium (Playwright automation layer) |
+| **License** | Apache License 2.0 |
 
 ---
 
-## 📁 Project Structure
+## Table of Contents
 
-BlindSpot follows the modern Python `src/` layout:
+1. [Executive Summary](#1-executive-summary)
+2. [System Architecture and Pipeline](#2-system-architecture-and-pipeline)
+3. [System Requirements and Platform Matrix](#3-system-requirements-and-platform-matrix)
+4. [Installation and Environment Setup](#4-installation-and-environment-setup)
+5. [Quickstart Guide](#5-quickstart-guide)
+6. [Command-Line Interface (CLI) Manual](#6-command-line-interface-cli-manual)
+7. [AI Provider and Model Configuration](#7-ai-provider-and-model-configuration)
+8. [Security and Sandboxing Guardrails](#8-security-and-sandboxing-guardrails)
+9. [Report and Evidence Data Model](#9-report-and-evidence-data-model)
+10. [Web Demonstration Studio](#10-web-demonstration-studio)
+11. [Model Context Protocol (MCP) Integration](#11-model-context-protocol-mcp-integration)
+12. [Offline Testing and Local Sample Application](#12-offline-testing-and-local-sample-application)
+13. [Automated Test Suite and Verification](#13-automated-test-suite-and-verification)
+14. [Troubleshooting and Diagnostic Reference](#14-troubleshooting-and-diagnostic-reference)
+15. [Repository Structure](#15-repository-structure)
+16. [License and Compliance](#16-license-and-compliance)
 
-```text
-BlindSpot/
-├── .gitignore                   # Excludes venvs, secrets, caches, and test artifacts
-├── blindspot.example.toml       # Template configuration file for AI providers
-├── pyproject.toml               # PEP 621 package metadata, dependencies & CLI entry point
-├── README.md                    # Project documentation & Windows quickstart
-├── src/
-│   └── blindspot/
-│       ├── __init__.py          # Package version & metadata
-│       ├── __main__.py          # python -m blindspot entry point
-│       ├── cli.py               # Typer CLI application (setup, inspect, provider, model)
-│       ├── cli_setup.py         # Interactive multi-provider setup wizard
-│       ├── ai/                  # Universal AI provider integration layer
-│       │   ├── __init__.py      # Exports providers, models, and factory
-│       │   ├── adapter.py       # UnifiedAIAdapter wrapping LiteLLM engine
-│       │   ├── base.py          # BaseAIProvider interface & structured JSON parser
-│       │   ├── exceptions.py    # AI provider exception hierarchy
-│       │   ├── factory.py       # Universal provider registry & creation factory
-│       │   ├── models.py        # AIResponse and ProviderStatus models
-│       │   └── providers/       # Lightweight provider implementations
-│       ├── browser/             # Playwright browser inspection engine
-│       │   ├── __init__.py      # Exports BrowserInspector, inspect_website, models
-│       │   ├── models.py        # Pydantic models for elements, viewport, results
-│       │   └── inspector.py     # Browser automation, navigation, and DOM harvesting
-│       ├── config/              # Configuration loader & validation
-│       │   ├── __init__.py      # Config exports
-│       │   ├── loader.py        # TOML loader with file discovery & persistence
-│       │   └── models.py        # Pydantic schema for AIConfig, TaskModelsConfig, etc.
-│       ├── core/
-│       │   ├── __init__.py
-│       │   ├── models.py        # Core dataclasses & models (InspectConfig, ValidationResult)
-│       │   └── validation.py    # URL & context validation with friendly error hints
-│       ├── personas/            # AI persona synthesis and task planning engine
-│       │   ├── __init__.py      # Exports generator, models, helpers
-│       │   ├── generator.py     # Persona & task synthesis with prompt injection defense
-│       │   └── models.py        # Pydantic schemas for Persona, PersonaTask, PersonaPlan
-│       └── utils/
-│           ├── __init__.py
-│           └── console.py       # Rich terminal output formatting, panels & tables
-└── tests/
-    ├── __init__.py
-    ├── test_ai_provider.py      # Unit tests for providers, mocking, structured output
-    ├── test_browser.py          # Browser automation and element extraction tests
-    ├── test_cli.py              # Typer CLI command tests (inspect, help)
-    ├── test_cli_provider.py     # CLI tests for provider list, test, and prompt
-    ├── test_config.py           # Configuration loading, validation, and overrides
-    ├── test_personas.py         # Tests for persona generation, injection defense, tasks
-    └── test_validation.py       # Unit tests for URL and context validation
+---
+
+## 1. Executive Summary
+
+BlindSpot is an autonomous user experience (UX) and accessibility auditing framework designed to eliminate the diagnostic gap between synthetic technical tests (such as unit, integration, and standard end-to-end assertions) and qualitative human usability evaluations.
+
+Traditional testing suites verify that code paths execute without raising exceptions; however, they cannot evaluate cognitive friction, navigation dead ends, confusing copy, inaccessible form workflows, or visual layout discrepancies. Human usability studies provide these qualitative insights but are resource-intensive, slow, and impossible to run on every continuous integration commit.
+
+BlindSpot bridges this gap by combining large language models with browser automation:
+- **Zero Instrument Requirement**: Operates strictly against the rendered browser surface without requiring source code modifications, analytics SDKs, or special test hooks.
+- **Diverse Synthetic Personas**: Generates realistic simulated user profiles reflecting varying degrees of technical literacy, accessibility requirements, device constraints, and behavioral goals.
+- **Autonomous Task Execution**: Deploys isolated browser contexts to execute user tasks, evaluate interactive controls, capture telemetry, and collect evidence.
+- **Evidence-Backed Remediation**: Produces deterministic JSON datasets and standalone HTML dashboards classifying findings into verified functional defects, usability observations, and actionable potential improvements.
+
+---
+
+## 2. System Architecture and Pipeline
+
+BlindSpot executes a multi-stage testing pipeline that isolates each phase of the evaluation process to guarantee deterministic outputs and prevent session contamination.
+
+```
+                    Target Website URL + Context
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ Stage 1: Website Inspection & Structural DOM Ingestion          │
+│ • Viewport initialization (Chromium 1280x800 desktop default)   │
+│ • Full-page rendered baseline screenshot capture                │
+│ • Interactive element extraction (buttons, anchors, inputs)    │
+│ • Bounding box computation & visible accessibility attributes   │
+└─────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ Stage 2: Grounded Persona Synthesis & Task Planning             │
+│ • Prompt-injection-fenced DOM content delivery                  │
+│ • Technical literacy, accessibility, and intent modeling        │
+│ • Synthesis of realistic, observable tasks & success criteria   │
+│ • Pydantic schema validation & fallback synthesis               │
+└─────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ Stage 3: Autonomous Sandboxed Browser Execution                 │
+│ • 100% isolated browser contexts per persona                    │
+│ • Zero state leakage (cookies, storage, cache isolated)         │
+│ • Autonomous decision loop: click, fill, select, scroll, wait   │
+│ • Destructive action filtering & sensitive credential masking   │
+└─────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ Stage 4: Multi-Modal Evidence Acquisition                       │
+│ • Checkpoint screenshots at key interactions & task conclusions │
+│ • Complete chronological action telemetry & DOM text state      │
+│ • Explicit verification against persona success criteria        │
+└─────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ Stage 5: UX Report Synthesis and Classification                 │
+│ • Finding taxonomy: Verified Defects vs Usability Observations  │
+│ • Structured reproduction steps with associated screenshots     │
+│ • High-priority remediation recommendations                     │
+│ • Self-contained, responsive HTML and structured JSON outputs   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
----
+### Architectural Principles
 
-## 💻 Windows Installation & Setup
-
-### Prerequisites
-- **Python 3.10 or higher** (Python 3.14+ supported)
-- **Git for Windows**
-- **PowerShell** or **Windows Terminal** (or Command Prompt)
+1. **Strict Context Isolation**: Every persona executes within a freshly initialized `BrowserContext`. Cookies, session storage, and cache entries do not persist across persona boundaries.
+2. **Defensive Model Consumption**: Untrusted website text is strictly fenced within structural XML boundaries before transmission to language models.
+3. **Black-Box Operation**: Tests interact strictly with rendered DOM nodes through standard user input simulations (clicks, keyboard strokes, navigation requests).
+4. **Resilient Failure Modes**: Network delays, missing elements, and navigation timeouts are captured as test observations rather than unhandled software exceptions.
 
 ---
 
-### Step 1: Open Terminal in Project Directory
+## 3. System Requirements and Platform Matrix
+
+### Operating System Support
+
+| Operating System | Architecture | Support Level |
+|---|---|---|
+| **Windows 11** | x64, ARM64 | Fully Supported (Primary development target) |
+| **Windows 10** (build 19041+) | x64 | Fully Supported |
+| **macOS 12.0+ (Monterey, Ventura, Sonoma, Sequoia)** | Apple Silicon, x64 | Fully Supported |
+| **Linux (Ubuntu 22.04 LTS, Debian 12, Fedora 38+)** | x64, ARM64 | Fully Supported |
+
+### Software Prerequisites
+
+- **Python Runtime**: Python 3.10, 3.11, 3.12, 3.13, or 3.14+.
+- **Browser Runtime**: Playwright-managed Chromium engine.
+- **Hardware Resources**:
+  - Memory: 4 GB minimum (8 GB+ recommended when running local language models).
+  - Storage: 1 GB available disk space for browser binaries, caches, and test run evidence.
+
+### Supported AI Backends
+
+BlindSpot features a universal AI abstraction layer powered by LiteLLM:
+- **Local Language Models**: Ollama (e.g., Gemma 4, Llama 3, Mistral, Qwen 2.5).
+- **Google Gemini**: Gemini 2.5 Flash, Gemini 1.5 Pro via Google AI Studio.
+- **OpenAI**: GPT-4o, GPT-4o-mini via OpenAI API.
+- **Anthropic**: Claude 3.5 Sonnet, Claude 3 Opus via Anthropic API.
+- **OpenRouter & Custom Gateways**: Any OpenAI-compatible inference gateway.
+
+---
+
+## 4. Installation and Environment Setup
+
+### 4.1 Clone the Repository
+
+Open a terminal (PowerShell on Windows, or bash/zsh on POSIX platforms) and clone the repository:
 
 ```powershell
-cd D:\Projects\BlindSpot
+git clone https://github.com/your-org/BlindSpot.git
+cd BlindSpot
 ```
 
----
+### 4.2 Initialize Virtual Environment
 
-### Step 2: Create a Virtual Environment
+Isolate dependencies within a dedicated virtual environment:
 
+**Windows PowerShell:**
 ```powershell
 python -m venv .venv
-```
-
----
-
-### Step 3: Activate the Virtual Environment
-
-**In PowerShell:**
-```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-> 💡 **Note for PowerShell Users:** If you see an error like `cannot be loaded because running scripts is disabled on this system`, run this once in PowerShell:
-> ```powershell
-> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-> ```
-> Then re-run `.\.venv\Scripts\Activate.ps1`.
+> [!NOTE]
+> If Windows blocks script execution with an `Execution_Policies` restriction, permit local signed scripts:
+> `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 
-**In Command Prompt (cmd.exe):**
-```cmd
-.\.venv\Scripts\activate.bat
+**Linux / macOS:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
----
+### 4.3 Install Package Dependencies
 
-### Step 4: Install BlindSpot in Editable Mode
-
-Install the package along with development dependencies (`pytest`):
+BlindSpot provides modular installation targets via standard packaging extras:
 
 ```powershell
-python -m pip install -e ".[dev]"
+# Recommended: Install core engine with development tools, web studio, and MCP server
+pip install -e ".[dev,web,mcp]"
 ```
 
-*(Alternatively, if you use [uv](https://github.com/astral-sh/uv), you can run: `uv pip install -e ".[dev]"`)*
+Alternatively, install specific components independently:
+- **Core CLI Only**: `pip install -e .`
+- **Development & Testing Suite**: `pip install -e ".[dev]"`
+- **Web Demonstration Studio**: `pip install -e ".[web]"`
+- **Model Context Protocol (MCP) Server**: `pip install -e ".[mcp]"`
 
----
+### 4.4 Install Playwright Browser Binaries
 
-### Step 5: Install Playwright Browsers
-
-Download Chromium for automated browser testing:
+Download the sandboxed Chromium browser runtime managed by Playwright:
 
 ```powershell
 playwright install chromium
@@ -144,411 +195,413 @@ playwright install chromium
 
 ---
 
-## 🤖 Universal AI Model Configuration System
+## 5. Quickstart Guide
 
-BlindSpot features a universal AI model layer powered by **LiteLLM** under a dedicated adapter (`UnifiedAIAdapter`). You are never locked into a single provider or model.
+### Step 1: Configure AI Credentials
 
-Supported deployment categories:
-1. **Local AI** – Run models on your own machine without sending data to the cloud (e.g. **Ollama** running **Gemma 4**, Llama 3, Mistral, Qwen).
-2. **Cloud APIs** – Hosted foundation models with direct API access (e.g. **Google Gemini**, **OpenAI**, **Anthropic Claude**, **OpenRouter**).
-3. **Custom Endpoints** – Self-hosted or third-party OpenAI-compatible endpoints (e.g. vLLM, LM Studio, LocalAI, Together AI, Groq).
-4. **Hybrid / Task-Specific Models** – Direct different models to specific pipeline tasks (e.g. fast model for persona generation, reasoning model for UX analysis).
-
----
-
-### 🧙‍♂️ Interactive Setup Wizard (`blindspot setup`)
-
-The easiest way to get started is the interactive setup wizard:
+Launch the interactive configuration wizard to select your inference backend:
 
 ```powershell
 blindspot setup
 ```
 
-The wizard guides you through:
-1. Choosing your deployment category (`local`, `cloud`, `custom`, or `hybrid`).
-2. Selecting your provider (`ollama`, `gemini`, `openai`, `anthropic`, `openrouter`, or `custom`).
-3. Selecting or entering your model (e.g., `gemma4`, `gemini-2.5-flash`, `gpt-4o-mini`, `claude-3-5-sonnet-20241022`).
-4. Entering credentials safely (hidden entry, never displayed or printed in plaintext).
-5. Testing the connection in real time.
-6. Saving your configuration to `~/.blindspot/config.toml` (user-level) or `blindspot.toml` (project-level).
+The wizard prompts you for:
+1. **Deployment Mode**: `local` (Ollama) or `cloud` (Gemini, OpenAI, Anthropic, OpenRouter).
+2. **Provider Selection**: Choose your preferred provider.
+3. **Model Identifier**: Select from verified defaults (e.g., `gemini-2.5-flash`, `gemma4`, `gpt-4o-mini`) or input a custom identifier.
+4. **API Credentials**: Securely input your API key (masked input). The key is saved to your local user configuration file.
+
+### Step 2: Validate AI Provider Reachability
+
+Verify that the configured provider responds properly:
+
+```powershell
+blindspot provider test
+```
+
+### Step 3: Execute an Autonomous Inspection Run
+
+Run an end-to-end evaluation against a target website:
+
+```powershell
+blindspot inspect `
+  --url "https://example.com" `
+  --context "Informational reference site presenting internet architecture documentation to web developers" `
+  --personas 2
+```
+
+### Step 4: Review Audit Artifacts
+
+BlindSpot writes all run outputs to a dedicated folder under `reports/run_<sanitized_host>_<timestamp>/`. Open the interactive HTML dashboard in your default browser:
+
+**Windows PowerShell:**
+```powershell
+Start-Process (Get-ChildItem reports/*/report.html | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+```
 
 ---
 
-### 📋 CLI Provider & Model Commands
+## 6. Command-Line Interface (CLI) Manual
 
-| Command | Description |
-|---|---|
-| `blindspot setup` | Launch the interactive configuration wizard |
-| `blindspot provider list` | Display all supported providers, active provider, model, and endpoint |
-| `blindspot provider test` | Probe health and run a 1-token verification test on the active model |
-| `blindspot model list` | Discover locally installed Ollama models or show curated cloud models |
-| `blindspot provider prompt "<text>"` | Send a test prompt directly to verify model output |
+### 6.1 `blindspot inspect`
 
-#### Discover Models
+The primary execution command. Conducts DOM ingestion, persona synthesis, sandboxed task execution, evidence acquisition, and report generation.
+
+```text
+Usage: blindspot inspect [OPTIONS]
+```
+
+#### Options Reference
+
+| Parameter | Short | Type | Default | Description |
+|---|---|---|---|---|
+| `--url` | `-u` | String | **Required** | Target website URL (HTTP or HTTPS scheme required). |
+| `--context` | `-c` | String | **Required** | Plain-text purpose and target audience description, or path to a text file. |
+| `--personas` | `-p` | Integer | `3` | Number of synthetic personas to simulate (clamped between 1 and 5). |
+| `--max-actions` | | Integer | `8` | Maximum interactive action steps permitted per persona task. |
+| `--browser` | `-b` | String | `chromium` | Browser engine: `chromium`, `firefox`, or `webkit`. |
+| `--headless` / `--no-headless` | | Boolean | `True` | Run browser in headless mode. |
+| `--headed` | | Flag | `False` | Launch browser in visible desktop window (alias for `--no-headless`). |
+| `--output-dir` | `-o` | Path | Auto | Custom destination directory for test artifacts (defaults to `reports/run_*`). |
+| `--allow-local` | | Flag | `False` | Explicitly permit navigation to loopback addresses (`localhost`, `127.0.0.1`). |
+| `--skip-ai` | | Flag | `False` | Run DOM inspection and element extraction without calling AI models. |
+| `--skip-execution` | | Flag | `False` | Synthesize personas and task plan without executing browser journeys. |
+| `--skip-report` | | Flag | `False` | Skip final UX analysis and HTML/JSON report generation. |
+| `--ai-provider` | | String | None | Runtime override for AI provider (e.g., `gemini`, `ollama`, `openai`). |
+| `--ai-model` | | String | None | Runtime override for model identifier (e.g., `gemini-2.5-flash`). |
+
+#### Examples
+
 ```powershell
-# List models installed locally in Ollama
+# Standard run with 3 personas in headless mode
+blindspot inspect -u "https://news.ycombinator.com" -c "Tech community link aggregator and discussion forum"
+
+# Visible browser execution for live demonstration
+blindspot inspect -u "https://example.com" -c "Reference site" --headed --personas 2
+
+# Inspect local development server (explicit loopback opt-in required)
+blindspot inspect -u "http://localhost:3000" -c "Next.js dashboard prototype" --allow-local
+
+# Fast offline structural extraction without LLM generation
+blindspot inspect -u "https://example.com" -c "Offline check" --skip-ai
+```
+
+### 6.2 `blindspot setup`
+
+Launches the interactive terminal setup wizard. Collects deployment mode, provider, model name, and API credentials with masked terminal inputs.
+
+```powershell
+blindspot setup
+```
+
+### 6.3 `blindspot provider` Subcommands
+
+Diagnostics and live queries against configured AI providers.
+
+```powershell
+# List supported providers, active provider, model identifier, and key source
+blindspot provider list
+
+# Test provider connectivity and verify text generation
+blindspot provider test
+
+# Test a specific provider and model without changing saved configuration
+blindspot provider test --provider openai --model gpt-4o-mini
+
+# Send an arbitrary prompt to the active provider
+blindspot provider prompt "List 3 accessibility criteria for primary navigation menus."
+```
+
+### 6.4 `blindspot model` Subcommands
+
+Discover models supported by or available on configured backends.
+
+```powershell
+# Query local Ollama instance for pulled models
 blindspot model list --provider ollama
 
-# List popular models for Google Gemini
+# List verified production models for Google Gemini
 blindspot model list --provider gemini
 
-# List popular models for OpenAI
+# List verified production models for OpenAI
 blindspot model list --provider openai
 ```
 
-#### Test Connection & Send Verification Prompts
+### 6.5 `blindspot web`
+
+Launches the interactive Web Demonstration Studio.
+
 ```powershell
-# Test the currently active configuration
-blindspot provider test
+# Start web server on 127.0.0.1:8000 and open default browser
+blindspot web
 
-# Test a specific provider/model combination on the fly
-blindspot provider test --provider gemini --model gemini-2.5-flash
+# Custom host and port configuration
+blindspot web --host 0.0.0.0 --port 8080 --no-open
 
-# Send a test prompt to verify model generation
-blindspot provider prompt "Give a 1-sentence tip for testing website accessibility."
+# Development mode with hot reloading
+blindspot web --reload
 ```
 
----
+### 6.6 `blindspot mcp`
 
-### 🔧 Configuration Guides
+Starts the Model Context Protocol (MCP) server over standard input/output (stdio) for integration with AI coding agents.
 
-#### 1. How to Configure a Local Gemma 4 Model (via Ollama)
+```powershell
+blindspot mcp
+```
 
-**Why choose this?** 100% private, runs entirely on your local GPU/CPU, zero cloud API costs.
+### 6.7 CLI Exit Codes
 
-1. Install and launch [Ollama](https://ollama.ai/).
-2. Pull the Gemma 4 model in your terminal:
-   ```powershell
-   ollama pull gemma4
-   ```
-3. Run the BlindSpot setup wizard:
-   ```powershell
-   blindspot setup
-   ```
-   - Select `local` -> `ollama` -> `gemma4`.
-4. Alternatively, create or update `~/.blindspot/config.toml`:
-   ```toml
-   [ai]
-   category = "local"
-   provider = "ollama"
-   model = "gemma4"
-   base_url = "http://localhost:11434"
-   timeout = 90.0
-   ```
-5. Test the connection:
-   ```powershell
-   blindspot provider test
-   ```
+| Exit Code | Meaning |
+|---|---|
+| `0` | Success: Test execution and report generation completed successfully. |
+| `1` | Fatal Error: Unhandled runtime error or critical environment failure. |
+| `2` | Input Validation Error: Invalid URL, invalid context, or unsupported CLI flag. |
 
 ---
 
-#### 2. How to Configure Google Gemini API
+## 7. AI Provider and Model Configuration
 
-**Why choose this?** High-speed, large context window, advanced multimodal capabilities, and generous free-tier limits.
+### 7.1 Configuration Resolution Hierarchy
 
-1. Get a Gemini API key from [Google AI Studio](https://aistudio.google.com/).
-2. Set your environment variable:
-   ```powershell
-   # PowerShell (Current Session)
-   $env:GEMINI_API_KEY = "your-actual-gemini-api-key"
+BlindSpot resolves configuration parameters using a strict precedence order:
 
-   # Or persist in Windows User Environment Variables:
-   [System.Environment]::SetEnvironmentVariable('GEMINI_API_KEY', 'your-key', 'User')
-   ```
-3. Run `blindspot setup`:
-   - Select `cloud` -> `gemini` -> `gemini-2.5-flash`.
-   - Press Enter to use your existing `GEMINI_API_KEY` environment variable.
-4. Or configure `~/.blindspot/config.toml`:
-   ```toml
-   [ai]
-   category = "cloud"
-   provider = "gemini"
-   model = "gemini-2.5-flash"
-   api_key_env = "GEMINI_API_KEY"
-   timeout = 60.0
-   ```
-5. Test the connection:
-   ```powershell
-   blindspot provider test
-   ```
+```
+1. Explicit CLI Flags (--ai-provider, --ai-model)
+                      │
+                      ▼
+2. Environment Variables (BLINDSPOT_*, GEMINI_API_KEY, etc.)
+                      │
+                      ▼
+3. Local Project File (./blindspot.toml)
+                      │
+                      ▼
+4. User Global Config (~/.blindspot/config.toml)
+                      │
+                      ▼
+5. Built-in Engine Defaults (Ollama / gemma4)
+```
 
----
-
-#### 3. How to Switch Providers
-
-BlindSpot resolves configuration using clear precedence:
-**CLI Flags > Environment Variables > Local `blindspot.toml` > Global `~/.blindspot/config.toml` > Defaults**
-
-You can switch providers in any of these ways:
-
-- **Method A: Re-run the setup wizard:**
-  ```powershell
-  blindspot setup
-  ```
-- **Method B: Edit your configuration file (`~/.blindspot/config.toml`):**
-  Change `provider = "gemini"` and `model = "gemini-2.5-flash"`.
-- **Method C: Environment variables:**
-  ```powershell
-  $env:BLINDSPOT_PROVIDER = "openai"
-  $env:BLINDSPOT_MODEL = "gpt-4o-mini"
-  ```
-- **Method D: Temporary CLI flags:**
-  ```powershell
-  blindspot provider test --provider anthropic --model claude-3-5-sonnet-20241022
-  ```
-
----
-
-#### 4. Future Task-Specific Model Routing
-
-BlindSpot is designed so different models can handle different UX pipeline tasks in the future:
+### 7.2 TOML Configuration Schema (`blindspot.toml` or `~/.blindspot/config.toml`)
 
 ```toml
 [ai]
-category = "hybrid"
-provider = "ollama"
-model = "gemma4"  # Default fallback model
+# Deployment category: "local", "cloud", or "custom"
+category = "cloud"
 
+# Active provider: "gemini", "ollama", "openai", "anthropic", "openrouter", "openai_compatible"
+provider = "gemini"
+
+# Model identifier
+model = "gemini-2.5-flash"
+
+# Custom endpoint URL (required for local Ollama or custom gateways)
+# base_url = "http://localhost:11434"
+
+# Environment variable containing the API credential (recommended)
+api_key_env = "GEMINI_API_KEY"
+
+# Direct API key (optional; environment variables preferred)
+# api_key = ""
+
+# Request timeout in seconds
+timeout = 60.0
+
+# Optional task-specific model routing
 [ai.tasks]
-persona_generation = "gemini-2.5-flash"   # Fast cloud model for personas
-task_planning      = "gemma4"             # Local model for task steps
-ux_analysis        = "gemini-2.5-pro"     # High-reasoning model for UX analysis
-report_generation  = "gemini-2.5-flash"   # Consolidated report formatting
+persona_generation = "gemini-2.5-flash"
+task_planning      = "gemini-2.5-flash"
+ux_analysis        = "gemini-2.5-flash"
+```
+
+### 7.3 Environment Variables Reference (`.env.example`)
+
+BlindSpot automatically loads credentials and overrides from the active environment:
+
+```bash
+# Provider API Credentials
+GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+
+# Runtime Engine Overrides
+BLINDSPOT_PROVIDER=gemini
+BLINDSPOT_MODEL=gemini-2.5-flash
+BLINDSPOT_TIMEOUT=60.0
+BLINDSPOT_BASE_URL=https://custom-gateway.internal/v1
 ```
 
 ---
 
-### 🔒 Security Principles
+## 8. Security and Sandboxing Guardrails
 
-- **Never Hardcoded:** API keys are never stored inside codebase source files or committed to Git.
-- **Environment First:** Recommended storage is via system environment variables (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`).
-- **No Secrets in Output:** Keys are masked (e.g. `sk-...abcd`) in terminal tables and omitted from logs.
-- **Git Ignored:** `blindspot.toml` and `.blindspot/` are included in `.gitignore`.
-- **No Unnecessary Network Traffic:** Model tests are only triggered when explicitly requested (`blindspot provider test` or during `blindspot setup`).
+BlindSpot enforces zero-trust boundary controls across browser automation, network communications, prompt delivery, and report rendering.
+
+### 8.1 Server-Side Request Forgery (SSRF) and Redirect Containment
+
+- **Prohibited Subnets**: By default, browser automation is prohibited from navigating to private IPv4/IPv6 networks (RFC 1918: `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), loopback addresses (`127.0.0.1`, `localhost`, `::1`), and link-local ranges (`169.254.0.0/16`).
+- **Cloud Metadata Defense**: Cloud instance metadata endpoints (`169.254.169.254`, `metadata.google.internal`, `instance-data`) are permanently blocked. This defense cannot be bypassed by any flag.
+- **Post-Navigation Redirect Verification**: After every page load or client-side redirect, the browser agent evaluates `page.url`. If a public URL redirects to a prohibited internal IP address, execution is terminated immediately.
+- **Controlled Loopback Opt-in**: Navigation to local development servers is only permitted when the operator explicitly passes `--allow-local`.
+
+### 8.2 Prompt Injection Defense
+
+Untrusted web content extracted from the target website (page titles, link text, button labels, meta descriptions) is strictly fenced within `<untrusted_website_content>` XML tags in all model prompts. System prompts instruct language models to treat enclosed content as passive observational data, ignoring embedded instructions, system role overrides, or jailbreak attempts.
+
+### 8.3 Destructive Action Filtering
+
+The browser execution agent evaluates interactive elements against destructive keyword heuristics. Actions targeting buttons or links containing irreversible phrases (such as "Delete Account", "Terminate Subscription", "Cancel Policy", "Purchase Now", "Submit Payment") are rejected, preventing destructive operations on live web applications.
+
+### 8.4 Sensitive Input Masking
+
+Target input fields associated with sensitive data (such as passwords, credit card numbers, CVVs, security questions, and API tokens) are masked with `********` before being recorded into action history objects, execution logs, or report files.
+
+### 8.5 Cross-Site Scripting (XSS) Prevention
+
+All dynamic data rendered into the standalone `report.html`—including page titles, persona biographies, element text snippets, reproduction steps, and suggested fixes—is escaped using `html.escape` to eliminate stored XSS vulnerabilities when viewing reports.
+
+### 8.6 Path Traversal Neutralization
+
+Report artifact endpoints in the web demo validate that requested file paths resolve strictly within the designated run directory using `Path.is_relative_to()`. Path traversal sequences (`..`, `/`, `\`) trigger an immediate HTTP 403 Forbidden response.
 
 ---
 
-## 🚀 Usage Guide
+## 9. Report and Evidence Data Model
 
-### 1. Website Inspection & AI Persona Generation
+### 9.1 Artifacts Directory Layout
 
-Inspect a website using Playwright browser automation and automatically synthesize realistic user personas and testing tasks using your configured AI model:
-
-```powershell
-blindspot inspect --url "https://example.com" --context "A minimalist informational domain used for documentation examples."
-```
-
-#### Sample Terminal Output:
+Every inspection run produces an isolated, self-contained directory under `reports/<run_id>/`:
 
 ```text
-┌───────────────────── BlindSpot Website Inspection Plan ─────────────────────┐
-│                                                                             │
-│   Website URL       https://example.com                                     │
-│   Context           A minimalist informational domain used for document...  │
-│                                                                             │
-└────────────────────── Status: Input validation passed ──────────────────────┘
-→ Launching chromium to inspect https://example.com...
-┌─────────────────── BlindSpot Browser Inspection Complete ───────────────────┐
-│                                                                             │
-│   Page Title              Example Domain                                    │
-│   Final URL               https://example.com/                              │
-│   Browser / Viewport      chromium (1280x800)                               │
-│   Interactive Elements    1 total (1 links, 0 buttons, 0 form fields)       │
-│   Screenshot Saved        reports\run_example_com_...\screenshot.png        │
-│   Structured Data Saved   reports\run_example_com_...\inspection_result.json│
-│                                                                             │
-└──────────────────────── Status: Artifacts captured ─────────────────────────┘
-[OK] Inspection successful. Artifacts saved to directory.
-
-→ Initializing AI model for persona generation...
-→ Synthesizing 3 AI personas & tasks using gemini (gemini-3.5-flash-lite)...
-┌─────────────── AI Persona Synthesis & Task Planning Complete ───────────────┐
-│                                                                             │
-│   Website Summary     Example Domain is a minimalist, multilingual          │
-│                       informational landing page designed for               │
-│                       documentation examples and illustrative references.   │
-│   AI Generator        gemini (gemini-3.5-flash-lite)                        │
-│   Synthesized         3 personas (6 total tasks)                            │
-│   Personas                                                                  │
-│   Feature Grounding   All tasks grounded in verified website capabilities   │
-│   Plan Saved To       reports\run_example_com_...\personas.json             │
-│                                                                             │
-└──────────────── Status: Plan ready for autonomous execution ────────────────┘
-┌──────── Persona 1: Alex - Multilingual Technical Writer (persona_1) ────────┐
-│   Description       A technical writer checking documentation accuracy.     │
-│   Experience Level  Intermediate                                            │
-│   Browsing / Needs  Standard desktop browsing                               │
-│   Primary Goals     Verify official informational text; explore references  │
-│   Likely            Expects interactive features that do not exist          │
-│   Difficulties                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
- Task ID           Objective & Criteria                  Evidence    Status
- task_persona_1_1  Read informational notice in English  • Snippet   [VERIFIED]
-                   Success: Located official text                                
- task_persona_1_2  Navigate to external documentation    • URL text  [VERIFIED]
-                   Success: Navigated to IANA help page                          
+reports/run_example_com_20261016_120000/
+├── screenshot.png               # Baseline full-page desktop screenshot
+├── inspection_result.json       # Structural DOM inventory and metadata
+├── personas.json                # Synthesized persona profiles and task assignments
+├── execution_results.json       # Step-by-step action history and outcome statuses
+├── report.json                  # Machine-readable report with prioritized findings
+├── report.html                  # Responsive, self-contained HTML audit dashboard
+└── evidence/                    # Per-persona, per-task checkpoint artifacts
+    └── persona_1/
+        └── task_p1_1/
+            ├── step_1_click.png
+            └── step_2_finish.png
 ```
 
-#### Command Options
+### 9.2 Finding Classification Taxonomy
 
-| Option | Flag | Description |
-|---|---|---|
-| `--personas <N>` | `-p` | Number of personas to synthesize (default: 3, clamped 1-5) |
-| `--skip-ai` | | Run browser inspection only without calling AI |
-| `--skip-execution` | | Generate personas and tasks without executing browser tests |
-| `--max-actions <N>` | | Max interactive steps per persona task (default: 10, clamped 1-30) |
-| `--skip-report` | | Skip UX analysis and report generation |
-| `--ai-provider <name>` | | Override AI provider (e.g. `ollama`, `gemini`, `openai`) |
-| `--ai-model <name>` | | Override AI model for persona generation & execution |
-| `--headed` | | Launch browser in visible desktop window (default: headless) |
-| `--browser <name>` | `-b` | Select engine: `chromium`, `firefox`, or `webkit` |
-| `--output-dir <path>`| `-o` | Custom directory to save screenshots, data, and personas |
+BlindSpot categorizes all audit findings into three distinct levels to prevent subjective UX opinions from being conflated with functional software bugs:
 
-#### Generated Artifacts in Each Run Directory
+1. **Objectively Verified Defects (`verified_issue`)**:
+   - Definite browser execution failures, unhandled JavaScript errors, broken HTTP navigation links (404/500), form submission rejections, crashed interactions, and missing accessibility attributes (`alt`, `aria-label`).
+2. **Usability Observations (`usability_observation`)**:
+   - Navigation friction, ambiguous button labels, confusing multi-step task progressions, visual clutter, or delayed user feedback observed during simulated journeys.
+3. **Potential Improvements (`potential_improvement`)**:
+   - Strategic enhancements to improve conversion rates, information hierarchy, layout legibility, or user guidance.
 
-Every run produces a dedicated folder inside `reports/`:
-- `screenshot.png`: High-resolution full-page screenshot of the target page.
-- `inspection_result.json`: Extracted DOM elements, visible text, and page metadata.
-- `personas.json`: Machine-readable test plan containing synthesized personas, goals, accessibility considerations, and assigned tasks with explicit success criteria.
-- `execution_results.json`: Complete record of persona task execution including timestamps, actions taken, observable evidence, and final status (`SUCCESS`, `FAILURE`, `INCONCLUSIVE`).
-- `task_*_step*.png`: Step-by-step visual checkpoints captured during task execution.
-- `report.json`: Machine-readable consolidated UX analysis, prioritized findings, and task metrics.
-- `report.html`: Developer-ready, responsive HTML report with visual screenshots, category badges, reproduction steps, and evidence-backed recommendations.
+### 9.3 Machine-Readable Report Schema (`report.json`)
 
----
-
-### 📊 Evidence Aggregation & UX Reporting
-
-BlindSpot converts the collected test artifacts into actionable, developer-friendly recommendations:
-
-1. **Evidence Aggregation**:
-   - Collects browser inspection results, persona definitions, action logs, DOM accessibility flaws, and screenshots.
-   - Preserves raw evidence even if AI analysis is disabled or fails.
-2. **Clear Finding Categories**:
-   - **Objectively Verified Issues**: Broken links/navigation, failed interactions, console errors, missing image `alt` tags, and unlabeled form inputs.
-   - **Usability Observations**: Confusing workflows, unclear CTAs, or excessive interaction steps.
-   - **Potential Improvements**: Constructive enhancements backed by user context.
-   - *Strict Guardrail: AI subjective opinions are never labeled as verified bugs.*
-3. **Pydantic Validation & Consistent Severity**:
-   - Strict schemas for findings with unique IDs, categories, severity (`Critical`, `High`, `Medium`, `Low`, `Informational`), confidence scores, and reproduction steps.
-4. **Deduplication & Prioritization**:
-   - Merges identical findings across personas.
-   - Computes composite priority scores using task completion impact, evidence strength, affected personas, and confidence.
-5. **Research Limitation Disclaimer**:
-   - Prominently clarifies that simulated personas are synthetic exploratory agents, not statistically representative human samples.
-
----
-
-### 🤖 Automated Persona-Based Browser Testing
-
-BlindSpot simulates realistic user sessions directly in Chromium, Firefox, or WebKit using an AI-guided browser agent with strict safety controls:
-
-1. **Session Isolation**: Each persona runs in an independent browser context (`browser.new_context()`). Cookies, localStorage, and session state are isolated and cannot leak across personas.
-2. **Controlled Action Dispatcher**: The AI agent can only execute validated browser actions (`navigate`, `click`, `fill`, `select`, `scroll`, `wait`, `check_success`, `finish`). It **never** executes arbitrary Python, JavaScript, or shell commands.
-3. **Evidence-Driven Verification**: Tasks are not declared successful merely because an action completed. Success criteria are explicitly checked against observable DOM content and URLs.
-4. **Safety & Loop Limits**:
-   - Blocks navigation to loopback/private IPs (`10.0.0.0/8`, `192.168.0.0/16`, `172.16.0.0/12`) and cloud metadata (`169.254.169.254`, `metadata.google.internal`).
-   - Automatically revalidates URLs after any client- or server-side redirects.
-   - Prevents destructive financial or account actions (e.g., "Place order", "Buy now", "Delete account").
-   - Masks sensitive input fields (passwords, card numbers) from records and logs.
-   - Terminates loops gracefully if `--max-actions` is reached.
-
----
-
-## 🧪 Running Automated Tests
-
-Run all unit, integration, and CLI tests (no live API keys or large model downloads required):
-
-```powershell
-pytest
-```
-
-Run with verbose test reporting:
-```powershell
-pytest -v
+```json
+{
+  "run_id": "run_example_com_20261016_120000",
+  "target_url": "https://example.com",
+  "target_context": "Reference site",
+  "timestamp": "2026-10-16T12:00:00.000000",
+  "execution_metrics": {
+    "total_personas": 2,
+    "total_tasks": 4,
+    "passed_tasks": 3,
+    "failed_tasks": 1,
+    "duration_seconds": 18.42
+  },
+  "summary": {
+    "total_findings": 3,
+    "verified_issues": 1,
+    "usability_observations": 1,
+    "potential_improvements": 1,
+    "critical_count": 0,
+    "high_count": 1,
+    "medium_count": 1,
+    "low_count": 1
+  },
+  "findings": [
+    {
+      "id": "finding_1",
+      "category": "verified_issue",
+      "severity": "high",
+      "title": "Primary Call-to-Action button unresponsive",
+      "description": "Clicking the 'Get Started' button failed to trigger navigation or reveal modal content.",
+      "persona_name": "Marcus Vance",
+      "task_name": "Create a team trial account",
+      "reproduction_steps": [
+        "Navigate to target URL",
+        "Click button with selector '#hero-cta'"
+      ],
+      "evidence_screenshot": "evidence/persona_1/task_1/step_1_click.png",
+      "suggested_fix": "Verify that event listeners on '#hero-cta' are bound prior to user interaction."
+    }
+  ]
+}
 ```
 
 ---
 
-### 🌐 Interactive Web Demonstration Studio
+## 10. Web Demonstration Studio
 
-BlindSpot includes an optional, modern web demonstration interface built with FastAPI and vanilla HTML/CSS/JS. It provides an intuitive GUI to start tests, watch live browser execution and screenshots in real time, and explore prioritized UX reports.
+The Web Demonstration Studio provides an interactive visual dashboard for configuring audits, watching real-time testing progress, and inspecting reports.
 
-#### 1. Install Web Dependencies
 ```powershell
-pip install "blindspot[web]"
-# or directly:
-pip install fastapi uvicorn
-```
-
-#### 2. Launch the Web Server on Windows
-```powershell
-# Launch server and automatically open your default browser
+# Launch the web studio
 blindspot web
-
-# Specify custom host or port
-blindspot web --host 127.0.0.1 --port 8000
-
-# Run in headless demo without auto-opening browser
-blindspot web --no-open
 ```
 
-Alternatively, run with Uvicorn directly:
-```powershell
-python -m uvicorn blindspot.web.app:app --host 127.0.0.1 --port 8000
-```
+### Architectural Design
 
-#### 3. Open the Interface
-Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) (or view the Swagger API docs at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)).
+- **Backend**: Built with FastAPI. Provides REST endpoints for run creation, artifact downloading, and status inspection.
+- **Real-Time Telemetry**: Uses Server-Sent Events (SSE) via `/api/runs/{run_id}/events` to stream action logs, active persona switches, and checkpoint screenshots to the client without page polling.
+- **Frontend**: Pure HTML5, Vanilla CSS, and JavaScript. Zero external frontend framework dependencies, ensuring fast load times and clean maintenance.
+- **Safety**: Fully inherits engine-level SSRF defenses and path traversal validation.
 
-#### 4. Features of the Web Interface
-- **Setup & Launch**: Pre-fill with sample website presets or enter custom target URLs, context descriptions, persona count (1-5), and visible browser mode toggle.
-- **Live Browser Demonstration**: Stream progress via Server-Sent Events (SSE). View active persona goals, current tasks, recent action ticker, and live refreshed screenshots.
-- **Results Dashboard**: Explore KPI summary metrics, synthesized personas, and prioritized UX findings with severity badges, reproduction steps, evidence code blocks, and suggested fixes.
-- **Direct Report Actions**: One-click buttons to open the standalone `report.html` or download machine-readable `report.json`.
-- **Run History**: View active and historical test runs stored in `reports/`.
+### Web REST API Endpoints
 
-#### 5. Security & Isolation Defenses
-- **SSRF Protection**: Target URLs are strictly validated. Requests targeting `localhost`, `127.0.0.1`, RFC 1918 private subnets (`10.0.0.0/8`, `192.168.0.0/16`, `172.16.0.0/12`), link-local IPs, or cloud metadata endpoints (`169.254.169.254`, `metadata.google.internal`) are blocked.
-- **Path Traversal Defense**: Artifact downloads and screenshot endpoints resolve paths strictly within canonical run directories. Traversal tokens (`..`, `/`, `\`) are neutralized.
-- **Credential Secrecy**: No web endpoint exposes configured API keys or environment variables.
-- **Safe DOM Rendering**: Untrusted website strings and model outputs are escaped to protect against XSS.
+| Endpoint | Method | Description |
+|---|---|---|
+| `/` | `GET` | Serves the single-page application dashboard. |
+| `/api/runs` | `GET` | Returns list of historical test runs stored in `reports/`. |
+| `/api/runs` | `POST` | Initiates a new autonomous audit run in the background. |
+| `/api/runs/{run_id}` | `GET` | Retrieves full status, progress metrics, and findings for a run. |
+| `/api/runs/{run_id}/events` | `GET` | Server-Sent Events (SSE) live progress stream. |
+| `/api/runs/{run_id}/report.html` | `GET` | Serves the standalone interactive HTML report. |
+| `/api/runs/{run_id}/report.json` | `GET` | Serves the machine-readable JSON dataset. |
+| `/api/runs/{run_id}/artifacts/{file_path}` | `GET` | Serves screenshots and checkpoint evidence files safely. |
 
 ---
 
-### 🔌 Model Context Protocol (MCP) Server for AI Coding Agents
+## 11. Model Context Protocol (MCP) Integration
 
-BlindSpot includes an official **Model Context Protocol (MCP)** server that allows compatible AI coding agents (such as Claude Desktop, Cursor, and Antigravity) to autonomously inspect websites, monitor test journeys, extract prioritized findings, and verify bug fixes via standard stdio transport.
+BlindSpot includes an official Model Context Protocol (MCP) server, allowing AI coding assistants (such as Cursor, Claude Desktop, and Antigravity) to autonomously test websites and inspect findings.
 
-#### 1. Install MCP Dependencies
+### 11.1 Starting the MCP Server
+
 ```powershell
-pip install "blindspot[mcp]"
-# or directly:
-pip install mcp
-```
-
-#### 2. Launch the MCP Server via CLI
-```powershell
-# Launches the stdio MCP server for agent communication
+# Run the MCP server over standard I/O (stdio)
 blindspot mcp
-
-# Or run directly with Python
-python -m blindspot.mcp.server
 ```
 
-#### 3. Available MCP Tools
+### 11.2 Exposed MCP Tools
 
-| Tool | Purpose | Key Inputs |
+| Tool Name | Parameters | Description |
 |---|---|---|
-| `inspect_website` | Starts an asynchronous BlindSpot UX inspection run in the background. | `url`, `context`, `personas` (optional), `headed` (optional) |
-| `get_test_status` | Polls current stage, progress message, task count, and status. | `run_id` |
-| `get_test_results` | Retrieves concise metrics, defect counts, and artifact paths. | `run_id` |
-| `get_findings` | Extracts detailed findings with reproduction steps and suggested fixes. | `run_id`, `severity` (optional), `category` (optional) |
-| `verify_fixes` | Objectively verifies bug fixes against a reference run (Resolved, Recurring, New, Inconclusive). | `run_id` & `reference_run_id`, or `url`, `context`, & `reference_run_id` |
+| `inspect_website` | `url`, `context`, `personas`, `headed`, `wait_for_completion`, `timeout_seconds` | Triggers an autonomous inspection and testing run. |
+| `get_test_status` | `run_id` | Returns current execution stage, active step, and task metrics. |
+| `get_test_results` | `run_id` | Retrieves structured summary of test outcomes, defect counts, and artifact paths. |
+| `get_findings` | `run_id`, `severity` (optional), `category` (optional) | Retrieves full findings list with reproduction steps and remediation suggestions. |
+| `verify_fixes` | `run_id`, `reference_run_id`, `url`, `context` | Compares two runs to verify whether previously identified defects were resolved. |
 
-#### 4. Configuring AI Coding Agents (Windows Examples)
+### 11.3 Client Configuration Examples
 
-##### A. Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json`)
+#### Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json`)
+
 ```json
 {
   "mcpServers": {
@@ -560,48 +613,212 @@ python -m blindspot.mcp.server
 }
 ```
 
-##### B. Cursor (`.cursor/mcp.json`)
+#### Cursor (`.cursor/mcp.json`)
+
 ```json
 {
   "mcpServers": {
     "blindspot": {
-      "command": "python",
-      "args": ["-m", "blindspot.mcp.server"],
-      "cwd": "d:\\Projects\\BlindSpot"
+      "command": "d:\\Projects\\BlindSpot\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "blindspot.mcp.server"]
     }
   }
 }
 ```
 
-> [!NOTE]
-> Tool availability and invocation syntax depend on the specific client agent's MCP specification support. BlindSpot uses standard stdio JSON-RPC 2.0 communication.
+---
+
+## 12. Offline Testing and Local Sample Application
+
+The repository includes a standalone mock web application (`examples/sample_site/`) representing an agile sprint tracking SaaS ("TaskFlow"). It contains realistic navigation links, product feature grids, pricing tiers, and an interactive lead capture form with client-side validation and dynamic confirmation banners.
+
+### 12.1 Serve the Sample Application
+
+In a dedicated terminal:
+
+```powershell
+# Serve sample site on port 8080
+python -m http.server 8080 --directory examples/sample_site
+```
+
+The application is now accessible at `http://localhost:8080`.
+
+### 12.2 Run BlindSpot Against the Sample Application
+
+```powershell
+# Full autonomous audit with 2 personas (requires configured AI provider)
+blindspot inspect `
+  --url "http://localhost:8080" `
+  --context "TaskFlow sprint tracking and agile project management tool for software teams" `
+  --personas 2 `
+  --allow-local
+
+# Fast offline structural extraction (No AI API key required)
+blindspot inspect `
+  --url "http://localhost:8080" `
+  --context "TaskFlow agile app" `
+  --skip-ai `
+  --allow-local
+
+# Visible browser window demonstration
+blindspot inspect `
+  --url "http://localhost:8080" `
+  --context "TaskFlow agile app" `
+  --headed `
+  --allow-local
+```
 
 ---
 
-## 🗺️ Roadmap & Next Steps
+## 13. Automated Test Suite and Verification
 
-- [x] Clean `src/` layout and PEP 621 packaging (`pyproject.toml`)
-- [x] Typer CLI foundation (`blindspot` and `blindspot inspect`)
-- [x] Input validation for URL and context with beginner-friendly errors
-- [x] Browser automation inspection engine using **Playwright**
-- [x] Full-page screenshot capture & interactive element discovery
-- [x] Dedicated artifact run directories & structured JSON export
-- [x] Universal AI configuration with **LiteLLM** adapter (`UnifiedAIAdapter`)
-- [x] Interactive setup wizard (`blindspot setup`) with secure hidden credentials
-- [x] Multi-provider support (Ollama, Gemini, OpenAI, Anthropic, OpenRouter, Custom endpoints)
-- [x] CLI provider tools (`blindspot provider list`, `test`, `prompt`, `blindspot model list`)
-- [x] Structured JSON output extraction, schema validation & retry engine
-- [x] Task-specific model routing configuration (`persona_generation`, `ux_analysis`, etc.)
-- [x] **AI persona synthesis pipeline (interpreting website inspection + context)**
-- [x] **Grounding & verification engine (flagging unverified vs confirmed features)**
-- [x] **Prompt injection defense (strict untrusted website content fencing)**
-- [x] **Automated persona-based browser task execution (Milestone 4)**
-- [x] **Consolidated evidence-backed UX improvement report generator (Milestone 5)**
-- [x] **Web-based demonstration UI (Milestone 6)**
-- [x] **Model Context Protocol (MCP)** server integration for AI coding agents (Milestone 7)
+BlindSpot maintains a comprehensive automated test suite. All tests use deterministic mocks and local HTML fixtures, requiring zero active internet connections or third-party API keys:
+
+```powershell
+# Run the complete test suite
+pytest
+
+# Run tests with verbose output
+pytest -v
+
+# Run the end-to-end pipeline smoke test
+pytest tests/test_smoke_e2e.py -v
+```
+
+### Test Coverage Breakdown
+
+| Test Module | Coverage Scope |
+|---|---|
+| `tests/test_validation.py` | URL syntax, context parameters, and flag boundary checks. |
+| `tests/test_config.py` | Configuration hierarchy resolution, defaults, and TOML serialization. |
+| `tests/test_ai_provider.py` | Universal adapter, retries, token tracking, and structured response parsing. |
+| `tests/test_cli_provider.py` | CLI provider subcommands (`list`, `test`, `prompt`) and model listing. |
+| `tests/test_browser.py` | Playwright DOM extraction, bounding box calculations, and page inspection. |
+| `tests/test_personas.py` | Persona synthesis, prompt injection containment, and Pydantic validation. |
+| `tests/test_execution.py` | Browser task execution, isolated contexts, action safety, and input masking. |
+| `tests/test_reporting.py` | Evidence aggregation, finding ranking, and HTML XSS escaping verification. |
+| `tests/test_web.py` | FastAPI application routes, SSE event streaming, and path traversal guards. |
+| `tests/test_mcp.py` | Model Context Protocol tool execution, fix verification, and status schemas. |
+| `tests/test_cli.py` | Typer CLI commands, option parsing, and safety enforcement flags. |
+| `tests/test_smoke_e2e.py` | End-to-end integration smoke test running against a local loopback HTTP server. |
 
 ---
 
-## 📄 License
+## 14. Troubleshooting and Diagnostic Reference
 
-Apache-2.0
+### 14.1 Chromium Browser Missing
+
+**Error:** `playwright._impl._errors.Error: Executable doesn't exist at ...`  
+**Resolution:** Run `playwright install chromium` to download the sandboxed browser binaries.
+
+### 14.2 Windows Script Execution Restriction
+
+**Error:** `File ...\Activate.ps1 cannot be loaded because running scripts is disabled on this system.`  
+**Resolution:** Open PowerShell and execute:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### 14.3 Navigation Rejected on Localhost or Private Network
+
+**Error:** `Navigation URL ... resolves to private/restricted IP and local testing is not enabled.`  
+**Resolution:** BlindSpot blocks loopback and private subnets by default to prevent SSRF. Pass the `--allow-local` flag to permit testing local development servers:
+```powershell
+blindspot inspect -u "http://localhost:8080" -c "Local Test" --allow-local
+```
+
+### 14.4 Missing AI API Credentials
+
+**Error:** `AuthenticationError: API key not found for provider ...`  
+**Resolution:** Run `blindspot setup` to save your credentials to your user configuration, or define the corresponding environment variable (e.g., `$env:GEMINI_API_KEY="your-key"` in PowerShell).
+
+### 14.5 Web Studio Port Conflict
+
+**Error:** `[Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000)`  
+**Resolution:** Specify an alternate port using the `--port` argument:
+```powershell
+blindspot web --port 8085
+```
+
+---
+
+## 15. Repository Structure
+
+```text
+BlindSpot/
+├── .env.example                 # Template for environment variables and API credentials
+├── .gitignore                   # Excludes environments, caches, secrets, and reports
+├── blindspot.example.toml       # Template configuration file for AI providers
+├── LICENSE                      # Apache License 2.0
+├── pyproject.toml               # PEP 621 packaging metadata, dependencies, and CLI entry point
+├── README.md                    # Official documentation manual
+├── examples/
+│   └── sample_site/             # Standalone sample application for testing and demos
+│       ├── index.html           # TaskFlow sample application page
+│       ├── styles.css           # Responsive stylesheet
+│       └── README.md            # Sample application documentation
+├── src/
+│   └── blindspot/
+│       ├── __init__.py          # Package version and metadata
+│       ├── __main__.py          # python -m blindspot execution entry point
+│       ├── cli.py               # Typer CLI application commands
+│       ├── cli_setup.py         # Interactive setup wizard implementation
+│       ├── ai/                  # Universal AI provider integration layer (LiteLLM)
+│       │   ├── adapter.py       # UnifiedAIAdapter implementation
+│       │   ├── base.py          # BaseAIProvider abstract interface
+│       │   ├── exceptions.py    # Standardized AI exception hierarchy
+│       │   ├── factory.py       # Universal provider factory and registry
+│       │   ├── models.py        # Structured AI request/response models
+│       │   └── providers/       # Specific provider adaptors (Ollama, Gemini, OpenAI)
+│       ├── browser/             # Playwright browser automation engine
+│       │   ├── inspector.py     # DOM extraction, page loading, and screenshot capture
+│       │   └── models.py        # Pydantic schemas for elements, viewports, and summaries
+│       ├── config/              # Configuration loader, resolver, and schemas
+│       ├── core/                # Core pipeline orchestration and validation
+│       │   ├── runner.py        # Central pipeline coordinator (run_pipeline)
+│       │   └── validation.py    # URL and context syntax validation
+│       ├── execution/           # Autonomous persona browser execution engine
+│       │   ├── agent.py         # Autonomous browser task agent
+│       │   ├── models.py        # Action records, task results, and execution models
+│       │   ├── runner.py        # Multi-persona runner with session isolation
+│       │   └── safety.py        # SSRF defense, action safety, and input masking
+│       ├── mcp/                 # Model Context Protocol (MCP) server integration
+│       │   ├── comparison.py    # Multi-run diffing and fix verification logic
+│       │   ├── server.py        # Official Python MCP server entry point
+│       │   └── tools.py         # Core business logic for exposed MCP tools
+│       ├── personas/            # Persona synthesis and task planning
+│       │   ├── generator.py     # Persona generation engine with prompt injection defense
+│       │   └── models.py        # Pydantic schemas for personas, tasks, and plans
+│       ├── reporting/           # Evidence aggregation and UX reporting
+│       │   ├── analysis.py      # AI UX analysis and finding ranking
+│       │   ├── generator.py     # Report generator (JSON and HTML)
+│       │   ├── html_renderer.py # Responsive, self-contained HTML report renderer
+│       │   └── models.py        # Pydantic schemas for findings and metrics
+│       ├── utils/
+│       │   └── console.py       # Rich terminal formatting, panels, and tables
+│       └── web/                 # Interactive web demonstration studio (FastAPI)
+│           ├── app.py           # FastAPI application factory and static mounting
+│           ├── manager.py       # Asynchronous run manager and event coordinator
+│           ├── models.py        # Request and response schemas for web API
+│           ├── router.py        # API routes for run creation, SSE stream, and artifacts
+│           └── static/          # Web frontend assets (HTML, CSS, JavaScript)
+└── tests/                       # Automated test suite (134 tests)
+    ├── test_ai_provider.py      # Provider adapter, retry, and structured parsing tests
+    ├── test_browser.py          # Browser automation and element extraction tests
+    ├── test_cli.py              # CLI command tests (setup, inspect, flags)
+    ├── test_cli_provider.py     # Provider and model CLI subcommand tests
+    ├── test_config.py           # Configuration loading and resolution tests
+    ├── test_execution.py        # Browser agent execution and safety policy tests
+    ├── test_mcp.py              # Model Context Protocol tool tests
+    ├── test_personas.py         # Persona synthesis and prompt injection defense tests
+    ├── test_reporting.py        # Evidence aggregation, HTML escaping, and report tests
+    ├── test_smoke_e2e.py        # End-to-end pipeline smoke test on loopback HTTP
+    ├── test_validation.py       # URL and context validation unit tests
+    └── test_web.py              # Web demo FastAPI endpoints and SSE stream tests
+```
+
+---
+
+## 16. License and Compliance
+
+BlindSpot is distributed under the terms of the **Apache License, Version 2.0**. For complete legal terms and conditions, refer to the [LICENSE](LICENSE) file in the root directory of this repository.

@@ -36,6 +36,7 @@ class PipelineConfig:
     skip_report: bool = False
     ai_provider: Optional[str] = None
     ai_model: Optional[str] = None
+    allow_local: bool = False
 
 
 @dataclass
@@ -96,7 +97,7 @@ def run_pipeline(
         raise ValueError(f"Invalid URL: {url_res.error_message}")
 
     # SSRF & Private Network Defense
-    is_safe_url, ssrf_reason = validate_navigation_url(config.url)
+    is_safe_url, ssrf_reason = validate_navigation_url(config.url, allow_local=config.allow_local)
     if not is_safe_url:
         raise ValueError(f"Security Policy Blocked: {ssrf_reason}")
 
@@ -142,6 +143,7 @@ def run_pipeline(
             output_dir=run_output_dir,
             browser_type=config.browser,
             headless=config.headless,
+            allow_local=config.allow_local,
         )
         result.inspection_result = inspection
         emit("stage_finish", {
@@ -213,6 +215,7 @@ def run_pipeline(
                 browser_type=config.browser,
                 headless=config.headless,
                 max_actions_per_task=config.max_actions,
+                allow_local=config.allow_local,
                 on_event=on_event,
                 cancel_check=cancel_check,
             )
@@ -220,7 +223,7 @@ def run_pipeline(
             emit("stage_finish", {
                 "stage": "execution",
                 "total_tasks": execution_res.total_tasks,
-                "passed_tasks": execution_res.successful_tasks,
+                "passed_tasks": execution_res.passed_tasks,
                 "failed_tasks": execution_res.failed_tasks,
                 "inconclusive_tasks": execution_res.inconclusive_tasks,
             })
