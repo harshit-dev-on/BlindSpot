@@ -1,0 +1,68 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Packaging & Distribution
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables & secrets
+.env
+*.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Testing & Quality Assurance
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+.ruff_cache/
+.mypy_cache/
+
+# BlindSpot Generated Test Artifacts
+reports/
+screenshots/
+recordings/
+test-results/
+playwright-report/
+*.log
+
+# Editor & OS Artifacts
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
