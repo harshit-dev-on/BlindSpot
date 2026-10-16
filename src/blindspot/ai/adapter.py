@@ -26,7 +26,7 @@ litellm.drop_params = True
 
 DEFAULT_PROVIDER_MODELS: Dict[str, str] = {
     "ollama": "gemma4",
-    "gemini": "gemini-3.5-flash-lite",
+    "gemini": "gemini-3.5-flash",
     "openai": "gpt-4o-mini",
     "anthropic": "claude-3-5-sonnet-20241022",
     "openrouter": "meta-llama/llama-3.1-8b-instruct",
@@ -51,7 +51,7 @@ DEFAULT_BASE_URLS: Dict[str, str] = {
 
 CURATED_MODELS: Dict[str, List[str]] = {
     "ollama": ["gemma4", "llama3.2", "mistral", "phi3", "qwen2.5"],
-    "gemini": ["gemini-3.5-flash-lite", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash"],
+    "gemini": ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-3.7-flash"],
     "openai": ["gpt-4o-mini", "gpt-4o", "o3-mini", "gpt-4-turbo"],
     "anthropic": ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229"],
     "openrouter": [
@@ -160,7 +160,16 @@ class UnifiedAIAdapter(BaseAIProvider):
             if self._api_key:
                 kwargs["api_key"] = self._api_key
 
-            litellm.completion(**kwargs)
+            for attempt in range(2):
+                try:
+                    litellm.completion(**kwargs)
+                    break
+                except (litellm.exceptions.ServiceUnavailableError, litellm.exceptions.RateLimitError):
+                    if attempt < 1:
+                        time.sleep(1.0)
+                        continue
+                    raise
+
             latency = round((time.perf_counter() - start_time) * 1000, 2)
 
             return ProviderStatus(
@@ -328,21 +337,39 @@ class UnifiedAIAdapter(BaseAIProvider):
         if format_json:
             kwargs["response_format"] = {"type": "json_object"}
 
+        models_to_try = [self.litellm_model]
+        if self._provider_name == "gemini":
+            fallbacks = ["gemini/gemini-3.5-flash", "gemini/gemini-3.8-flash", "gemini/gemini-3.7-flash"]
+            for fb in fallbacks:
+                if fb != self.litellm_model and fb not in models_to_try:
+                    models_to_try.append(fb)
+
         try:
-            resp = litellm.completion(**kwargs)
+            last_transient_exc: Optional[Exception] = None
+            for model_candidate in models_to_try:
+                kwargs["model"] = model_candidate
+                for attempt in range(1, 3):
+                    try:
+                        resp = litellm.completion(**kwargs)
 
-            # Extract content safely
-            choices = getattr(resp, "choices", [])
-            content = choices[0].message.content if choices else ""
-            usage = dict(resp.usage) if getattr(resp, "usage", None) else None
+                        # Extract content safely
+                        choices = getattr(resp, "choices", [])
+                        content = choices[0].message.content if choices else ""
+                        usage = dict(resp.usage) if getattr(resp, "usage", None) else None
 
-            return AIResponse(
-                content=content or "",
-                model=getattr(resp, "model", self.model),
-                provider=self.name,
-                usage=usage,
-                raw_response=dict(resp) if hasattr(resp, "keys") else None,
-            )
+                        return AIResponse(
+                            content=content or "",
+                            model=getattr(resp, "model", self.model),
+                            provider=self.name,
+                            usage=usage,
+                            raw_response=dict(resp) if hasattr(resp, "keys") else None,
+                        )
+                    except (litellm.exceptions.ServiceUnavailableError, litellm.exceptions.RateLimitError) as exc:
+                        last_transient_exc = exc
+                        time.sleep(1.0)
+
+            if last_transient_exc:
+                raise last_transient_exc
 
         except litellm.exceptions.AuthenticationError as exc:
             raise AIAuthenticationError(

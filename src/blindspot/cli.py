@@ -18,12 +18,14 @@ from blindspot.browser import inspect_website
 from blindspot.config import find_config_file, load_config
 from blindspot.core.models import InspectConfig
 from blindspot.core.validation import validate_context, validate_url
+from blindspot.execution import execute_persona_tasks
 from blindspot.personas import generate_personas_and_tasks
 from blindspot.utils.console import (
     console,
     print_ai_prompt_result,
     print_browser_inspection_summary,
     print_error,
+    print_execution_summary,
     print_inspection_start,
     print_inspection_summary,
     print_model_list,
@@ -500,6 +502,22 @@ def inspect(
             show_default=False,
         ),
     ] = None,
+    skip_execution: Annotated[
+        bool,
+        typer.Option(
+            "--skip-execution",
+            help="Skip browser task execution (only inspect and synthesize plan).",
+            show_default=False,
+        ),
+    ] = False,
+    max_actions: Annotated[
+        int,
+        typer.Option(
+            "--max-actions",
+            help="Maximum actions per persona task to prevent loops.",
+            show_default=True,
+        ),
+    ] = 8,
 ) -> None:
     """Run website inspection, capture page state, screenshot, elements, and synthesize AI personas."""
     # Determine effective headless mode
@@ -622,6 +640,33 @@ def inspect(
             title="Persona Synthesis Error",
             message=str(exc),
             suggestion="Verify model output schema compliance or run with '--skip-ai'.",
+        )
+        raise typer.Exit(code=1)
+
+    # 8. Automated Browser Task Execution
+    if skip_execution:
+        console.print("[dim]Persona task execution skipped (--skip-execution flag provided).[/dim]")
+        return
+
+    console.print(
+        f"\n[bold cyan]→[/bold cyan] Launching automated browser execution for [bold]{len(plan.personas)}[/bold] personas across isolated sessions..."
+    )
+
+    try:
+        execution_result = execute_persona_tasks(
+            plan=plan,
+            provider=provider_instance,
+            output_dir=run_output_dir or Path(result.result_json_path).parent,
+            browser_type=selected_browser,
+            headless=effective_headless,
+            max_actions_per_task=max_actions,
+        )
+        print_execution_summary(execution_result)
+    except Exception as exc:
+        print_error(
+            title="Browser Task Execution Error",
+            message=str(exc),
+            suggestion="Check browser reachability or try running with '--skip-execution'.",
         )
         raise typer.Exit(code=1)
 

@@ -369,4 +369,75 @@ def print_personas_summary(plan: Any) -> None:
         console.print()
 
 
+def print_execution_summary(run_result: Any) -> None:
+    """Display results of persona-based browser task execution."""
+    table = Table(show_header=False, box=None, padding=(0, 1))
+    table.add_column("Field", style="bold cyan", width=18)
+    table.add_column("Value", style="white")
+
+    table.add_row("Target Website", run_result.target_url)
+    table.add_row(
+        "Browser Execution",
+        f"{run_result.browser} ({'headless' if run_result.headless else 'headed/visible window'})",
+    )
+    table.add_row(
+        "Task Results",
+        f"[bold white]{run_result.total_tasks} total tasks[/bold white] | "
+        f"[green]{run_result.passed_tasks} passed[/green] | "
+        f"[red]{run_result.failed_tasks} failed[/red] | "
+        f"[yellow]{run_result.inconclusive_tasks} inconclusive[/yellow]",
+    )
+
+    if run_result.results_file_path:
+        table.add_row(
+            "Evidence Saved To",
+            f"[bold green]{run_result.results_file_path}[/bold green]",
+        )
+
+    border_color = "green" if run_result.failed_tasks == 0 else "yellow"
+    console.print(
+        Panel(
+            table,
+            title="[bold green]Persona-Based Browser Testing Complete[/bold green]",
+            subtitle="[dim]Status: Evidence and task logs captured[/dim]",
+            border_style=border_color,
+            padding=(1, 2),
+        )
+    )
+
+    # Detailed task outcome tables per persona
+    for persona in run_result.personas:
+        console.print(f"[bold cyan]Persona: {persona.persona_name}[/bold cyan] [dim]({persona.persona_id})[/dim]")
+        p_table = Table(box=None, padding=(0, 1))
+        p_table.add_column("Task ID", style="bold white", width=16)
+        p_table.add_column("Objective", style="white", ratio=3)
+        p_table.add_column("Actions", width=10)
+        p_table.add_column("Outcome", width=16)
+        p_table.add_column("Evidence", style="dim", ratio=2)
+
+        for task_res in persona.task_results:
+            status_badge = (
+                "[bold green][PASS][/bold green]"
+                if task_res.status.value == "success"
+                else "[bold red][FAIL][/bold red]"
+                if task_res.status.value == "failure"
+                else "[bold yellow][INCONCLUSIVE][/bold yellow]"
+            )
+
+            actions_count = f"{len(task_res.actions_taken)} steps"
+            evidence_str = "; ".join(task_res.evidence) if task_res.evidence else (task_res.error_message or "None")
+
+            p_table.add_row(
+                task_res.task_id,
+                task_res.task_objective,
+                actions_count,
+                status_badge,
+                evidence_str,
+            )
+
+        console.print(p_table)
+        console.print()
+
+
+
 

@@ -395,9 +395,11 @@ blindspot inspect --url "https://example.com" --context "A minimalist informatio
 |---|---|---|
 | `--personas <N>` | `-p` | Number of personas to synthesize (default: 3, clamped 1-5) |
 | `--skip-ai` | | Run browser inspection only without calling AI |
+| `--skip-execution` | | Generate personas and tasks without executing browser tests |
+| `--max-actions <N>` | | Max interactive steps per persona task (default: 10, clamped 1-30) |
 | `--ai-provider <name>` | | Override AI provider (e.g. `ollama`, `gemini`, `openai`) |
-| `--ai-model <name>` | | Override AI model for persona generation |
-| `--headed` | | Launch browser in visible desktop window |
+| `--ai-model <name>` | | Override AI model for persona generation & execution |
+| `--headed` | | Launch browser in visible desktop window (default: headless) |
 | `--browser <name>` | `-b` | Select engine: `chromium`, `firefox`, or `webkit` |
 | `--output-dir <path>`| `-o` | Custom directory to save screenshots, data, and personas |
 
@@ -407,6 +409,24 @@ Every run produces a dedicated folder inside `reports/`:
 - `screenshot.png`: High-resolution full-page screenshot of the target page.
 - `inspection_result.json`: Extracted DOM elements, visible text, and page metadata.
 - `personas.json`: Machine-readable test plan containing synthesized personas, goals, accessibility considerations, and assigned tasks with explicit success criteria.
+- `execution_results.json`: Complete record of persona task execution including timestamps, actions taken, observable evidence, and final status (`SUCCESS`, `FAILURE`, `INCONCLUSIVE`).
+- `task_*_step*.png`: Step-by-step visual checkpoints captured during task execution.
+
+---
+
+### 🤖 Automated Persona-Based Browser Testing
+
+BlindSpot simulates realistic user sessions directly in Chromium, Firefox, or WebKit using an AI-guided browser agent with strict safety controls:
+
+1. **Session Isolation**: Each persona runs in an independent browser context (`browser.new_context()`). Cookies, localStorage, and session state are isolated and cannot leak across personas.
+2. **Controlled Action Dispatcher**: The AI agent can only execute validated browser actions (`navigate`, `click`, `fill`, `select`, `scroll`, `wait`, `check_success`, `finish`). It **never** executes arbitrary Python, JavaScript, or shell commands.
+3. **Evidence-Driven Verification**: Tasks are not declared successful merely because an action completed. Success criteria are explicitly checked against observable DOM content and URLs.
+4. **Safety & Loop Limits**:
+   - Blocks navigation to loopback/private IPs (`10.0.0.0/8`, `192.168.0.0/16`, `172.16.0.0/12`) and cloud metadata (`169.254.169.254`, `metadata.google.internal`).
+   - Automatically revalidates URLs after any client- or server-side redirects.
+   - Prevents destructive financial or account actions (e.g., "Place order", "Buy now", "Delete account").
+   - Masks sensitive input fields (passwords, card numbers) from records and logs.
+   - Terminates loops gracefully if `--max-actions` is reached.
 
 ---
 
@@ -442,7 +462,7 @@ pytest -v
 - [x] **AI persona synthesis pipeline (interpreting website inspection + context)**
 - [x] **Grounding & verification engine (flagging unverified vs confirmed features)**
 - [x] **Prompt injection defense (strict untrusted website content fencing)**
-- [ ] Task assignment & autonomous persona-based browser interaction (Milestone 4)
+- [x] **Automated persona-based browser task execution (Milestone 4)**
 - [ ] Consolidated evidence-backed UX improvement report generator
 - [ ] **Model Context Protocol (MCP)** server integration for AI coding agents
 - [ ] Web-based demonstration UI

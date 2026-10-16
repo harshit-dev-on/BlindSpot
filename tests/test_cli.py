@@ -60,6 +60,47 @@ def mock_inspect_ai(monkeypatch):
 
     monkeypatch.setattr("blindspot.cli.generate_personas_and_tasks", _mock_gen)
 
+    from blindspot.execution.models import (
+        ExecutionRunResult,
+        PersonaExecutionResult,
+        TaskExecutionResult,
+        TaskStatus,
+    )
+
+    sample_run = ExecutionRunResult(
+        target_url="https://example.com",
+        browser="chromium",
+        headless=True,
+        personas=[
+            PersonaExecutionResult(
+                persona_id="persona_1",
+                persona_name="Taylor - Web Developer",
+                task_results=[
+                    TaskExecutionResult(
+                        task_id="task_p1_1",
+                        persona_id="persona_1",
+                        task_objective="Locate quickstart guide",
+                        status=TaskStatus.SUCCESS,
+                        start_time="2026-10-16T12:00:00Z",
+                        end_time="2026-10-16T12:00:05Z",
+                        initial_url="https://example.com",
+                        final_url="https://example.com/quickstart",
+                        evidence=["Quickstart guide observed"],
+                    )
+                ],
+            )
+        ],
+    )
+
+    def _mock_exec(plan, provider, output_dir, browser_type="chromium", headless=True, max_actions_per_task=8):
+        res_file = Path(output_dir) / "execution_results.json"
+        res_file.parent.mkdir(parents=True, exist_ok=True)
+        res_file.write_text(sample_run.model_dump_json(indent=2), encoding="utf-8")
+        sample_run.results_file_path = str(res_file)
+        return sample_run
+
+    monkeypatch.setattr("blindspot.cli.execute_persona_tasks", _mock_exec)
+
 
 def test_cli_help():
     """Verify that root `blindspot --help` runs successfully and displays commands."""
@@ -271,4 +312,47 @@ def test_inspect_missing_ai_config_error(monkeypatch):
     assert result.exit_code == 1
     assert "AI Configuration Error" in result.output or "Missing Gemini API key" in result.output
     assert "blindspot setup" in result.output
+
+
+def test_inspect_with_skip_execution(tmp_path: Path):
+    """Verify --skip-execution generates personas without running browser execution."""
+    out_dir = tmp_path / "skip_exec_out"
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--output-dir",
+            str(out_dir),
+            "--skip-execution",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Persona task execution skipped" in result.stdout
+    assert (out_dir / "personas.json").exists()
+    assert not (out_dir / "execution_results.json").exists()
+
+
+def test_inspect_executes_and_saves_execution_results(tmp_path: Path):
+    """Verify default inspect command generates personas and runs browser tasks."""
+    out_dir = tmp_path / "full_run_out"
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--output-dir",
+            str(out_dir),
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Persona-Based Browser Testing Complete" in result.stdout
+    assert (out_dir / "execution_results.json").exists()
+
 
