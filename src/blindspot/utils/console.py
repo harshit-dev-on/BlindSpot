@@ -1,7 +1,7 @@
 """Terminal formatting and console output helpers using Rich."""
 
 import sys
-from typing import Optional
+from typing import Any, Optional
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -278,5 +278,95 @@ def print_ai_prompt_result(prompt: str, model: str, provider: str, content: str)
         padding=(1, 2),
     )
     console.print(panel)
+
+
+def print_personas_summary(plan: Any) -> None:
+    """Display AI persona generation and task planning findings."""
+    # 1. Overview Panel
+    overview_table = Table(show_header=False, box=None, padding=(0, 1))
+    overview_table.add_column("Field", style="bold cyan", width=18)
+    overview_table.add_column("Value", style="white")
+
+    overview_table.add_row("Website Summary", plan.website_summary)
+    overview_table.add_row(
+        "AI Generator",
+        f"{plan.provider_used or 'active'} ({plan.model_used or 'default'})",
+    )
+    overview_table.add_row(
+        "Synthesized Personas",
+        f"{len(plan.personas)} personas ({plan.total_tasks} total tasks)",
+    )
+
+    if plan.total_unverified_tasks > 0:
+        overview_table.add_row(
+            "Unverified Features",
+            f"[yellow]{plan.total_unverified_tasks} tasks flagged with uncertainty[/yellow]",
+        )
+    else:
+        overview_table.add_row(
+            "Feature Grounding",
+            "[green]All tasks grounded in verified website capabilities[/green]",
+        )
+
+    if plan.plan_file_path:
+        overview_table.add_row("Plan Saved To", f"[bold green]{plan.plan_file_path}[/bold green]")
+
+    console.print(
+        Panel(
+            overview_table,
+            title="[bold blue]AI Persona Synthesis & Task Planning Complete[/bold blue]",
+            subtitle="[dim]Status: Plan ready for autonomous execution[/dim]",
+            border_style="blue",
+            padding=(1, 2),
+        )
+    )
+
+    # 2. Display Personas & Assigned Tasks
+    for p_idx, persona in enumerate(plan.personas, start=1):
+        p_table = Table(show_header=False, box=None, padding=(0, 1))
+        p_table.add_column("Key", style="bold cyan", width=16)
+        p_table.add_column("Val", style="white")
+
+        p_table.add_row("Description", persona.description)
+        p_table.add_row("Experience Level", f"[magenta]{persona.experience_level}[/magenta]")
+        p_table.add_row("Browsing / Needs", persona.accessibility_needs or "Standard")
+        p_table.add_row("Primary Goals", ", ".join(persona.goals))
+        p_table.add_row("Likely Difficulties", ", ".join(persona.likely_difficulties))
+
+        console.print(
+            Panel(
+                p_table,
+                title=f"[bold cyan]Persona {p_idx}: {persona.name}[/bold cyan] [dim]({persona.id})[/dim]",
+                border_style="cyan",
+                padding=(0, 2),
+            )
+        )
+
+        # Task Table for this Persona
+        t_table = Table(box=None, padding=(0, 1))
+        t_table.add_column("Task ID", style="bold white", width=16)
+        t_table.add_column("Objective & Success Criteria", style="white", ratio=3)
+        t_table.add_column("Evidence", style="dim", ratio=2)
+        t_table.add_column("Status", width=14)
+
+        for task in persona.tasks:
+            status_badge = (
+                "[green][VERIFIED][/green]"
+                if task.is_verified
+                else "[yellow][UNVERIFIED][/yellow]"
+            )
+            obj_text = f"[bold]{task.objective}[/bold]"
+            if task.success_criteria:
+                obj_text += f"\n[dim]Success: {'; '.join(task.success_criteria)}[/dim]"
+            if not task.is_verified and task.uncertainty_notes:
+                obj_text += f"\n[yellow]Note: {task.uncertainty_notes}[/yellow]"
+
+            evidence_text = "\n".join(f"• {e}" for e in task.evidence_to_collect)
+
+            t_table.add_row(task.id, obj_text, evidence_text, status_badge)
+
+        console.print(t_table)
+        console.print()
+
 
 

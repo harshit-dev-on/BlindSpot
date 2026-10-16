@@ -18,6 +18,7 @@ from blindspot.browser import inspect_website
 from blindspot.config import find_config_file, load_config
 from blindspot.core.models import InspectConfig
 from blindspot.core.validation import validate_context, validate_url
+from blindspot.personas import generate_personas_and_tasks
 from blindspot.utils.console import (
     console,
     print_ai_prompt_result,
@@ -26,6 +27,7 @@ from blindspot.utils.console import (
     print_inspection_start,
     print_inspection_summary,
     print_model_list,
+    print_personas_summary,
     print_provider_list,
     print_provider_status,
 )
@@ -465,8 +467,41 @@ def inspect(
             show_default=False,
         ),
     ] = False,
+    personas: Annotated[
+        int,
+        typer.Option(
+            "--personas",
+            "-p",
+            help="Number of AI user personas to generate (default: 3).",
+            show_default=True,
+        ),
+    ] = 3,
+    skip_ai: Annotated[
+        bool,
+        typer.Option(
+            "--skip-ai",
+            help="Skip AI persona generation (browser inspection only).",
+            show_default=False,
+        ),
+    ] = False,
+    ai_provider: Annotated[
+        Optional[str],
+        typer.Option(
+            "--ai-provider",
+            help="Override AI provider for persona generation (e.g. ollama, gemini, openai).",
+            show_default=False,
+        ),
+    ] = None,
+    ai_model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--ai-model",
+            help="Override AI model identifier for persona generation.",
+            show_default=False,
+        ),
+    ] = None,
 ) -> None:
-    """Run website inspection, capture page state, screenshot, and elements."""
+    """Run website inspection, capture page state, screenshot, elements, and synthesize AI personas."""
     # Determine effective headless mode
     effective_headless = False if headed else headless
 
@@ -522,7 +557,7 @@ def inspect(
         )
         raise typer.Exit(code=1)
 
-    # 6. Display Result Summary
+    # 6. Display Browser Result Summary
     print_browser_inspection_summary(
         title=result.title,
         final_url=result.final_url,
@@ -537,6 +572,58 @@ def inspect(
         screenshot_path=result.screenshot_path,
         result_json_path=result.result_json_path,
     )
+
+    # 7. AI Persona Synthesis and Task Planning
+    if skip_ai:
+        console.print("[dim]AI persona synthesis skipped (--skip-ai flag provided).[/dim]")
+        return
+
+    console.print("\n[bold cyan]→[/bold cyan] Initializing AI model for persona generation...")
+    try:
+        loaded_cfg = load_config(provider=ai_provider, model=ai_model)
+        ai_cfg = loaded_cfg.ai
+        effective_model = (
+            ai_model
+            or (ai_cfg.tasks.persona_generation if ai_cfg.tasks else None)
+            or ai_cfg.model
+        )
+        effective_cfg = ai_cfg.model_copy(update={"model": effective_model})
+        provider_instance = create_provider(effective_cfg)
+    except Exception as exc:
+        print_error(
+            title="AI Configuration Error",
+            message=f"Could not initialize AI provider: {exc}",
+            suggestion="Run 'blindspot setup' to configure an AI provider or pass '--skip-ai' to perform browser inspection only.",
+        )
+        raise typer.Exit(code=1)
+
+    console.print(
+        f"[bold cyan]→[/bold cyan] Synthesizing [bold]{personas}[/bold] AI personas & tasks using [bold]{provider_instance.name}[/bold] ({provider_instance.model})..."
+    )
+
+    try:
+        run_output_dir = Path(result.result_json_path).parent if result.result_json_path else output_dir
+        plan = generate_personas_and_tasks(
+            inspection_result=result,
+            provider=provider_instance,
+            num_personas=personas,
+            output_dir=run_output_dir,
+        )
+        print_personas_summary(plan)
+    except AIProviderError as exc:
+        print_error(
+            title="AI Persona Generation Failed",
+            message=exc.message,
+            suggestion=exc.suggestion or "Verify your API key, local model status, or network connection. Re-run 'blindspot setup'.",
+        )
+        raise typer.Exit(code=1)
+    except Exception as exc:
+        print_error(
+            title="Persona Synthesis Error",
+            message=str(exc),
+            suggestion="Verify model output schema compliance or run with '--skip-ai'.",
+        )
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":

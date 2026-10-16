@@ -18,6 +18,8 @@ from blindspot.ai.models import AIResponse, ProviderStatus
 from blindspot.ai.providers.openai_compatible import mask_api_key
 
 # Suppress noisy debug logs and drop unsupported provider parameters automatically
+import logging
+logging.getLogger("LiteLLM").setLevel(logging.ERROR)
 litellm.suppress_debug_info = True
 litellm.drop_params = True
 
@@ -303,6 +305,14 @@ class UnifiedAIAdapter(BaseAIProvider):
         if system_prompt and system_prompt.strip():
             messages.append({"role": "system", "content": system_prompt.strip()})
         messages.append({"role": "user", "content": prompt.strip()})
+
+        requires_key = self._provider_name in ("gemini", "openai", "anthropic", "openrouter")
+        if requires_key and not self._api_key:
+            raise AIAuthenticationError(
+                f"Missing API key for {self.name.upper()}.",
+                provider=self.name,
+                suggestion=f"Set the {self.api_key_env} environment variable or run 'blindspot setup'.",
+            )
 
         kwargs: Dict[str, Any] = {
             "model": self.litellm_model,

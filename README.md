@@ -57,6 +57,10 @@ BlindSpot/
 │       │   ├── __init__.py
 │       │   ├── models.py        # Core dataclasses & models (InspectConfig, ValidationResult)
 │       │   └── validation.py    # URL & context validation with friendly error hints
+│       ├── personas/            # AI persona synthesis and task planning engine
+│       │   ├── __init__.py      # Exports generator, models, helpers
+│       │   ├── generator.py     # Persona & task synthesis with prompt injection defense
+│       │   └── models.py        # Pydantic schemas for Persona, PersonaTask, PersonaPlan
 │       └── utils/
 │           ├── __init__.py
 │           └── console.py       # Rich terminal output formatting, panels & tables
@@ -67,6 +71,7 @@ BlindSpot/
     ├── test_cli.py              # Typer CLI command tests (inspect, help)
     ├── test_cli_provider.py     # CLI tests for provider list, test, and prompt
     ├── test_config.py           # Configuration loading, validation, and overrides
+    ├── test_personas.py         # Tests for persona generation, injection defense, tasks
     └── test_validation.py       # Unit tests for URL and context validation
 ```
 
@@ -325,21 +330,21 @@ report_generation  = "gemini-2.5-flash"   # Consolidated report formatting
 
 ## 🚀 Usage Guide
 
-### 1. Website Browser Inspection
+### 1. Website Inspection & AI Persona Generation
 
-Inspect a website using Playwright browser automation:
+Inspect a website using Playwright browser automation and automatically synthesize realistic user personas and testing tasks using your configured AI model:
 
 ```powershell
-blindspot inspect --url "https://example.com" --context "A demo website"
+blindspot inspect --url "https://example.com" --context "A minimalist informational domain used for documentation examples."
 ```
 
-Output:
+#### Sample Terminal Output:
+
 ```text
 ┌───────────────────── BlindSpot Website Inspection Plan ─────────────────────┐
 │                                                                             │
 │   Website URL       https://example.com                                     │
-│   Context           A demo website                                          │
-│   Context Length    14 characters                                           │
+│   Context           A minimalist informational domain used for document...  │
 │                                                                             │
 └────────────────────── Status: Input validation passed ──────────────────────┘
 → Launching chromium to inspect https://example.com...
@@ -349,24 +354,59 @@ Output:
 │   Final URL               https://example.com/                              │
 │   Browser / Viewport      chromium (1280x800)                               │
 │   Interactive Elements    1 total (1 links, 0 buttons, 0 form fields)       │
-│   Page Text Length        917 characters                                    │
-│   Screenshot Saved        reports\run_example_com_20261016_113645\screen…   │
-│   Structured Data Saved   reports\run_example_com_20261016_113645\inspec…   │
+│   Screenshot Saved        reports\run_example_com_...\screenshot.png        │
+│   Structured Data Saved   reports\run_example_com_...\inspection_result.json│
 │                                                                             │
 └──────────────────────── Status: Artifacts captured ─────────────────────────┘
 [OK] Inspection successful. Artifacts saved to directory.
+
+→ Initializing AI model for persona generation...
+→ Synthesizing 3 AI personas & tasks using gemini (gemini-3.5-flash-lite)...
+┌─────────────── AI Persona Synthesis & Task Planning Complete ───────────────┐
+│                                                                             │
+│   Website Summary     Example Domain is a minimalist, multilingual          │
+│                       informational landing page designed for               │
+│                       documentation examples and illustrative references.   │
+│   AI Generator        gemini (gemini-3.5-flash-lite)                        │
+│   Synthesized         3 personas (6 total tasks)                            │
+│   Personas                                                                  │
+│   Feature Grounding   All tasks grounded in verified website capabilities   │
+│   Plan Saved To       reports\run_example_com_...\personas.json             │
+│                                                                             │
+└──────────────── Status: Plan ready for autonomous execution ────────────────┘
+┌──────── Persona 1: Alex - Multilingual Technical Writer (persona_1) ────────┐
+│   Description       A technical writer checking documentation accuracy.     │
+│   Experience Level  Intermediate                                            │
+│   Browsing / Needs  Standard desktop browsing                               │
+│   Primary Goals     Verify official informational text; explore references  │
+│   Likely            Expects interactive features that do not exist          │
+│   Difficulties                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+ Task ID           Objective & Criteria                  Evidence    Status
+ task_persona_1_1  Read informational notice in English  • Snippet   [VERIFIED]
+                   Success: Located official text                                
+ task_persona_1_2  Navigate to external documentation    • URL text  [VERIFIED]
+                   Success: Navigated to IANA help page                          
 ```
 
-#### Visible (Headed) Browser Mode
-Watch the browser launch in a desktop window:
-```powershell
-blindspot inspect --url "https://example.com" --context "A demo website" --headed
-```
+#### Command Options
 
-#### Custom Output Directory
-```powershell
-blindspot inspect --url "https://example.com" --context "A demo website" --output-dir "./my_run"
-```
+| Option | Flag | Description |
+|---|---|---|
+| `--personas <N>` | `-p` | Number of personas to synthesize (default: 3, clamped 1-5) |
+| `--skip-ai` | | Run browser inspection only without calling AI |
+| `--ai-provider <name>` | | Override AI provider (e.g. `ollama`, `gemini`, `openai`) |
+| `--ai-model <name>` | | Override AI model for persona generation |
+| `--headed` | | Launch browser in visible desktop window |
+| `--browser <name>` | `-b` | Select engine: `chromium`, `firefox`, or `webkit` |
+| `--output-dir <path>`| `-o` | Custom directory to save screenshots, data, and personas |
+
+#### Generated Artifacts in Each Run Directory
+
+Every run produces a dedicated folder inside `reports/`:
+- `screenshot.png`: High-resolution full-page screenshot of the target page.
+- `inspection_result.json`: Extracted DOM elements, visible text, and page metadata.
+- `personas.json`: Machine-readable test plan containing synthesized personas, goals, accessibility considerations, and assigned tasks with explicit success criteria.
 
 ---
 
@@ -399,8 +439,10 @@ pytest -v
 - [x] CLI provider tools (`blindspot provider list`, `test`, `prompt`, `blindspot model list`)
 - [x] Structured JSON output extraction, schema validation & retry engine
 - [x] Task-specific model routing configuration (`persona_generation`, `ux_analysis`, etc.)
-- [ ] AI persona synthesis pipeline (interpreting website inspection + context)
-- [ ] Task assignment & autonomous persona-based browser interaction
+- [x] **AI persona synthesis pipeline (interpreting website inspection + context)**
+- [x] **Grounding & verification engine (flagging unverified vs confirmed features)**
+- [x] **Prompt injection defense (strict untrusted website content fencing)**
+- [ ] Task assignment & autonomous persona-based browser interaction (Milestone 4)
 - [ ] Consolidated evidence-backed UX improvement report generator
 - [ ] **Model Context Protocol (MCP)** server integration for AI coding agents
 - [ ] Web-based demonstration UI

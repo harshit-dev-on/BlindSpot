@@ -1,10 +1,64 @@
-"""Automated tests for BlindSpot Typer CLI commands."""
-
 from pathlib import Path
+import pytest
 from typer.testing import CliRunner
+from blindspot.ai.exceptions import AIAuthenticationError
 from blindspot.cli import app
+from blindspot.personas.models import Persona, PersonaPlan, PersonaTask
 
 runner = CliRunner()
+
+
+@pytest.fixture(autouse=True)
+def mock_inspect_ai(monkeypatch):
+    """Ensure inspect CLI tests mock AI persona generation without live network requests."""
+    sample_plan = PersonaPlan(
+        website_url="https://example.com",
+        context="A technical documentation portal",
+        website_summary="Technical docs with navigation links and code examples.",
+        personas=[
+            Persona(
+                id="persona_1",
+                name="Taylor - Web Developer",
+                description="Testing technical documentation site.",
+                experience_level="Intermediate",
+                goals=["Find quickstart"],
+                likely_difficulties=["Hidden search bar"],
+                accessibility_needs="Standard",
+                tasks=[
+                    PersonaTask(
+                        id="task_p1_1",
+                        objective="Locate quickstart guide",
+                        starting_conditions="Starts on homepage",
+                        success_criteria=["Quickstart guide opens"],
+                        evidence_to_collect=["Screenshot of quickstart page"],
+                        is_verified=True,
+                    ),
+                    PersonaTask(
+                        id="task_p1_2",
+                        objective="Search for API reference",
+                        starting_conditions="Starts on homepage",
+                        success_criteria=["API reference table located"],
+                        evidence_to_collect=["Text of API table"],
+                        is_verified=False,
+                        uncertainty_notes="Assumes site has API search bar",
+                    ),
+                ],
+            )
+        ],
+        model_used="mock-model",
+        provider_used="mock-provider",
+    )
+
+    def _mock_gen(inspection_result, provider, num_personas=3, output_dir=None):
+        target_dir = output_dir or (Path(inspection_result.result_json_path).parent if inspection_result.result_json_path else None)
+        if target_dir:
+            p_file = Path(target_dir) / "personas.json"
+            p_file.parent.mkdir(parents=True, exist_ok=True)
+            p_file.write_text(sample_plan.model_dump_json(indent=2), encoding="utf-8")
+            sample_plan.plan_file_path = str(p_file)
+        return sample_plan
+
+    monkeypatch.setattr("blindspot.cli.generate_personas_and_tasks", _mock_gen)
 
 
 def test_cli_help():
@@ -148,3 +202,73 @@ def test_inspect_invalid_context():
     )
     assert result.exit_code == 1
     assert "Invalid Context" in result.output or "too brief" in result.output
+
+
+def test_inspect_with_skip_ai(tmp_path: Path):
+    """Verify --skip-ai option skips persona generation."""
+    out_dir = tmp_path / "skip_ai_out"
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--output-dir",
+            str(out_dir),
+            "--skip-ai",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "AI persona synthesis skipped" in result.stdout
+    assert (out_dir / "screenshot.png").exists()
+    assert (out_dir / "inspection_result.json").exists()
+    assert not (out_dir / "personas.json").exists()
+
+
+def test_inspect_generates_personas_and_plan_file(tmp_path: Path):
+    """Verify that default inspect command generates personas and personas.json."""
+    out_dir = tmp_path / "plan_out"
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--output-dir",
+            str(out_dir),
+        ],
+    )
+    assert result.exit_code == 0
+    assert "AI Persona Synthesis & Task Planning Complete" in result.stdout
+    assert (out_dir / "personas.json").exists()
+
+
+def test_inspect_missing_ai_config_error(monkeypatch):
+    """Verify helpful error message when AI provider fails authentication or setup."""
+    def _mock_failing_provider(*args, **kwargs):
+        raise AIAuthenticationError(
+            "Missing Gemini API key.",
+            provider="gemini",
+            suggestion="Run 'blindspot setup' or set GEMINI_API_KEY.",
+        )
+
+    monkeypatch.setattr("blindspot.cli.create_provider", _mock_failing_provider)
+
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+        ],
+    )
+    assert result.exit_code == 1
+    assert "AI Configuration Error" in result.output or "Missing Gemini API key" in result.output
+    assert "blindspot setup" in result.output
+
