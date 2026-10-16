@@ -6,6 +6,7 @@ __pycache__/
 .Python
 
 # Packaging & Distribution
+build/
 develop-eggs/
 dist/
 downloads/
