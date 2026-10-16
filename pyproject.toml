@@ -37,6 +37,10 @@ dependencies = [
 dev = [
     "pytest>=8.0.0",
 ]
+web = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+]
 
 [project.scripts]
 blindspot = "blindspot.cli:app"

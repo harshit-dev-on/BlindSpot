@@ -470,6 +470,52 @@ pytest -v
 
 ---
 
+### 🌐 Interactive Web Demonstration Studio
+
+BlindSpot includes an optional, modern web demonstration interface built with FastAPI and vanilla HTML/CSS/JS. It provides an intuitive GUI to start tests, watch live browser execution and screenshots in real time, and explore prioritized UX reports.
+
+#### 1. Install Web Dependencies
+```powershell
+pip install "blindspot[web]"
+# or directly:
+pip install fastapi uvicorn
+```
+
+#### 2. Launch the Web Server on Windows
+```powershell
+# Launch server and automatically open your default browser
+blindspot web
+
+# Specify custom host or port
+blindspot web --host 127.0.0.1 --port 8000
+
+# Run in headless demo without auto-opening browser
+blindspot web --no-open
+```
+
+Alternatively, run with Uvicorn directly:
+```powershell
+python -m uvicorn blindspot.web.app:app --host 127.0.0.1 --port 8000
+```
+
+#### 3. Open the Interface
+Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) (or view the Swagger API docs at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)).
+
+#### 4. Features of the Web Interface
+- **Setup & Launch**: Pre-fill with sample website presets or enter custom target URLs, context descriptions, persona count (1-5), and visible browser mode toggle.
+- **Live Browser Demonstration**: Stream progress via Server-Sent Events (SSE). View active persona goals, current tasks, recent action ticker, and live refreshed screenshots.
+- **Results Dashboard**: Explore KPI summary metrics, synthesized personas, and prioritized UX findings with severity badges, reproduction steps, evidence code blocks, and suggested fixes.
+- **Direct Report Actions**: One-click buttons to open the standalone `report.html` or download machine-readable `report.json`.
+- **Run History**: View active and historical test runs stored in `reports/`.
+
+#### 5. Security & Isolation Defenses
+- **SSRF Protection**: Target URLs are strictly validated. Requests targeting `localhost`, `127.0.0.1`, RFC 1918 private subnets (`10.0.0.0/8`, `192.168.0.0/16`, `172.16.0.0/12`), link-local IPs, or cloud metadata endpoints (`169.254.169.254`, `metadata.google.internal`) are blocked.
+- **Path Traversal Defense**: Artifact downloads and screenshot endpoints resolve paths strictly within canonical run directories. Traversal tokens (`..`, `/`, `\`) are neutralized.
+- **Credential Secrecy**: No web endpoint exposes configured API keys or environment variables.
+- **Safe DOM Rendering**: Untrusted website strings and model outputs are escaped to protect against XSS.
+
+---
+
 ## 🗺️ Roadmap & Next Steps
 
 - [x] Clean `src/` layout and PEP 621 packaging (`pyproject.toml`)
@@ -489,8 +535,8 @@ pytest -v
 - [x] **Prompt injection defense (strict untrusted website content fencing)**
 - [x] **Automated persona-based browser task execution (Milestone 4)**
 - [x] **Consolidated evidence-backed UX improvement report generator (Milestone 5)**
+- [x] **Web-based demonstration UI (Milestone 6)**
 - [ ] **Model Context Protocol (MCP)** server integration for AI coding agents
-- [ ] Web-based demonstration UI
 
 ---
 

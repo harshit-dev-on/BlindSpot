@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from playwright.sync_api import Error as PlaywrightError, Page
 
@@ -134,6 +134,8 @@ class PersonaTaskAgent:
         task: PersonaTask,
         evidence_dir: Path,
         initial_url: str,
+        on_step: Optional[Callable[[Dict[str, Any]], None]] = None,
+        cancel_check: Optional[Callable[[], bool]] = None,
     ) -> TaskExecutionResult:
         """Run the task loop until success criteria are met or limits are reached."""
         start_time = datetime.now(timezone.utc).isoformat()
@@ -187,6 +189,11 @@ class PersonaTaskAgent:
 
         # 2. Action Loop
         for step in range(1, self.max_actions + 1):
+            if cancel_check and cancel_check():
+                failure_reason = "Task execution cancelled by user."
+                task_status = TaskStatus.INCONCLUSIVE
+                break
+
             # Check safety of current URL after any redirects
             is_safe, reason = validate_navigation_url(page.url)
             if not is_safe:
@@ -292,6 +299,28 @@ class PersonaTaskAgent:
                     screenshot_path=step_screenshot,
                 )
             )
+
+            if on_step:
+                try:
+                    on_step({
+                        "type": "action_step",
+                        "persona_id": persona.id,
+                        "persona_name": persona.name,
+                        "task_id": task.id,
+                        "task_objective": task.objective,
+                        "step": step,
+                        "action": action.action.value if hasattr(action.action, "value") else str(action.action),
+                        "target": action.target,
+                        "reasoning": action.reasoning,
+                        "success": exec_ok,
+                        "error": exec_err,
+                        "page_url": page.url,
+                        "page_title": page.title(),
+                        "screenshot_path": step_screenshot,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    })
+                except Exception:
+                    pass
 
             # Handle explicit finish action
             if action.action == ActionType.FINISH:

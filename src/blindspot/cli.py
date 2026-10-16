@@ -717,5 +717,84 @@ def inspect(
         raise typer.Exit(code=1)
 
 
+@app.command(
+    name="web",
+    help="Launch the interactive BlindSpot web demonstration studio.",
+)
+def web(
+    host: Annotated[
+        str,
+        typer.Option(
+            "--host",
+            "-h",
+            help="Host address to bind the web server to.",
+            show_default=True,
+        ),
+    ] = "127.0.0.1",
+    port: Annotated[
+        int,
+        typer.Option(
+            "--port",
+            "-p",
+            help="TCP port to listen on.",
+            show_default=True,
+        ),
+    ] = 8000,
+    open_browser: Annotated[
+        bool,
+        typer.Option(
+            "--open/--no-open",
+            help="Automatically open the web demonstration interface in your browser.",
+            show_default=True,
+        ),
+    ] = True,
+    reload: Annotated[
+        bool,
+        typer.Option(
+            "--reload",
+            help="Enable auto-reload for local development.",
+            show_default=False,
+        ),
+    ] = False,
+) -> None:
+    """Launch the interactive BlindSpot web demonstration server."""
+    try:
+        import uvicorn
+        from rich.panel import Panel
+        from blindspot.web.app import app as fastapi_app
+    except ImportError as exc:
+        print_error(
+            title="Web Dependencies Missing",
+            message=f"The BlindSpot web demonstration requires 'fastapi' and 'uvicorn' ({exc}).",
+            suggestion="Install them with:\n    pip install \"blindspot[web]\"\nor:\n    pip install fastapi uvicorn",
+        )
+        raise typer.Exit(code=1)
+
+    url = f"http://{host}:{port}"
+    console.print(
+        Panel(
+            f"[bold cyan]BlindSpot UX Testing Studio[/bold cyan]\n\n"
+            f"• Local URL:   [bold green]{url}[/bold green]\n"
+            f"• API Docs:    [dim]{url}/docs[/dim]\n"
+            f"• Bound Host:  [dim]{host}[/dim]\n"
+            f"• Port:        [dim]{port}[/dim]\n\n"
+            f"[italic dim]Press Ctrl+C to stop the web server.[/italic dim]",
+            title="[bold white] Web Server Online [/bold white]",
+            border_style="cyan",
+            expand=False,
+        )
+    )
+
+    if open_browser:
+        import webbrowser
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
+
+    uvicorn.run("blindspot.web.app:app", host=host, port=port, reload=reload)
+
+
 if __name__ == "__main__":
     app()
+

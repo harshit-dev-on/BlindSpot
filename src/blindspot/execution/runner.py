@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 import json
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 from playwright.sync_api import Error as PlaywrightError, sync_playwright
 
@@ -41,12 +41,16 @@ class PersonaTestRunner:
         self,
         plan: PersonaPlan,
         output_dir: Union[str, Path],
+        on_event: Optional[Callable[[Dict[str, Any]], None]] = None,
+        cancel_check: Optional[Callable[[], bool]] = None,
     ) -> ExecutionRunResult:
         """Execute tasks for all personas in the plan across isolated browser contexts.
 
         Args:
             plan: Synthesized PersonaPlan containing personas and assigned tasks.
             output_dir: Directory where execution artifacts, screenshots, and results are stored.
+            on_event: Optional callback for progress and action events.
+            cancel_check: Optional callable that returns True when task should be cancelled.
 
         Returns:
             ExecutionRunResult summarizing all persona task outcomes.
@@ -81,6 +85,9 @@ class PersonaTestRunner:
 
             try:
                 for persona in plan.personas:
+                    if cancel_check and cancel_check():
+                        break
+
                     # 1. Create an independent browser context for session isolation
                     context_obj = browser.new_context(
                         viewport={"width": self.viewport_width, "height": self.viewport_height},
@@ -91,6 +98,22 @@ class PersonaTestRunner:
                     task_results = []
                     try:
                         for task in persona.tasks:
+                            if cancel_check and cancel_check():
+                                break
+
+                            if on_event:
+                                try:
+                                    on_event({
+                                        "type": "task_start",
+                                        "persona_id": persona.id,
+                                        "persona_name": persona.name,
+                                        "task_id": task.id,
+                                        "task_objective": task.objective,
+                                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                                    })
+                                except Exception:
+                                    pass
+
                             task_evidence_dir = evidence_base / persona.id / task.id
                             result = agent.execute_task(
                                 page=page,
@@ -98,8 +121,25 @@ class PersonaTestRunner:
                                 task=task,
                                 evidence_dir=task_evidence_dir,
                                 initial_url=plan.website_url,
+                                on_step=on_event,
+                                cancel_check=cancel_check,
                             )
                             task_results.append(result)
+
+                            if on_event:
+                                try:
+                                    on_event({
+                                        "type": "task_finish",
+                                        "persona_id": persona.id,
+                                        "persona_name": persona.name,
+                                        "task_id": task.id,
+                                        "status": result.status.value,
+                                        "evidence": result.collected_evidence,
+                                        "error": result.error_message,
+                                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                                    })
+                                except Exception:
+                                    pass
                     finally:
                         # Close context after persona completes: clears cookies, storage, sessions
                         context_obj.close()
@@ -139,6 +179,8 @@ def execute_persona_tasks(
     browser_type: str = "chromium",
     headless: bool = True,
     max_actions_per_task: int = 8,
+    on_event: Optional[Callable[[Dict[str, Any]], None]] = None,
+    cancel_check: Optional[Callable[[], bool]] = None,
 ) -> ExecutionRunResult:
     """Convenience functional helper to run persona tasks."""
     runner = PersonaTestRunner(
@@ -147,4 +189,9 @@ def execute_persona_tasks(
         headless=headless,
         max_actions_per_task=max_actions_per_task,
     )
-    return runner.run_plan(plan=plan, output_dir=output_dir)
+    return runner.run_plan(
+        plan=plan,
+        output_dir=output_dir,
+        on_event=on_event,
+        cancel_check=cancel_check,
+    )
