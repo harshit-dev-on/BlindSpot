@@ -142,3 +142,112 @@ def print_browser_inspection_summary(
         f"[bold green][OK] Inspection successful.[/bold green] Artifacts saved to directory."
     )
 
+
+def print_provider_list(
+    active_provider: str,
+    active_model: str,
+    active_base_url: str,
+    active_key_source: str,
+    config_source: Optional[str] = None,
+) -> None:
+    """Print a list of supported AI providers and the currently active configuration."""
+    table = Table(title="[bold blue]BlindSpot AI Providers[/bold blue]", box=None, padding=(0, 2))
+    table.add_column("Provider", style="bold cyan")
+    table.add_column("Type", style="white")
+    table.add_column("Default Endpoint", style="dim")
+    table.add_column("Status", style="green")
+
+    table.add_row(
+        "ollama" + (" [bold green](active)[/bold green]" if active_provider == "ollama" else ""),
+        "Local inference",
+        "http://localhost:11434",
+        "[green]Supported[/green]",
+    )
+    table.add_row(
+        "openai_compatible" + (" [bold green](active)[/bold green]" if active_provider == "openai_compatible" else ""),
+        "Hosted or self-hosted API",
+        "https://api.openai.com/v1",
+        "[green]Supported[/green]",
+    )
+
+    console.print(table)
+    console.print()
+
+    summary_table = Table(show_header=False, box=None, padding=(0, 1))
+    summary_table.add_column("Key", style="bold cyan", width=18)
+    summary_table.add_column("Value", style="white")
+
+    summary_table.add_row("Active Provider", active_provider)
+    summary_table.add_row("Active Model", active_model)
+    summary_table.add_row("Base URL", active_base_url or "[dim](default)[/dim]")
+    summary_table.add_row("API Key Source", active_key_source)
+    if config_source:
+        summary_table.add_row("Config Source", config_source)
+
+    panel = Panel(
+        summary_table,
+        title="[bold blue]Active Configuration[/bold blue]",
+        border_style="blue",
+        padding=(1, 2),
+    )
+    console.print(panel)
+
+
+def print_provider_status(
+    provider: str,
+    model: str,
+    base_url: str,
+    is_reachable: bool,
+    model_available: bool,
+    latency_ms: Optional[float],
+    message: str,
+) -> None:
+    """Display connection test results in a styled panel."""
+    status_str = "[bold green][ONLINE][/bold green]" if is_reachable else "[bold red][OFFLINE][/bold red]"
+    model_str = "[bold green][READY][/bold green]" if model_available else "[bold red][NOT FOUND][/bold red]"
+
+    table = Table(show_header=False, box=None, padding=(0, 1))
+    table.add_column("Field", style="bold cyan", width=18)
+    table.add_column("Value", style="white")
+
+    table.add_row("Provider", provider)
+    table.add_row("Model", model)
+    table.add_row("Endpoint", base_url)
+    table.add_row("Server Reachable", status_str)
+    table.add_row("Model Status", model_str)
+    if latency_ms is not None:
+        table.add_row("Latency", f"{latency_ms} ms")
+    if message:
+        table.add_row("Details", message)
+
+    border_color = "green" if (is_reachable and model_available) else "yellow" if is_reachable else "red"
+    title = "[bold green]Provider Test Passed[/bold green]" if (is_reachable and model_available) else "[bold red]Provider Test Issue[/bold red]"
+
+    panel = Panel(
+        table,
+        title=title,
+        border_style=border_color,
+        padding=(1, 2),
+    )
+    console.print(panel)
+
+
+def print_ai_prompt_result(prompt: str, model: str, provider: str, content: str) -> None:
+    """Display prompt and model response."""
+    table = Table(show_header=False, box=None, padding=(0, 1))
+    table.add_column("Field", style="bold cyan", width=14)
+    table.add_column("Value", style="white")
+
+    table.add_row("Provider", f"{provider} ({model})")
+    table.add_row("Prompt", prompt)
+    table.add_row("Response", content)
+
+    panel = Panel(
+        table,
+        title="[bold green]AI Model Response[/bold green]",
+        border_style="green",
+        padding=(1, 2),
+    )
+    console.print(panel)
+
+

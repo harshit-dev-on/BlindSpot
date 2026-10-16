@@ -1,0 +1,25 @@
+# BlindSpot Configuration Example
+# Copy this file to "blindspot.toml" or "~/.blindspot/config.toml" and adapt it.
+
+[ai]
+# Active provider: "ollama" (local) or "openai_compatible" (cloud/hosted/self-hosted)
+provider = "ollama"
+
+# Model identifier
+# Examples:
+#   Ollama: "gemma4", "llama3", "mistral"
+#   OpenAI-compatible: "gpt-4o-mini", "llama-3-70b-instruct", "google/gemma-2-9b-it"
+model = "gemma4"
+
+# Custom base URL (optional)
+# Defaults:
+#   ollama: "http://localhost:11434"
+#   openai_compatible: "https://api.openai.com/v1"
+# base_url = "http://localhost:11434"
+
+# Name of environment variable containing your API key (for openai_compatible)
+# Never hardcode secrets in this file! Set the variable in your shell.
+api_key_env = "OPENAI_API_KEY"
+
+# Request timeout in seconds
+timeout = 60.0
