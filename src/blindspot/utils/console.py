@@ -511,3 +511,60 @@ def print_report_summary(
             )
         console.print(f_table)
         console.print(f"\n[dim]To view full evidence, reproduction steps & screenshots: open {html_path}[/dim]\n")
+
+
+def print_skills_list(skills: list) -> None:
+    """Print a formatted table of available Agent Skills."""
+    table = Table(
+        title="[bold cyan]BlindSpot Agent Skills (Open Standard)[/bold cyan]",
+        box=None,
+        padding=(0, 2),
+    )
+    table.add_column("Skill Name", style="bold white", width=28)
+    table.add_column("Version", style="dim", width=10)
+    table.add_column("Description", style="white", ratio=3)
+    table.add_column("Allowed Tools", style="cyan", width=22)
+
+    for s in skills:
+        tools = s.allowed_tools or "all"
+        table.add_row(f"/{s.name}", s.version, s.description, tools)
+
+    console.print(table)
+    console.print("\n[dim]Compatible with OpenAI Codex, GitHub Copilot, Cursor, Antigravity, VS Code, and Goose.[/dim]\n")
+
+
+def print_skills_validation_results(results: list) -> None:
+    """Print the results of validating SKILL.md files against the Agent Skills specification."""
+    all_valid = all(r.is_valid for r in results)
+    title_color = "green" if all_valid else "red"
+    console.print(f"\n[bold {title_color}]Agent Skills Validation Summary ({len(results)} evaluated):[/bold {title_color}]\n")
+
+    for r in results:
+        status_badge = "[bold green][PASS][/bold green]" if r.is_valid else "[bold red][FAIL][/bold red]"
+        console.print(f" {status_badge} [bold white]{r.name}[/bold white] [dim]({r.token_estimate} tokens) - {r.path}[/dim]")
+        for err in r.errors:
+            console.print(f"    [bold red]Error:[/bold red] {err}")
+        for warn in r.warnings:
+            console.print(f"    [bold yellow]Warning:[/bold yellow] {warn}")
+
+    console.print()
+
+
+def print_skills_installed(installed: dict) -> None:
+    """Print confirmation of skills installed into workspace."""
+    table = Table(
+        title="[bold green]Agent Skills Exported to Workspace[/bold green]",
+        box=None,
+        padding=(0, 2),
+    )
+    table.add_column("Environment Target", style="bold cyan", width=25)
+    table.add_column("Installed Skills", style="white", ratio=2)
+
+    for target, files in installed.items():
+        names = ", ".join(f.parent.name for f in files)
+        dest_folder = ".agents/skills" if target == "agents" else ".github/skills"
+        table.add_row(f"{dest_folder} ({target})", names)
+
+    console.print(table)
+    console.print("\n[dim]AI coding agents (Cursor, Copilot, Antigravity, Claude) in this workspace can now activate these skills.[/dim]\n")
+

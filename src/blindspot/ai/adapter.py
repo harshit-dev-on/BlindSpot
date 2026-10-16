@@ -26,7 +26,7 @@ litellm.drop_params = True
 
 DEFAULT_PROVIDER_MODELS: Dict[str, str] = {
     "ollama": "gemma4",
-    "gemini": "gemini-3.5-flash",
+    "gemini": "gemini-3.8-flash",
     "openai": "gpt-4o-mini",
     "anthropic": "claude-3-5-sonnet-20241022",
     "openrouter": "meta-llama/llama-3.1-8b-instruct",
@@ -51,7 +51,7 @@ DEFAULT_BASE_URLS: Dict[str, str] = {
 
 CURATED_MODELS: Dict[str, List[str]] = {
     "ollama": ["gemma4", "llama3.2", "mistral", "phi3", "qwen2.5"],
-    "gemini": ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-3.7-flash"],
+    "gemini": ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.7-flash", "gemini-2.5-flash"],
     "openai": ["gpt-4o-mini", "gpt-4o", "o3-mini", "gpt-4-turbo"],
     "anthropic": ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229"],
     "openrouter": [
@@ -160,15 +160,37 @@ class UnifiedAIAdapter(BaseAIProvider):
             if self._api_key:
                 kwargs["api_key"] = self._api_key
 
-            for attempt in range(2):
-                try:
-                    litellm.completion(**kwargs)
+            probe_models = [self.litellm_model]
+            if self._provider_name == "gemini":
+                for fb in ("gemini/gemini-3.5-flash", "gemini/gemini-3.8-flash", "gemini/gemini-3.7-flash"):
+                    if fb not in probe_models:
+                        probe_models.append(fb)
+
+            last_probe_exc: Optional[Exception] = None
+            probe_succeeded = False
+            for probe_candidate in probe_models:
+                kwargs["model"] = probe_candidate
+                for attempt in range(2):
+                    try:
+                        litellm.completion(**kwargs)
+                        probe_succeeded = True
+                        if probe_candidate != self.litellm_model:
+                            clean_m = probe_candidate.split("/", 1)[1] if "/" in probe_candidate else probe_candidate
+                            self.model = clean_m
+                        break
+                    except (litellm.exceptions.ServiceUnavailableError, litellm.exceptions.RateLimitError) as exc:
+                        last_probe_exc = exc
+                        if attempt < 1:
+                            time.sleep(1.0)
+                            continue
+                    except litellm.exceptions.NotFoundError as exc:
+                        last_probe_exc = exc
+                        break
+                if probe_succeeded:
                     break
-                except (litellm.exceptions.ServiceUnavailableError, litellm.exceptions.RateLimitError):
-                    if attempt < 1:
-                        time.sleep(1.0)
-                        continue
-                    raise
+
+            if not probe_succeeded and last_probe_exc:
+                raise last_probe_exc
 
             latency = round((time.perf_counter() - start_time) * 1000, 2)
 
@@ -367,6 +389,9 @@ class UnifiedAIAdapter(BaseAIProvider):
                     except (litellm.exceptions.ServiceUnavailableError, litellm.exceptions.RateLimitError) as exc:
                         last_transient_exc = exc
                         time.sleep(1.0)
+                    except litellm.exceptions.NotFoundError as exc:
+                        last_transient_exc = exc
+                        break
 
             if last_transient_exc:
                 raise last_transient_exc

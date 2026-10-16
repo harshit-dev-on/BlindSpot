@@ -26,11 +26,12 @@
 9. [Report and Evidence Data Model](#9-report-and-evidence-data-model)
 10. [Web Demonstration Studio](#10-web-demonstration-studio)
 11. [Model Context Protocol (MCP) Integration](#11-model-context-protocol-mcp-integration)
-12. [Offline Testing and Local Sample Application](#12-offline-testing-and-local-sample-application)
-13. [Automated Test Suite and Verification](#13-automated-test-suite-and-verification)
-14. [Troubleshooting and Diagnostic Reference](#14-troubleshooting-and-diagnostic-reference)
-15. [Repository Structure](#15-repository-structure)
-16. [License and Compliance](#16-license-and-compliance)
+12. [Agent Skills Integration (Open Specification)](#12-agent-skills-integration-open-specification)
+13. [Offline Testing and Local Sample Application](#13-offline-testing-and-local-sample-application)
+14. [Automated Test Suite and Verification](#14-automated-test-suite-and-verification)
+15. [Troubleshooting and Diagnostic Reference](#15-troubleshooting-and-diagnostic-reference)
+16. [Repository Structure](#16-repository-structure)
+17. [License and Compliance](#17-license-and-compliance)
 
 ---
 
@@ -350,12 +351,36 @@ Starts the Model Context Protocol (MCP) server over standard input/output (stdio
 blindspot mcp
 ```
 
-### 6.7 CLI Exit Codes
+### 6.7 `blindspot skill` Subcommands
+
+Manage, inspect, validate, and install Agent Skills following the open specification (standardized under the Linux Foundation / Anthropic / OpenAI).
+
+```powershell
+# List all packaged skills and their token footprints
+blindspot skill list
+
+# Validate all packaged or local SKILL.md files against the specification checklist
+blindspot skill validate
+
+# Validate a specific skill or custom directory
+blindspot skill validate ./my-custom-skill/SKILL.md
+
+# Export and install skills into current workspace (.agents/skills and .github/skills)
+blindspot skill install
+
+# Export specifically to .agents/skills (for Cursor, Codex, Antigravity)
+blindspot skill install --target agents
+
+# Export specifically to .github/skills (for GitHub Copilot, VS Code)
+blindspot skill install --target github
+```
+
+### 6.8 CLI Exit Codes
 
 | Exit Code | Meaning |
 |---|---|
 | `0` | Success: Test execution and report generation completed successfully. |
-| `1` | Fatal Error: Unhandled runtime error or critical environment failure. |
+| `1` | Fatal Error: Unhandled runtime error, critical environment failure, or skill validation failure. |
 | `2` | Input Validation Error: Invalid URL, invalid context, or unsupported CLI flag. |
 
 ---
@@ -628,11 +653,54 @@ blindspot mcp
 
 ---
 
-## 12. Offline Testing and Local Sample Application
+## 12. Agent Skills Integration (Open Specification)
+
+BlindSpot implements the **Agent Skills open standard** (standardized under the Linux Foundation / Agentic AI Foundation and supported across OpenAI Codex, GitHub Copilot, Cursor, Antigravity, and VS Code).
+
+### 12.1 MCP and Skills Synergy: The Runner and the Playbook
+
+BlindSpot pairs Model Context Protocol (MCP) and Agent Skills as complementary architectural layers:
+- **MCP provides the Runner**: Exposes deterministic tools (`inspect_website`, `get_findings`, `verify_fixes`) and handles external process execution, telemetry, and isolation.
+- **Agent Skills provide the Playbook**: Injects procedural domain expertise, heuristic evaluation checklists, WCAG compliance rules, and structured developer output templates into the agent's context window on demand.
+
+### 12.2 Three-Tier Progressive Disclosure
+
+To prevent context window bloat and minimize inference latency—especially on local models (Ollama, Gemma, Llama)—BlindSpot skills adhere strictly to progressive disclosure:
+
+1. **Discovery Tier (Startup)**: Only skill `name` and `description` are loaded (~50 tokens per skill).
+2. **Activation Tier (Triggered)**: The full `SKILL.md` body (instructions, output template, explicit rules, examples) is injected into context on demand (~1,300 to 1,700 tokens).
+3. **Execution Tier (On-Demand)**: Domain references and specialized assets are loaded lazily only if explicitly requested.
+
+### 12.3 Packaged Production Skills
+
+BlindSpot ships with four pre-validated, production-grade skills installed directly into `.agents/skills` and `.github/skills`:
+
+| Skill Name | Invocation | Primary Use Case | Allowed Tools |
+|---|---|---|---|
+| `blindspot-ux-audit` | `/blindspot-ux-audit` | Autonomous end-to-end UX, heuristic, and user-journey audit with developer remediation plan. | `blindspot inspect` |
+| `blindspot-verify-fix` | `/blindspot-verify-fix` | Automated regression verification confirming whether a code patch resolved a previously reported defect. | `blindspot inspect` |
+| `blindspot-wcag-audit` | `/blindspot-wcag-audit` | Accessibility audit mapping browser DOM barriers to WCAG 2.2 Level AA Success Criteria with accessible code diffs. | `blindspot inspect` |
+| `blindspot-persona-designer` | `/blindspot-persona-designer` | Synthetic persona and test journey modeling tailored to specific application audiences and constraints. | `blindspot inspect` |
+
+### 12.4 Exporting and Validating Skills
+
+To export skills into user projects or validate compliance against the Agent Skills specification:
+
+```powershell
+# Export skills to .agents/skills (for Cursor, Codex, Antigravity) and .github/skills (for Copilot)
+blindspot skill install
+
+# Validate skill integrity against the specification checklist
+blindspot skill validate
+```
+
+---
+
+## 13. Offline Testing and Local Sample Application
 
 The repository includes a standalone mock web application (`examples/sample_site/`) representing an agile sprint tracking SaaS ("TaskFlow"). It contains realistic navigation links, product feature grids, pricing tiers, and an interactive lead capture form with client-side validation and dynamic confirmation banners.
 
-### 12.1 Serve the Sample Application
+### 13.1 Serve the Sample Application
 
 In a dedicated terminal:
 
@@ -643,7 +711,7 @@ python -m http.server 8080 --directory examples/sample_site
 
 The application is now accessible at `http://localhost:8080`.
 
-### 12.2 Run BlindSpot Against the Sample Application
+### 13.2 Run BlindSpot Against the Sample Application
 
 ```powershell
 # Full autonomous audit with 2 personas (requires configured AI provider)
@@ -670,12 +738,12 @@ blindspot inspect `
 
 ---
 
-## 13. Automated Test Suite and Verification
+## 14. Automated Test Suite and Verification
 
 BlindSpot maintains a comprehensive automated test suite. All tests use deterministic mocks and local HTML fixtures, requiring zero active internet connections or third-party API keys:
 
 ```powershell
-# Run the complete test suite
+# Run the complete test suite (143 tests)
 pytest
 
 # Run tests with verbose output
@@ -699,19 +767,20 @@ pytest tests/test_smoke_e2e.py -v
 | `tests/test_reporting.py` | Evidence aggregation, finding ranking, and HTML XSS escaping verification. |
 | `tests/test_web.py` | FastAPI application routes, SSE event streaming, and path traversal guards. |
 | `tests/test_mcp.py` | Model Context Protocol tool execution, fix verification, and status schemas. |
+| `tests/test_skills.py` | Agent Skills discovery, spec checklist validation, export, and CLI commands. |
 | `tests/test_cli.py` | Typer CLI commands, option parsing, and safety enforcement flags. |
 | `tests/test_smoke_e2e.py` | End-to-end integration smoke test running against a local loopback HTTP server. |
 
 ---
 
-## 14. Troubleshooting and Diagnostic Reference
+## 15. Troubleshooting and Diagnostic Reference
 
-### 14.1 Chromium Browser Missing
+### 15.1 Chromium Browser Missing
 
 **Error:** `playwright._impl._errors.Error: Executable doesn't exist at ...`  
 **Resolution:** Run `playwright install chromium` to download the sandboxed browser binaries.
 
-### 14.2 Windows Script Execution Restriction
+### 15.2 Windows Script Execution Restriction
 
 **Error:** `File ...\Activate.ps1 cannot be loaded because running scripts is disabled on this system.`  
 **Resolution:** Open PowerShell and execute:
@@ -719,7 +788,7 @@ pytest tests/test_smoke_e2e.py -v
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-### 14.3 Navigation Rejected on Localhost or Private Network
+### 15.3 Navigation Rejected on Localhost or Private Network
 
 **Error:** `Navigation URL ... resolves to private/restricted IP and local testing is not enabled.`  
 **Resolution:** BlindSpot blocks loopback and private subnets by default to prevent SSRF. Pass the `--allow-local` flag to permit testing local development servers:
@@ -727,12 +796,12 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 blindspot inspect -u "http://localhost:8080" -c "Local Test" --allow-local
 ```
 
-### 14.4 Missing AI API Credentials
+### 15.4 Missing AI API Credentials
 
 **Error:** `AuthenticationError: API key not found for provider ...`  
 **Resolution:** Run `blindspot setup` to save your credentials to your user configuration, or define the corresponding environment variable (e.g., `$env:GEMINI_API_KEY="your-key"` in PowerShell).
 
-### 14.5 Web Studio Port Conflict
+### 15.5 Web Studio Port Conflict
 
 **Error:** `[Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000)`  
 **Resolution:** Specify an alternate port using the `--port` argument:
@@ -742,10 +811,14 @@ blindspot web --port 8085
 
 ---
 
-## 15. Repository Structure
+## 16. Repository Structure
 
 ```text
 BlindSpot/
+├── .agents/
+│   └── skills/                  # Agent Skills for Codex, Cursor, Antigravity, and Goose
+├── .github/
+│   └── skills/                  # Agent Skills for GitHub Copilot and VS Code
 ├── .env.example                 # Template for environment variables and API credentials
 ├── .gitignore                   # Excludes environments, caches, secrets, and reports
 ├── blindspot.example.toml       # Template configuration file for AI providers
@@ -794,15 +867,22 @@ BlindSpot/
 │       │   ├── generator.py     # Report generator (JSON and HTML)
 │       │   ├── html_renderer.py # Responsive, self-contained HTML report renderer
 │       │   └── models.py        # Pydantic schemas for findings and metrics
+│       ├── skills/              # Agent Skills (Open Standard) definitions & manager
+│       │   ├── __init__.py      # Package export and discovery
+│       │   ├── manager.py       # Spec validation, parsing, and workspace installer
+│       │   ├── blindspot-ux-audit/
+│       │   ├── blindspot-verify-fix/
+│       │   ├── blindspot-wcag-audit/
+│       │   └── blindspot-persona-designer/
 │       ├── utils/
-│       │   └── console.py       # Rich terminal formatting, panels, and tables
+│       │   └── console.py       # Rich terminal formatting, panels, tables, and skills
 │       └── web/                 # Interactive web demonstration studio (FastAPI)
 │           ├── app.py           # FastAPI application factory and static mounting
 │           ├── manager.py       # Asynchronous run manager and event coordinator
 │           ├── models.py        # Request and response schemas for web API
 │           ├── router.py        # API routes for run creation, SSE stream, and artifacts
 │           └── static/          # Web frontend assets (HTML, CSS, JavaScript)
-└── tests/                       # Automated test suite (134 tests)
+└── tests/                       # Automated test suite (143 tests across 13 modules)
     ├── test_ai_provider.py      # Provider adapter, retry, and structured parsing tests
     ├── test_browser.py          # Browser automation and element extraction tests
     ├── test_cli.py              # CLI command tests (setup, inspect, flags)
@@ -812,6 +892,7 @@ BlindSpot/
     ├── test_mcp.py              # Model Context Protocol tool tests
     ├── test_personas.py         # Persona synthesis and prompt injection defense tests
     ├── test_reporting.py        # Evidence aggregation, HTML escaping, and report tests
+    ├── test_skills.py           # Agent Skills discovery, spec validation, and installation tests
     ├── test_smoke_e2e.py        # End-to-end pipeline smoke test on loopback HTTP
     ├── test_validation.py       # URL and context validation unit tests
     └── test_web.py              # Web demo FastAPI endpoints and SSE stream tests
@@ -819,6 +900,7 @@ BlindSpot/
 
 ---
 
-## 16. License and Compliance
+## 17. License and Compliance
 
 BlindSpot is distributed under the terms of the **Apache License, Version 2.0**. For complete legal terms and conditions, refer to the [LICENSE](LICENSE) file in the root directory of this repository.
+

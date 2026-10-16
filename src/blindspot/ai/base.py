@@ -64,6 +64,10 @@ class BaseAIProvider(ABC):
         """Configured model name or identifier."""
         return self._model
 
+    @model.setter
+    def model(self, value: str) -> None:
+        self._model = value.strip()
+
     @property
     def base_url(self) -> str:
         """API endpoint base URL."""

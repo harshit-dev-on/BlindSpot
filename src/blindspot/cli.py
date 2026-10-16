@@ -21,6 +21,12 @@ from blindspot.core.validation import validate_context, validate_url
 from blindspot.execution import execute_persona_tasks
 from blindspot.personas import generate_personas_and_tasks
 from blindspot.reporting import generate_ux_report
+from blindspot.skills import (
+    get_bundled_skills_dir,
+    install_skills_to_workspace,
+    list_bundled_skills,
+    validate_skill,
+)
 from blindspot.utils.console import (
     console,
     print_ai_prompt_result,
@@ -34,6 +40,9 @@ from blindspot.utils.console import (
     print_provider_list,
     print_provider_status,
     print_report_summary,
+    print_skills_installed,
+    print_skills_list,
+    print_skills_validation_results,
 )
 
 app = typer.Typer(
@@ -58,6 +67,13 @@ model_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(model_app)
+
+skill_app = typer.Typer(
+    name="skill",
+    help="Manage, list, validate, and install Agent Skills following the open specification.",
+    no_args_is_help=True,
+)
+app.add_typer(skill_app)
 
 SUPPORTED_BROWSERS = ("chromium", "firefox", "webkit")
 
@@ -845,7 +861,101 @@ def mcp_cmd(
     run_mcp_server(transport=transport)
 
 
+@skill_app.command(
+    name="list",
+    help="List all packaged BlindSpot Agent Skills available for AI coding agents.",
+)
+def list_skills_cmd() -> None:
+    """List all bundled Agent Skills conforming to the open standard."""
+    skills = list_bundled_skills()
+    if not skills:
+        console.print("[dim]No bundled Agent Skills found.[/dim]")
+        return
+    print_skills_list(skills)
+
+
+@skill_app.command(
+    name="validate",
+    help="Validate a SKILL.md file or directory against the Agent Skills specification checklist.",
+)
+def validate_skills_cmd(
+    target_path: Annotated[
+        Optional[Path],
+        typer.Argument(
+            help="Path to a SKILL.md file or directory containing skills. Defaults to bundled skills.",
+        ),
+    ] = None,
+) -> None:
+    """Validate skill files against the open Agent Skills specification."""
+    search_dir = target_path or get_bundled_skills_dir()
+    results = []
+
+    if search_dir.is_file() and search_dir.name == "SKILL.md":
+        results.append(validate_skill(search_dir))
+    elif search_dir.is_dir():
+        if (search_dir / "SKILL.md").is_file():
+            results.append(validate_skill(search_dir / "SKILL.md"))
+        else:
+            for item in sorted(search_dir.iterdir()):
+                if item.is_dir() and (item / "SKILL.md").is_file():
+                    results.append(validate_skill(item / "SKILL.md"))
+    else:
+        print_error(
+            title="Invalid Path",
+            message=f"Path '{search_dir}' is neither a directory nor a SKILL.md file.",
+        )
+        raise typer.Exit(code=2)
+
+    if not results:
+        console.print(f"[dim]No SKILL.md files found in {search_dir}[/dim]")
+        return
+
+    print_skills_validation_results(results)
+
+    if not all(r.is_valid for r in results):
+        raise typer.Exit(code=1)
+
+
+@skill_app.command(
+    name="install",
+    help="Install BlindSpot Agent Skills into a project workspace (.agents/skills and/or .github/skills).",
+)
+def install_skills_cmd(
+    target: Annotated[
+        str,
+        typer.Option(
+            "--target",
+            "-t",
+            help="Target agent directory standard: 'agents' (.agents/skills), 'github' (.github/skills), or 'both'.",
+            show_default=True,
+        ),
+    ] = "both",
+    dest: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--dest",
+            "-d",
+            help="Destination project root folder. Defaults to current working directory.",
+        ),
+    ] = None,
+) -> None:
+    """Export and install BlindSpot skills into the local workspace for AI coding agents."""
+    project_root = dest or Path.cwd()
+    target_modes = ["agents", "github"] if target == "both" else [target]
+
+    if target not in ("agents", "github", "both"):
+        print_error(
+            title="Invalid Target",
+            message=f"Invalid target '{target}'. Must be 'agents', 'github', or 'both'.",
+        )
+        raise typer.Exit(code=2)
+
+    installed = install_skills_to_workspace(project_root, targets=target_modes)
+    print_skills_installed(installed)
+
+
 if __name__ == "__main__":
     app()
+
 
 

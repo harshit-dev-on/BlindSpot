@@ -137,10 +137,10 @@ def save_config(config: BlindSpotConfig, path: Optional[Union[str, Path]] = None
     if ai.base_url:
         lines.append(f'base_url = "{ai.base_url}"')
 
+    if ai.api_key:
+        lines.append(f'api_key = "{ai.api_key}"')
     if ai.api_key_env:
         lines.append(f'api_key_env = "{ai.api_key_env}"')
-    elif ai.api_key:
-        lines.append(f'api_key = "{ai.api_key}"')
 
     lines.append(f"timeout = {ai.timeout}")
     lines.append("")
