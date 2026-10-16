@@ -35,24 +35,24 @@ BlindSpot/
 │   └── blindspot/
 │       ├── __init__.py          # Package version & metadata
 │       ├── __main__.py          # python -m blindspot entry point
-│       ├── cli.py               # Typer CLI application (inspect, provider)
-│       ├── ai/                  # Provider-agnostic AI integration layer
+│       ├── cli.py               # Typer CLI application (setup, inspect, provider, model)
+│       ├── cli_setup.py         # Interactive multi-provider setup wizard
+│       ├── ai/                  # Universal AI provider integration layer
 │       │   ├── __init__.py      # Exports providers, models, and factory
+│       │   ├── adapter.py       # UnifiedAIAdapter wrapping LiteLLM engine
 │       │   ├── base.py          # BaseAIProvider interface & structured JSON parser
 │       │   ├── exceptions.py    # AI provider exception hierarchy
-│       │   ├── factory.py       # Provider registry & creation factory
+│       │   ├── factory.py       # Universal provider registry & creation factory
 │       │   ├── models.py        # AIResponse and ProviderStatus models
-│       │   └── providers/
-│       │       ├── ollama.py    # Local inference with Ollama (e.g. Gemma 4)
-│       │       └── openai_compatible.py # Hosted or self-hosted OpenAI-compatible APIs
+│       │   └── providers/       # Lightweight provider implementations
 │       ├── browser/             # Playwright browser inspection engine
 │       │   ├── __init__.py      # Exports BrowserInspector, inspect_website, models
 │       │   ├── models.py        # Pydantic models for elements, viewport, results
 │       │   └── inspector.py     # Browser automation, navigation, and DOM harvesting
 │       ├── config/              # Configuration loader & validation
 │       │   ├── __init__.py      # Config exports
-│       │   ├── loader.py        # TOML loader with file discovery & env overrides
-│       │   └── models.py        # Pydantic schema for AIConfig & BlindSpotConfig
+│       │   ├── loader.py        # TOML loader with file discovery & persistence
+│       │   └── models.py        # Pydantic schema for AIConfig, TaskModelsConfig, etc.
 │       ├── core/
 │       │   ├── __init__.py
 │       │   ├── models.py        # Core dataclasses & models (InspectConfig, ValidationResult)
@@ -139,131 +139,193 @@ playwright install chromium
 
 ---
 
-## 🤖 AI Provider Configuration
+## 🤖 Universal AI Model Configuration System
 
-BlindSpot features a provider-agnostic AI layer supporting both **local inference** (via Ollama) and **cloud / self-hosted endpoints** (via any OpenAI-compatible API).
+BlindSpot features a universal AI model layer powered by **LiteLLM** under a dedicated adapter (`UnifiedAIAdapter`). You are never locked into a single provider or model.
 
-### 1. Configuration File (`blindspot.toml`)
-
-Copy the included template:
-
-```powershell
-copy blindspot.example.toml blindspot.toml
-```
-
-BlindSpot searches for configuration in:
-1. Explicit path passed via `--config <path>`
-2. Working directory: `./blindspot.toml` or `./.blindspot.toml`
-3. User home directory: `~/.blindspot/config.toml`
-4. Built-in defaults
-
-#### Option A: Local Ollama (Default)
-
-Use a local Ollama instance (ideal for **Gemma 4** or other local models):
-
-```toml
-[ai]
-provider = "ollama"
-model = "gemma4"
-base_url = "http://localhost:11434"
-timeout = 90.0
-```
-
-To pull the model in Ollama:
-```powershell
-ollama pull gemma4
-```
-
-#### Option B: OpenAI-Compatible API
-
-Works with OpenAI, OpenRouter, Groq, Together, vLLM, LM Studio, or LocalAI:
-
-```toml
-[ai]
-provider = "openai_compatible"
-model = "gpt-4o-mini"
-base_url = "https://api.openai.com/v1"
-api_key_env = "OPENAI_API_KEY"
-timeout = 60.0
-```
-
-### 2. Secure API Key Management
-
-BlindSpot **never logs or saves API keys to disk**. Keys are read dynamically from environment variables:
-
-**In PowerShell:**
-```powershell
-$env:OPENAI_API_KEY = "your-actual-api-key"
-```
-
-**In Command Prompt:**
-```cmd
-set OPENAI_API_KEY=your-actual-api-key
-```
-
-### 3. Environment Variable Overrides
-
-Any setting can be overridden at runtime via environment variables:
-
-| Variable | Description |
-|---|---|
-| `BLINDSPOT_PROVIDER` | `ollama` or `openai_compatible` |
-| `BLINDSPOT_MODEL` | Model identifier (e.g., `gemma4`, `gpt-4o-mini`) |
-| `BLINDSPOT_BASE_URL` | Custom endpoint URL |
-| `BLINDSPOT_API_KEY_ENV` | Environment variable name storing the API key |
-| `BLINDSPOT_TIMEOUT` | Request timeout in seconds |
+Supported deployment categories:
+1. **Local AI** – Run models on your own machine without sending data to the cloud (e.g. **Ollama** running **Gemma 4**, Llama 3, Mistral, Qwen).
+2. **Cloud APIs** – Hosted foundation models with direct API access (e.g. **Google Gemini**, **OpenAI**, **Anthropic Claude**, **OpenRouter**).
+3. **Custom Endpoints** – Self-hosted or third-party OpenAI-compatible endpoints (e.g. vLLM, LM Studio, LocalAI, Together AI, Groq).
+4. **Hybrid / Task-Specific Models** – Direct different models to specific pipeline tasks (e.g. fast model for persona generation, reasoning model for UX analysis).
 
 ---
 
-## 🚀 Usage
+### 🧙‍♂️ Interactive Setup Wizard (`blindspot setup`)
 
-### 1. Manage and Test AI Providers
-
-#### List Supported Providers & Active Config
-```powershell
-blindspot provider list
-```
-
-Output:
-```text
-                            BlindSpot AI Providers                             
-  Provider             Type                   Default Endpoint      Status     
-  ollama (active)      Local inference        http://localhost:…    Supported  
-  openai_compatible    Hosted or              https://api.opena…    Supported  
-                       self-hosted API                                         
-
-┌─────────────────────────── Active Configuration ────────────────────────────┐
-│   Active Provider     ollama                                                │
-│   Active Model        gemma4                                                │
-│   Base URL            (default)                                             │
-│   API Key Source      (not required)                                        │
-│   Config Source       Built-in Defaults / Environment                       │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-#### Test Provider Connectivity
-Verify that the model server is running and the model is loaded:
+The easiest way to get started is the interactive setup wizard:
 
 ```powershell
+blindspot setup
+```
+
+The wizard guides you through:
+1. Choosing your deployment category (`local`, `cloud`, `custom`, or `hybrid`).
+2. Selecting your provider (`ollama`, `gemini`, `openai`, `anthropic`, `openrouter`, or `custom`).
+3. Selecting or entering your model (e.g., `gemma4`, `gemini-2.5-flash`, `gpt-4o-mini`, `claude-3-5-sonnet-20241022`).
+4. Entering credentials safely (hidden entry, never displayed or printed in plaintext).
+5. Testing the connection in real time.
+6. Saving your configuration to `~/.blindspot/config.toml` (user-level) or `blindspot.toml` (project-level).
+
+---
+
+### 📋 CLI Provider & Model Commands
+
+| Command | Description |
+|---|---|
+| `blindspot setup` | Launch the interactive configuration wizard |
+| `blindspot provider list` | Display all supported providers, active provider, model, and endpoint |
+| `blindspot provider test` | Probe health and run a 1-token verification test on the active model |
+| `blindspot model list` | Discover locally installed Ollama models or show curated cloud models |
+| `blindspot provider prompt "<text>"` | Send a test prompt directly to verify model output |
+
+#### Discover Models
+```powershell
+# List models installed locally in Ollama
+blindspot model list --provider ollama
+
+# List popular models for Google Gemini
+blindspot model list --provider gemini
+
+# List popular models for OpenAI
+blindspot model list --provider openai
+```
+
+#### Test Connection & Send Verification Prompts
+```powershell
+# Test the currently active configuration
 blindspot provider test
-```
 
-Override parameters on the fly:
-```powershell
-# Test a custom model or provider
-blindspot provider test --provider openai_compatible --model gpt-4o-mini
-```
+# Test a specific provider/model combination on the fly
+blindspot provider test --provider gemini --model gemini-2.5-flash
 
-#### Run a Basic AI Prompt
-Send a quick prompt directly to the configured AI model to confirm generation:
-
-```powershell
+# Send a test prompt to verify model generation
 blindspot provider prompt "Give a 1-sentence tip for testing website accessibility."
 ```
 
 ---
 
-### 2. Run Website Browser Inspection
+### 🔧 Configuration Guides
+
+#### 1. How to Configure a Local Gemma 4 Model (via Ollama)
+
+**Why choose this?** 100% private, runs entirely on your local GPU/CPU, zero cloud API costs.
+
+1. Install and launch [Ollama](https://ollama.ai/).
+2. Pull the Gemma 4 model in your terminal:
+   ```powershell
+   ollama pull gemma4
+   ```
+3. Run the BlindSpot setup wizard:
+   ```powershell
+   blindspot setup
+   ```
+   - Select `local` -> `ollama` -> `gemma4`.
+4. Alternatively, create or update `~/.blindspot/config.toml`:
+   ```toml
+   [ai]
+   category = "local"
+   provider = "ollama"
+   model = "gemma4"
+   base_url = "http://localhost:11434"
+   timeout = 90.0
+   ```
+5. Test the connection:
+   ```powershell
+   blindspot provider test
+   ```
+
+---
+
+#### 2. How to Configure Google Gemini API
+
+**Why choose this?** High-speed, large context window, advanced multimodal capabilities, and generous free-tier limits.
+
+1. Get a Gemini API key from [Google AI Studio](https://aistudio.google.com/).
+2. Set your environment variable:
+   ```powershell
+   # PowerShell (Current Session)
+   $env:GEMINI_API_KEY = "your-actual-gemini-api-key"
+
+   # Or persist in Windows User Environment Variables:
+   [System.Environment]::SetEnvironmentVariable('GEMINI_API_KEY', 'your-key', 'User')
+   ```
+3. Run `blindspot setup`:
+   - Select `cloud` -> `gemini` -> `gemini-2.5-flash`.
+   - Press Enter to use your existing `GEMINI_API_KEY` environment variable.
+4. Or configure `~/.blindspot/config.toml`:
+   ```toml
+   [ai]
+   category = "cloud"
+   provider = "gemini"
+   model = "gemini-2.5-flash"
+   api_key_env = "GEMINI_API_KEY"
+   timeout = 60.0
+   ```
+5. Test the connection:
+   ```powershell
+   blindspot provider test
+   ```
+
+---
+
+#### 3. How to Switch Providers
+
+BlindSpot resolves configuration using clear precedence:
+**CLI Flags > Environment Variables > Local `blindspot.toml` > Global `~/.blindspot/config.toml` > Defaults**
+
+You can switch providers in any of these ways:
+
+- **Method A: Re-run the setup wizard:**
+  ```powershell
+  blindspot setup
+  ```
+- **Method B: Edit your configuration file (`~/.blindspot/config.toml`):**
+  Change `provider = "gemini"` and `model = "gemini-2.5-flash"`.
+- **Method C: Environment variables:**
+  ```powershell
+  $env:BLINDSPOT_PROVIDER = "openai"
+  $env:BLINDSPOT_MODEL = "gpt-4o-mini"
+  ```
+- **Method D: Temporary CLI flags:**
+  ```powershell
+  blindspot provider test --provider anthropic --model claude-3-5-sonnet-20241022
+  ```
+
+---
+
+#### 4. Future Task-Specific Model Routing
+
+BlindSpot is designed so different models can handle different UX pipeline tasks in the future:
+
+```toml
+[ai]
+category = "hybrid"
+provider = "ollama"
+model = "gemma4"  # Default fallback model
+
+[ai.tasks]
+persona_generation = "gemini-2.5-flash"   # Fast cloud model for personas
+task_planning      = "gemma4"             # Local model for task steps
+ux_analysis        = "gemini-2.5-pro"     # High-reasoning model for UX analysis
+report_generation  = "gemini-2.5-flash"   # Consolidated report formatting
+```
+
+---
+
+### 🔒 Security Principles
+
+- **Never Hardcoded:** API keys are never stored inside codebase source files or committed to Git.
+- **Environment First:** Recommended storage is via system environment variables (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`).
+- **No Secrets in Output:** Keys are masked (e.g. `sk-...abcd`) in terminal tables and omitted from logs.
+- **Git Ignored:** `blindspot.toml` and `.blindspot/` are included in `.gitignore`.
+- **No Unnecessary Network Traffic:** Model tests are only triggered when explicitly requested (`blindspot provider test` or during `blindspot setup`).
+
+---
+
+## 🚀 Usage Guide
+
+### 1. Website Browser Inspection
 
 Inspect a website using Playwright browser automation:
 
@@ -331,10 +393,12 @@ pytest -v
 - [x] Browser automation inspection engine using **Playwright**
 - [x] Full-page screenshot capture & interactive element discovery
 - [x] Dedicated artifact run directories & structured JSON export
-- [x] Provider-agnostic AI integration (**Ollama** & **OpenAI-compatible**)
-- [x] Secure API key resolution and configuration loader (`blindspot.toml`)
-- [x] AI CLI management (`blindspot provider list`, `test`, `prompt`)
+- [x] Universal AI configuration with **LiteLLM** adapter (`UnifiedAIAdapter`)
+- [x] Interactive setup wizard (`blindspot setup`) with secure hidden credentials
+- [x] Multi-provider support (Ollama, Gemini, OpenAI, Anthropic, OpenRouter, Custom endpoints)
+- [x] CLI provider tools (`blindspot provider list`, `test`, `prompt`, `blindspot model list`)
 - [x] Structured JSON output extraction, schema validation & retry engine
+- [x] Task-specific model routing configuration (`persona_generation`, `ux_analysis`, etc.)
 - [ ] AI persona synthesis pipeline (interpreting website inspection + context)
 - [ ] Task assignment & autonomous persona-based browser interaction
 - [ ] Consolidated evidence-backed UX improvement report generator

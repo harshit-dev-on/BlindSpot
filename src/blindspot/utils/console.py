@@ -148,27 +148,29 @@ def print_provider_list(
     active_model: str,
     active_base_url: str,
     active_key_source: str,
+    active_category: str = "local",
     config_source: Optional[str] = None,
 ) -> None:
     """Print a list of supported AI providers and the currently active configuration."""
     table = Table(title="[bold blue]BlindSpot AI Providers[/bold blue]", box=None, padding=(0, 2))
     table.add_column("Provider", style="bold cyan")
-    table.add_column("Type", style="white")
-    table.add_column("Default Endpoint", style="dim")
+    table.add_column("Category", style="white")
+    table.add_column("Key Env Var", style="dim")
     table.add_column("Status", style="green")
 
-    table.add_row(
-        "ollama" + (" [bold green](active)[/bold green]" if active_provider == "ollama" else ""),
-        "Local inference",
-        "http://localhost:11434",
-        "[green]Supported[/green]",
-    )
-    table.add_row(
-        "openai_compatible" + (" [bold green](active)[/bold green]" if active_provider == "openai_compatible" else ""),
-        "Hosted or self-hosted API",
-        "https://api.openai.com/v1",
-        "[green]Supported[/green]",
-    )
+    providers_info = [
+        ("ollama", "Local", "(None - Free & Offline)", "Supported"),
+        ("gemini", "Cloud", "GEMINI_API_KEY", "Supported"),
+        ("openai", "Cloud", "OPENAI_API_KEY", "Supported"),
+        ("anthropic", "Cloud", "ANTHROPIC_API_KEY", "Supported"),
+        ("openrouter", "Cloud", "OPENROUTER_API_KEY", "Supported"),
+        ("custom", "Custom/Proxy", "CUSTOM_API_KEY (optional)", "Supported"),
+    ]
+
+    for p_id, cat, key_env, status in providers_info:
+        is_active = active_provider in (p_id, "openai_compatible" if p_id == "custom" else "")
+        label = p_id + (" [bold green](active)[/bold green]" if is_active else "")
+        table.add_row(label, cat, key_env, f"[green]{status}[/green]")
 
     console.print(table)
     console.print()
@@ -177,6 +179,7 @@ def print_provider_list(
     summary_table.add_column("Key", style="bold cyan", width=18)
     summary_table.add_column("Value", style="white")
 
+    summary_table.add_row("Active Category", active_category)
     summary_table.add_row("Active Provider", active_provider)
     summary_table.add_row("Active Model", active_model)
     summary_table.add_row("Base URL", active_base_url or "[dim](default)[/dim]")
@@ -191,6 +194,32 @@ def print_provider_list(
         padding=(1, 2),
     )
     console.print(panel)
+
+
+def print_model_list(provider: str, models: list[str]) -> None:
+    """Print available or verified models for a provider."""
+    if not models:
+        console.print(
+            Panel(
+                f"[yellow]No predefined or discovered models found for '{provider}'.[/yellow]\n"
+                "You can specify any valid model identifier using [cyan]--model <name>[/cyan] or in your config file.",
+                title=f"[bold blue]Models for {provider.upper()}[/bold blue]",
+                border_style="yellow",
+                padding=(1, 2),
+            )
+        )
+        return
+
+    table = Table(title=f"[bold blue]Models for {provider.upper()}[/bold blue]", box=None, padding=(0, 2))
+    table.add_column("#", style="dim", width=4)
+    table.add_column("Model Identifier", style="bold white")
+    table.add_column("Status", style="green")
+
+    for idx, m in enumerate(models, start=1):
+        table.add_row(str(idx), m, "[green]Available[/green]")
+
+    console.print(table)
+    console.print("\n[dim]To test any model: blindspot provider test --provider " + provider + " --model <name>[/dim]")
 
 
 def print_provider_status(

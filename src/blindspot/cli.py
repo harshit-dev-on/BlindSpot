@@ -1,12 +1,18 @@
 """Command-line interface for BlindSpot using Typer."""
 
+import os
 from pathlib import Path
 from typing import Optional
 import typer
 from typing_extensions import Annotated
 
 from blindspot import __version__
-from blindspot.ai import create_provider
+from blindspot.ai import (
+    DEFAULT_KEY_ENVS,
+    create_provider,
+    get_models_for_provider,
+    mask_api_key,
+)
 from blindspot.ai.exceptions import AIProviderError
 from blindspot.browser import inspect_website
 from blindspot.config import find_config_file, load_config
@@ -19,6 +25,7 @@ from blindspot.utils.console import (
     print_error,
     print_inspection_start,
     print_inspection_summary,
+    print_model_list,
     print_provider_list,
     print_provider_status,
 )
@@ -38,6 +45,13 @@ provider_app = typer.Typer(
     no_args_is_help=True,
 )
 app.add_typer(provider_app)
+
+model_app = typer.Typer(
+    name="model",
+    help="Discover and list AI models.",
+    no_args_is_help=True,
+)
+app.add_typer(model_app)
 
 SUPPORTED_BROWSERS = ("chromium", "firefox", "webkit")
 
@@ -64,6 +78,71 @@ def main(
 ) -> None:
     """BlindSpot CLI entry point."""
     pass
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Setup Wizard
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@app.command(
+    name="setup",
+    help="Interactive setup wizard to configure your preferred AI provider and model.",
+)
+def setup_command() -> None:
+    """Run interactive setup wizard to configure AI provider and credentials."""
+    from blindspot.cli_setup import run_setup_wizard
+
+    try:
+        run_setup_wizard()
+    except (KeyboardInterrupt, typer.Abort):
+        console.print("\n[yellow]Setup cancelled by user.[/yellow]")
+        raise typer.Exit(code=0)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Model Discovery Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@model_app.command(
+    name="list",
+    help="List discoverable and verified models for an AI provider.",
+)
+def model_list_command(
+    provider: Annotated[
+        Optional[str],
+        typer.Option(
+            "--provider",
+            "-p",
+            help="Provider to query models for (default: active provider).",
+            show_default=False,
+        ),
+    ] = None,
+    config: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--config",
+            "-C",
+            help="Path to custom configuration file.",
+            show_default=False,
+        ),
+    ] = None,
+) -> None:
+    """Display discoverable local models or curated cloud models."""
+    try:
+        loaded = load_config(custom_path=config, provider=provider)
+    except Exception as exc:
+        print_error("Configuration Error", str(exc))
+        raise typer.Exit(code=1)
+
+    ai_cfg = loaded.ai
+    selected_provider = provider.lower().strip() if provider else ai_cfg.provider
+    if selected_provider == "openai_compatible":
+        selected_provider = "custom"
+
+    models = get_models_for_provider(selected_provider, base_url=ai_cfg.base_url)
+    print_model_list(provider=selected_provider, models=models)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -98,23 +177,22 @@ def provider_list(
     config_source = str(config_file) if config_file else "Built-in Defaults / Environment"
 
     key_source = "(not required)"
-    if ai_cfg.provider == "openai_compatible":
-        import os
-        from blindspot.ai.providers.openai_compatible import mask_api_key
-
-        env_val = os.environ.get(ai_cfg.api_key_env or "")
+    if ai_cfg.provider in ("gemini", "openai", "anthropic", "openrouter", "custom", "openai_compatible"):
+        env_var_name = ai_cfg.api_key_env or DEFAULT_KEY_ENVS.get(ai_cfg.provider, "")
+        env_val = os.environ.get(env_var_name)
         if env_val:
-            key_source = f"env:{ai_cfg.api_key_env} ({mask_api_key(env_val)})"
+            key_source = f"env:{env_var_name} ({mask_api_key(env_val)})"
         elif ai_cfg.api_key:
             key_source = f"direct config ({mask_api_key(ai_cfg.api_key)})"
         else:
-            key_source = f"env:{ai_cfg.api_key_env} [dim](NOT SET)[/dim]"
+            key_source = f"env:{env_var_name} [dim](NOT SET)[/dim]"
 
     print_provider_list(
         active_provider=ai_cfg.provider,
         active_model=ai_cfg.model,
         active_base_url=ai_cfg.base_url or "",
         active_key_source=key_source,
+        active_category=ai_cfg.category,
         config_source=config_source,
     )
 
@@ -129,7 +207,7 @@ def provider_test(
         typer.Option(
             "--provider",
             "-p",
-            help="Override AI provider (ollama, openai_compatible).",
+            help="Override AI provider (ollama, gemini, openai, anthropic, openrouter, custom).",
             show_default=False,
         ),
     ] = None,
@@ -217,7 +295,7 @@ def provider_test(
     if not status.is_reachable or not status.model_available:
         raise typer.Exit(code=1)
 
-    # If prompt requested, or run a simple verification prompt
+    # Run verification prompt
     test_prompt = prompt or "Say hello in one brief sentence to confirm you are online."
     console.print(f"[bold cyan]→[/bold cyan] Sending test verification prompt: [dim]\"{test_prompt}\"[/dim]")
 
@@ -253,7 +331,7 @@ def provider_prompt(
         typer.Option(
             "--provider",
             "-p",
-            help="Override AI provider (ollama, openai_compatible).",
+            help="Override AI provider (ollama, gemini, openai, anthropic, openrouter, custom).",
         ),
     ] = None,
     model: Annotated[

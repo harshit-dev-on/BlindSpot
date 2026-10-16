@@ -1,5 +1,13 @@
-"""AI provider integration layer for BlindSpot."""
+"""Universal AI provider integration layer for BlindSpot."""
 
+from blindspot.ai.adapter import (
+    CURATED_MODELS,
+    DEFAULT_BASE_URLS,
+    DEFAULT_KEY_ENVS,
+    DEFAULT_PROVIDER_MODELS,
+    UnifiedAIAdapter,
+    get_models_for_provider,
+)
 from blindspot.ai.base import BaseAIProvider, extract_json_string
 from blindspot.ai.exceptions import (
     AIAuthenticationError,
@@ -9,10 +17,10 @@ from blindspot.ai.exceptions import (
     AIStructuredOutputError,
     AITimeoutError,
 )
-from blindspot.ai.factory import PROVIDER_REGISTRY, create_provider
+from blindspot.ai.factory import create_provider
 from blindspot.ai.models import AIResponse, ProviderStatus
 from blindspot.ai.providers.ollama import OllamaProvider
-from blindspot.ai.providers.openai_compatible import OpenAICompatibleProvider
+from blindspot.ai.providers.openai_compatible import OpenAICompatibleProvider, mask_api_key
 
 __all__ = [
     "AIAuthenticationError",
@@ -23,10 +31,16 @@ __all__ = [
     "AIStructuredOutputError",
     "AITimeoutError",
     "BaseAIProvider",
+    "CURATED_MODELS",
+    "DEFAULT_BASE_URLS",
+    "DEFAULT_KEY_ENVS",
+    "DEFAULT_PROVIDER_MODELS",
     "OllamaProvider",
     "OpenAICompatibleProvider",
-    "PROVIDER_REGISTRY",
     "ProviderStatus",
+    "UnifiedAIAdapter",
     "create_provider",
     "extract_json_string",
+    "get_models_for_provider",
+    "mask_api_key",
 ]

@@ -1,4 +1,4 @@
-"""Configuration loading and environment variable override resolution."""
+"""Configuration loading, environment variable override resolution, and persistence."""
 
 import os
 from pathlib import Path
@@ -11,7 +11,7 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib  # type: ignore
 
-from blindspot.config.models import AIConfig, BlindSpotConfig
+from blindspot.config.models import AIConfig, BlindSpotConfig, TaskModelsConfig
 
 
 DEFAULT_CONFIG_FILENAMES = ("blindspot.toml", ".blindspot.toml")
@@ -56,6 +56,7 @@ def load_config_file(path: Path) -> Dict[str, Any]:
 
 def load_config(
     custom_path: Optional[Union[str, Path]] = None,
+    category: Optional[str] = None,
     provider: Optional[str] = None,
     model: Optional[str] = None,
     base_url: Optional[str] = None,
@@ -76,6 +77,8 @@ def load_config(
         ai_data = raw_data
 
     # 2. Apply Environment Variables
+    if os.environ.get("BLINDSPOT_CATEGORY"):
+        ai_data["category"] = os.environ["BLINDSPOT_CATEGORY"]
     if os.environ.get("BLINDSPOT_PROVIDER"):
         ai_data["provider"] = os.environ["BLINDSPOT_PROVIDER"]
     if os.environ.get("BLINDSPOT_MODEL"):
@@ -93,6 +96,8 @@ def load_config(
             pass
 
     # 3. Apply Explicit CLI Overrides
+    if category:
+        ai_data["category"] = category
     if provider:
         ai_data["provider"] = provider
     if model:
@@ -106,3 +111,55 @@ def load_config(
 
     ai_config = AIConfig(**ai_data)
     return BlindSpotConfig(ai=ai_config)
+
+
+def save_config(config: BlindSpotConfig, path: Optional[Union[str, Path]] = None) -> Path:
+    """Save a BlindSpotConfig to a TOML file.
+
+    Defaults to the user-level configuration path (~/.blindspot/config.toml).
+    Does NOT store sensitive credentials if api_key_env is defined.
+    """
+    target_path = Path(path) if path else get_user_config_path()
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+    ai = config.ai
+
+    lines = [
+        "# BlindSpot Configuration File",
+        "# Generated automatically by `blindspot setup`",
+        "",
+        "[ai]",
+        f'category = "{ai.category}"',
+        f'provider = "{ai.provider}"',
+        f'model = "{ai.model}"',
+    ]
+
+    if ai.base_url:
+        lines.append(f'base_url = "{ai.base_url}"')
+
+    if ai.api_key_env:
+        lines.append(f'api_key_env = "{ai.api_key_env}"')
+    elif ai.api_key:
+        lines.append(f'api_key = "{ai.api_key}"')
+
+    lines.append(f"timeout = {ai.timeout}")
+    lines.append("")
+
+    # Task models section for future pipeline extensibility
+    tasks = ai.tasks
+    lines.append("[ai.tasks]")
+    if tasks.persona_generation:
+        lines.append(f'persona_generation = "{tasks.persona_generation}"')
+    if tasks.task_planning:
+        lines.append(f'task_planning = "{tasks.task_planning}"')
+    if tasks.ux_analysis:
+        lines.append(f'ux_analysis = "{tasks.ux_analysis}"')
+    if tasks.report_generation:
+        lines.append(f'report_generation = "{tasks.report_generation}"')
+    lines.append("")
+
+    content = "\n".join(lines)
+    with open(target_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    return target_path

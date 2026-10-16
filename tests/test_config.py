@@ -14,7 +14,7 @@ def test_ai_config_defaults():
     assert cfg.provider == "ollama"
     assert cfg.model == "gemma4"
     assert cfg.base_url is None
-    assert cfg.api_key_env == "OPENAI_API_KEY"
+    assert cfg.api_key_env is None
     assert cfg.timeout == 60.0
 
 
@@ -82,3 +82,33 @@ model = "llama3"
     cfg = load_config(custom_path=config_file, model="gemma4-custom", provider="openai_compatible")
     assert cfg.ai.provider == "openai_compatible"
     assert cfg.ai.model == "gemma4-custom"
+
+
+def test_save_and_load_config(tmp_path: Path):
+    from blindspot.config.loader import save_config
+    from blindspot.config.models import TaskModelsConfig
+
+    target_file = tmp_path / "saved_config.toml"
+    cfg = BlindSpotConfig(
+        ai=AIConfig(
+            category="cloud",
+            provider="gemini",
+            model="gemini-2.5-flash",
+            api_key_env="GEMINI_API_KEY",
+            tasks=TaskModelsConfig(
+                persona_generation="gemini-2.5-flash",
+                ux_analysis="gemini-2.5-pro",
+            ),
+        )
+    )
+
+    saved_path = save_config(cfg, path=target_file)
+    assert saved_path == target_file
+    assert target_file.exists()
+
+    loaded = load_config(custom_path=target_file)
+    assert loaded.ai.category == "cloud"
+    assert loaded.ai.provider == "gemini"
+    assert loaded.ai.model == "gemini-2.5-flash"
+    assert loaded.ai.tasks.persona_generation == "gemini-2.5-flash"
+    assert loaded.ai.tasks.ux_analysis == "gemini-2.5-pro"

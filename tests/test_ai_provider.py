@@ -270,10 +270,51 @@ def test_openai_compatible_fallback_for_response_format():
 
 
 def test_factory_creation():
+    from blindspot.ai.base import BaseAIProvider
+    from blindspot.ai.adapter import UnifiedAIAdapter
+
     ollama_cfg = AIConfig(provider="ollama", model="gemma4")
     p1 = create_provider(ollama_cfg)
-    assert isinstance(p1, OllamaProvider)
+    assert isinstance(p1, BaseAIProvider)
+    assert isinstance(p1, UnifiedAIAdapter)
+    assert p1.name == "ollama"
 
     openai_cfg = AIConfig(provider="openai_compatible", model="gpt-4o")
     p2 = create_provider(openai_cfg)
-    assert isinstance(p2, OpenAICompatibleProvider)
+    assert isinstance(p2, BaseAIProvider)
+    assert isinstance(p2, UnifiedAIAdapter)
+    assert p2.name == "custom"
+
+
+def test_unified_adapter_gemini_litellm_mock():
+    from blindspot.ai.adapter import UnifiedAIAdapter
+    import litellm
+
+    adapter = UnifiedAIAdapter(
+        provider="gemini",
+        model="gemini-2.5-flash",
+        api_key="test-gemini-key",
+    )
+    assert adapter.litellm_model == "gemini/gemini-2.5-flash"
+
+    mock_resp = MagicMock()
+    mock_resp.model = "gemini-2.5-flash"
+    choice = MagicMock()
+    choice.message.content = "UX observation from Gemini"
+    mock_resp.choices = [choice]
+    mock_resp.usage = {"total_tokens": 20}
+
+    with patch.object(litellm, "completion", return_value=mock_resp):
+        res = adapter.generate("Analyze UX")
+        assert res.content == "UX observation from Gemini"
+        assert res.provider == "gemini"
+
+
+def test_unified_adapter_missing_key_status():
+    from blindspot.ai.adapter import UnifiedAIAdapter
+
+    adapter = UnifiedAIAdapter(provider="gemini", model="gemini-2.5-flash")
+    adapter._api_key = None
+    status = adapter.check_health()
+    assert status.is_reachable is False
+    assert "Missing API key" in status.message
