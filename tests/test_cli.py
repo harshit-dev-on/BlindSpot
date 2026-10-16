@@ -101,6 +101,24 @@ def mock_inspect_ai(monkeypatch):
 
     monkeypatch.setattr("blindspot.cli.execute_persona_tasks", _mock_exec)
 
+    from blindspot.reporting.models import FindingCategory, SeverityLevel, UXFinding
+
+    def _mock_analyze(*args, **kwargs):
+        return [
+            UXFinding(
+                id="finding_mock_1",
+                title="Improve search field contrast",
+                category=FindingCategory.USABILITY_OBSERVATION,
+                description="Mock finding for CLI tests.",
+                severity=SeverityLevel.MEDIUM,
+                confidence=0.8,
+                suggested_improvement="Increase input contrast",
+                expected_benefit="Better discoverability",
+            )
+        ]
+
+    monkeypatch.setattr("blindspot.reporting.analysis.AIUXAnalyzer.analyze", _mock_analyze)
+
 
 def test_cli_help():
     """Verify that root `blindspot --help` runs successfully and displays commands."""
@@ -337,7 +355,7 @@ def test_inspect_with_skip_execution(tmp_path: Path):
 
 
 def test_inspect_executes_and_saves_execution_results(tmp_path: Path):
-    """Verify default inspect command generates personas and runs browser tasks."""
+    """Verify default inspect command generates personas, runs browser tasks, and outputs reports."""
     out_dir = tmp_path / "full_run_out"
     result = runner.invoke(
         app,
@@ -354,5 +372,30 @@ def test_inspect_executes_and_saves_execution_results(tmp_path: Path):
     assert result.exit_code == 0
     assert "Persona-Based Browser Testing Complete" in result.stdout
     assert (out_dir / "execution_results.json").exists()
+    assert (out_dir / "report.json").exists()
+    assert (out_dir / "report.html").exists()
+    assert "BlindSpot UX Testing & Analysis Complete" in result.stdout
+
+
+def test_inspect_with_skip_report(tmp_path: Path):
+    """Verify --skip-report flag suppresses report generation."""
+    out_dir = tmp_path / "skip_report_out"
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+            "--output-dir",
+            str(out_dir),
+            "--skip-report",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "UX report generation skipped" in result.stdout
+    assert not (out_dir / "report.json").exists()
+    assert not (out_dir / "report.html").exists()
 
 

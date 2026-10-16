@@ -439,5 +439,75 @@ def print_execution_summary(run_result: Any) -> None:
         console.print()
 
 
+def print_report_summary(
+    report_id: str,
+    target_url: str,
+    total_tasks: int,
+    passed_tasks: int,
+    failed_tasks: int,
+    verified_issues: int,
+    usability_observations: int,
+    potential_improvements: int,
+    json_path: Path,
+    html_path: Path,
+    top_findings: Optional[List[Any]] = None,
+) -> None:
+    """Display final UX report generation summary and top prioritized findings in console."""
+    table = Table(show_header=False, box=None, padding=(0, 1))
+    table.add_column("Field", style="bold cyan", width=24)
+    table.add_column("Value", style="white")
 
+    table.add_row("Target Website", target_url)
+    table.add_row("Report ID", report_id)
+    table.add_row(
+        "Task Results",
+        f"{total_tasks} total tasks | [green]{passed_tasks} passed[/green] | [red]{failed_tasks} failed[/red]",
+    )
+    table.add_row(
+        "Discovered Findings",
+        f"[bold red]{verified_issues} Verified Defects[/bold red] • [bold yellow]{usability_observations} Usability Observations[/bold yellow] • [bold cyan]{potential_improvements} Potential Improvements[/bold cyan]",
+    )
+    table.add_row("Machine-Readable JSON", str(json_path))
+    table.add_row("Interactive HTML Report", f"[bold underline green]{html_path}[/bold underline green]")
 
+    border_color = "red" if verified_issues > 0 else "yellow" if usability_observations > 0 else "green"
+    console.print(
+        Panel(
+            table,
+            title="[bold green]BlindSpot UX Testing & Analysis Complete[/bold green]",
+            subtitle="[dim]Status: Report generated and saved[/dim]",
+            border_style=border_color,
+            padding=(1, 2),
+        )
+    )
+
+    if top_findings:
+        console.print("\n[bold]Top Prioritized Usability Recommendations:[/bold]")
+        f_table = Table(box=None, padding=(0, 1))
+        f_table.add_column("Rank", style="dim", width=6)
+        f_table.add_column("Category", width=22)
+        f_table.add_column("Severity", width=12)
+        f_table.add_column("Finding Title", style="bold white", ratio=2)
+        f_table.add_column("Recommended Action", style="white", ratio=3)
+
+        for f in top_findings[:5]:
+            cat_color = (
+                "red" if f.category.value == "verified_issue"
+                else "yellow" if f.category.value == "usability_observation"
+                else "cyan"
+            )
+            sev_color = (
+                "red" if f.severity.value == "Critical"
+                else "bright_red" if f.severity.value == "High"
+                else "yellow" if f.severity.value == "Medium"
+                else "blue"
+            )
+            f_table.add_row(
+                f"#{f.priority_rank}",
+                f"[{cat_color}]{f.category.label}[/{cat_color}]",
+                f"[{sev_color}]{f.severity.value}[/{sev_color}]",
+                f.title,
+                f.suggested_improvement,
+            )
+        console.print(f_table)
+        console.print(f"\n[dim]To view full evidence, reproduction steps & screenshots: open {html_path}[/dim]\n")

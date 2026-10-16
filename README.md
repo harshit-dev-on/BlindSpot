@@ -397,6 +397,7 @@ blindspot inspect --url "https://example.com" --context "A minimalist informatio
 | `--skip-ai` | | Run browser inspection only without calling AI |
 | `--skip-execution` | | Generate personas and tasks without executing browser tests |
 | `--max-actions <N>` | | Max interactive steps per persona task (default: 10, clamped 1-30) |
+| `--skip-report` | | Skip UX analysis and report generation |
 | `--ai-provider <name>` | | Override AI provider (e.g. `ollama`, `gemini`, `openai`) |
 | `--ai-model <name>` | | Override AI model for persona generation & execution |
 | `--headed` | | Launch browser in visible desktop window (default: headless) |
@@ -411,6 +412,30 @@ Every run produces a dedicated folder inside `reports/`:
 - `personas.json`: Machine-readable test plan containing synthesized personas, goals, accessibility considerations, and assigned tasks with explicit success criteria.
 - `execution_results.json`: Complete record of persona task execution including timestamps, actions taken, observable evidence, and final status (`SUCCESS`, `FAILURE`, `INCONCLUSIVE`).
 - `task_*_step*.png`: Step-by-step visual checkpoints captured during task execution.
+- `report.json`: Machine-readable consolidated UX analysis, prioritized findings, and task metrics.
+- `report.html`: Developer-ready, responsive HTML report with visual screenshots, category badges, reproduction steps, and evidence-backed recommendations.
+
+---
+
+### 📊 Evidence Aggregation & UX Reporting
+
+BlindSpot converts the collected test artifacts into actionable, developer-friendly recommendations:
+
+1. **Evidence Aggregation**:
+   - Collects browser inspection results, persona definitions, action logs, DOM accessibility flaws, and screenshots.
+   - Preserves raw evidence even if AI analysis is disabled or fails.
+2. **Clear Finding Categories**:
+   - **Objectively Verified Issues**: Broken links/navigation, failed interactions, console errors, missing image `alt` tags, and unlabeled form inputs.
+   - **Usability Observations**: Confusing workflows, unclear CTAs, or excessive interaction steps.
+   - **Potential Improvements**: Constructive enhancements backed by user context.
+   - *Strict Guardrail: AI subjective opinions are never labeled as verified bugs.*
+3. **Pydantic Validation & Consistent Severity**:
+   - Strict schemas for findings with unique IDs, categories, severity (`Critical`, `High`, `Medium`, `Low`, `Informational`), confidence scores, and reproduction steps.
+4. **Deduplication & Prioritization**:
+   - Merges identical findings across personas.
+   - Computes composite priority scores using task completion impact, evidence strength, affected personas, and confidence.
+5. **Research Limitation Disclaimer**:
+   - Prominently clarifies that simulated personas are synthetic exploratory agents, not statistically representative human samples.
 
 ---
 
@@ -463,7 +488,7 @@ pytest -v
 - [x] **Grounding & verification engine (flagging unverified vs confirmed features)**
 - [x] **Prompt injection defense (strict untrusted website content fencing)**
 - [x] **Automated persona-based browser task execution (Milestone 4)**
-- [ ] Consolidated evidence-backed UX improvement report generator
+- [x] **Consolidated evidence-backed UX improvement report generator (Milestone 5)**
 - [ ] **Model Context Protocol (MCP)** server integration for AI coding agents
 - [ ] Web-based demonstration UI
 

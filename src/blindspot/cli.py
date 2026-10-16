@@ -20,6 +20,7 @@ from blindspot.core.models import InspectConfig
 from blindspot.core.validation import validate_context, validate_url
 from blindspot.execution import execute_persona_tasks
 from blindspot.personas import generate_personas_and_tasks
+from blindspot.reporting import generate_ux_report
 from blindspot.utils.console import (
     console,
     print_ai_prompt_result,
@@ -32,6 +33,7 @@ from blindspot.utils.console import (
     print_personas_summary,
     print_provider_list,
     print_provider_status,
+    print_report_summary,
 )
 
 app = typer.Typer(
@@ -518,6 +520,14 @@ def inspect(
             show_default=True,
         ),
     ] = 8,
+    skip_report: Annotated[
+        bool,
+        typer.Option(
+            "--skip-report",
+            help="Skip JSON and HTML UX report generation.",
+            show_default=False,
+        ),
+    ] = False,
 ) -> None:
     """Run website inspection, capture page state, screenshot, elements, and synthesize AI personas."""
     # Determine effective headless mode
@@ -644,29 +654,65 @@ def inspect(
         raise typer.Exit(code=1)
 
     # 8. Automated Browser Task Execution
+    execution_result = None
     if skip_execution:
         console.print("[dim]Persona task execution skipped (--skip-execution flag provided).[/dim]")
+    else:
+        console.print(
+            f"\n[bold cyan]→[/bold cyan] Launching automated browser execution for [bold]{len(plan.personas)}[/bold] personas across isolated sessions..."
+        )
+
+        try:
+            execution_result = execute_persona_tasks(
+                plan=plan,
+                provider=provider_instance,
+                output_dir=run_output_dir or Path(result.result_json_path).parent,
+                browser_type=selected_browser,
+                headless=effective_headless,
+                max_actions_per_task=max_actions,
+            )
+            print_execution_summary(execution_result)
+        except Exception as exc:
+            print_error(
+                title="Browser Task Execution Error",
+                message=str(exc),
+                suggestion="Check browser reachability or try running with '--skip-execution'.",
+            )
+            raise typer.Exit(code=1)
+
+    # 9. Evidence Aggregation, UX Analysis, and Report Generation
+    if skip_report:
+        console.print("[dim]UX report generation skipped (--skip-report flag provided).[/dim]")
         return
 
-    console.print(
-        f"\n[bold cyan]→[/bold cyan] Launching automated browser execution for [bold]{len(plan.personas)}[/bold] personas across isolated sessions..."
-    )
-
+    console.print("\n[bold cyan]→[/bold cyan] Aggregating evidence and generating UX reports...")
     try:
-        execution_result = execute_persona_tasks(
+        report, json_path, html_path = generate_ux_report(
+            inspection_result=result,
             plan=plan,
+            execution_result=execution_result,
             provider=provider_instance,
             output_dir=run_output_dir or Path(result.result_json_path).parent,
-            browser_type=selected_browser,
-            headless=effective_headless,
-            max_actions_per_task=max_actions,
+            context=resolved_context,
         )
-        print_execution_summary(execution_result)
+        print_report_summary(
+            report_id=report.report_id,
+            target_url=report.target_url,
+            total_tasks=report.task_metrics.total_tasks,
+            passed_tasks=report.task_metrics.passed_tasks,
+            failed_tasks=report.task_metrics.failed_tasks,
+            verified_issues=report.verified_issues_count,
+            usability_observations=report.usability_observations_count,
+            potential_improvements=report.potential_improvements_count,
+            json_path=json_path,
+            html_path=html_path,
+            top_findings=report.findings,
+        )
     except Exception as exc:
         print_error(
-            title="Browser Task Execution Error",
+            title="Report Generation Error",
             message=str(exc),
-            suggestion="Check browser reachability or try running with '--skip-execution'.",
+            suggestion="Verify directory write permissions or check previous task logs.",
         )
         raise typer.Exit(code=1)
 
