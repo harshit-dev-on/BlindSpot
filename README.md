@@ -147,7 +147,7 @@ BlindSpot features a universal AI abstraction layer powered by LiteLLM:
 Open a terminal (PowerShell on Windows, or bash/zsh on POSIX platforms) and clone the repository:
 
 ```powershell
-git clone https://github.com/your-org/BlindSpot.git
+git clone https://github.com/harshit-dev-on/BlindSpot.git
 cd BlindSpot
 ```
 
