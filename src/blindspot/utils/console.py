@@ -5,6 +5,7 @@ from typing import Any, Optional
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 
 # Enable UTF-8 encoding stream on Windows when available to prevent charmap encoding errors
 if sys.platform == "win32":

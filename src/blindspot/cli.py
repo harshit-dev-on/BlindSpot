@@ -169,41 +169,20 @@ def main(
 
     # If bare `blindspot` command is run:
     # Launch Strix-style interactive start screen
-    console.print(
-        Panel(
-            "[bold white]BlindSpot — Autonomous AI UX Testing[/bold white]\n\n"
-            "[dim]Simulate human user personas to uncover UX flaws, accessibility barriers, and friction.[/dim]",
-            title="[bold cyan]BlindSpot[/bold cyan]",
-            title_align="left",
-            border_style="cyan",
-            padding=(1, 2),
-        )
-    )
-    from rich.prompt import Prompt
-    try:
-        chosen_target = Prompt.ask(
-            "Enter Target URL to test [or press Enter to launch Web Studio]",
-            default="",
-        )
-        if not chosen_target.strip():
-            from blindspot.web import run_web_studio
-            console.print("[bold cyan]→[/bold cyan] Launching BlindSpot Web Studio...")
-            run_web_studio(port=8501, host="127.0.0.1")
-            return
+    from blindspot.interface.interactive import show_interactive_start_screen
+    chosen_target, chosen_instruction = show_interactive_start_screen()
+    if not chosen_target:
+        from blindspot.web import run_web_studio
+        console.print("[bold cyan]→[/bold cyan] Launching BlindSpot Web Studio...")
+        run_web_studio(port=8501, host="127.0.0.1")
+        return
 
-        chosen_instruction = Prompt.ask(
-            "Custom instructions [optional, e.g. 'Focus on checkout flow']",
-            default="",
-        )
-        inspect(
-            url=chosen_target.strip(),
-            context=chosen_instruction.strip() if chosen_instruction.strip() else None,
-            headed=headed,
-            allow_local=allow_local,
-        )
-    except (KeyboardInterrupt, typer.Abort):
-        console.print("\n[yellow]Exited.[/yellow]")
-        raise typer.Exit(code=0)
+    inspect(
+        url=chosen_target,
+        context=chosen_instruction,
+        headed=headed,
+        allow_local=allow_local,
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -217,7 +196,7 @@ def main(
 )
 def setup_command() -> None:
     """Run interactive setup wizard to configure AI provider and credentials."""
-    from blindspot.cli_setup import run_setup_wizard
+    from blindspot.interface.scan_setup import run_setup_wizard
 
     try:
         run_setup_wizard()

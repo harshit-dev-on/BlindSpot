@@ -1,6 +1,6 @@
 """CLI entry point when executed as a module (python -m blindspot)."""
 
-from blindspot.cli import app
+from blindspot.interface.main import app, main
 
 if __name__ == "__main__":
-    app()
+    main()
