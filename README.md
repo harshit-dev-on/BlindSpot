@@ -198,19 +198,26 @@ playwright install chromium
 
 ## 5. Quickstart Guide
 
-### Step 1: Configure AI Credentials
+### Step 1: Configure AI Credentials (Strix Standard)
 
-Launch the interactive configuration wizard to select your inference backend:
+You can configure BlindSpot using standard environment variables (zero configuration):
+
+```bash
+# Set your model route and API key (identical to Strix format)
+export BLINDSPOT_LLM="google/gemini-2.5-flash"
+export LLM_API_KEY="your-api-key"
+```
+
+Or launch the streamlined interactive setup wizard:
 
 ```powershell
 blindspot setup
 ```
 
-The wizard prompts you for:
-1. **Deployment Mode**: `local` (Ollama) or `cloud` (Gemini, OpenAI, Anthropic, OpenRouter).
-2. **Provider Selection**: Choose your preferred provider.
-3. **Model Identifier**: Select from verified defaults (e.g., `gemini-2.5-flash`, `gemma4`, `gpt-4o-mini`) or input a custom identifier.
-4. **API Credentials**: Securely input your API key (masked input). The key is saved to your local user configuration file.
+The wizard prompts for:
+1. **Model Route**: In standard `<provider>/<model>` format (e.g., `gemini/gemini-2.5-flash`, `openai/gpt-4o-mini`, `anthropic/claude-3-7-sonnet`, `ollama/gemma4`).
+2. **API Credentials**: Reads directly from your environment or securely saves to your local `~/.blindspot/config.toml`.
+3. **Instant Preflight**: Automatically runs a live connection check.
 
 ### Step 2: Validate AI Provider Reachability
 
@@ -222,18 +229,25 @@ blindspot provider test
 
 ### Step 3: Execute an Autonomous Inspection Run
 
-Run an end-to-end evaluation against a target website:
+Run an end-to-end evaluation directly with `--target`:
 
 ```powershell
-blindspot inspect `
-  --url "https://example.com" `
-  --context "Informational reference site presenting internet architecture documentation to web developers" `
-  --personas 2
+# Direct execution (Strix style)
+blindspot --target "https://example.com"
+
+# With custom focus instruction
+blindspot -t "https://example.com" -i "Focus on navigation accessibility and checkout friction"
+```
+
+Or simply run bare `blindspot` to launch the interactive start screen / Web Studio:
+
+```powershell
+blindspot
 ```
 
 ### Step 4: Review Audit Artifacts
 
-BlindSpot writes all run outputs to a dedicated folder under `reports/run_<sanitized_host>_<timestamp>/`. Open the interactive HTML dashboard in your default browser:
+BlindSpot writes all run outputs to a dedicated folder under `reports/run_<sanitized_host>_<timestamp>/` containing both the interactive HTML report and the standardized `findings.sarif` report for GitHub / CI security scanning:
 
 **Windows PowerShell:**
 ```powershell
