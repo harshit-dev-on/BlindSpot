@@ -141,6 +141,23 @@ def main(
             show_default=False,
         ),
     ] = None,
+    non_interactive: Annotated[
+        bool,
+        typer.Option(
+            "--non-interactive",
+            "-n",
+            help="Run non-interactively in headless mode (Strix standard).",
+            show_default=False,
+        ),
+    ] = False,
+    config: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--config",
+            help="Path to custom config file (JSON or TOML) instead of ~/.blindspot/config.toml.",
+            show_default=False,
+        ),
+    ] = None,
     headed: Annotated[
         bool,
         typer.Option(
@@ -181,14 +198,18 @@ def main(
     if model:
         _, ai_prov, ai_mod = parse_model_route(model)
 
+    effective_headed = False if non_interactive else headed
+
     if effective_target:
         inspect(
             url=effective_target,
             context=effective_instruction,
-            headed=headed,
+            headed=effective_headed,
             allow_local=allow_local,
             ai_provider=ai_prov,
             ai_model=ai_mod,
+            config=config,
+            non_interactive=non_interactive,
         )
         return
 
@@ -205,10 +226,12 @@ def main(
     inspect(
         url=chosen_target,
         context=chosen_instruction,
-        headed=headed,
+        headed=effective_headed,
         allow_local=allow_local,
         ai_provider=ai_prov,
         ai_model=ai_mod,
+        config=config,
+        non_interactive=non_interactive,
     )
 
 
@@ -665,6 +688,23 @@ def inspect(
             show_default=False,
         ),
     ] = None,
+    non_interactive: Annotated[
+        bool,
+        typer.Option(
+            "--non-interactive",
+            "-n",
+            help="Run non-interactively in headless mode (Strix standard).",
+            show_default=False,
+        ),
+    ] = False,
+    config: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--config",
+            help="Path to custom config file (JSON or TOML) instead of ~/.blindspot/config.toml.",
+            show_default=False,
+        ),
+    ] = None,
     skip_execution: Annotated[
         bool,
         typer.Option(
@@ -700,7 +740,7 @@ def inspect(
 ) -> None:
     """Run website inspection, capture page state, screenshot, elements, and synthesize AI personas."""
     # Determine effective headless mode
-    effective_headless = False if headed else headless
+    effective_headless = True if non_interactive else (False if headed else headless)
 
     # Determine effective target and context
     effective_url = target or url
@@ -724,6 +764,19 @@ def inspect(
         _, parsed_prov, parsed_mod = parse_model_route(model)
         ai_provider = ai_provider or parsed_prov
         ai_model = ai_model or parsed_mod
+
+    # Strix startup validation and persistence
+    if not skip_ai:
+        from blindspot.config.loader import load_config, persist_current
+        from blindspot.interface.environment import validate_environment
+
+        prospective_cfg = load_config(
+            custom_path=config,
+            provider=ai_provider,
+            model=ai_model,
+        )
+        validate_environment(prospective_cfg)
+        persist_current()
 
     # 1. Validate Target URL
     url_res = validate_url(effective_url)
@@ -767,15 +820,15 @@ def inspect(
         raise typer.Exit(code=1)
 
     # 4. Display Input Validation Summary
-    config = InspectConfig(url=effective_url.strip(), context=resolved_context)
-    print_inspection_summary(url=config.url, context=config.context)
-    print_inspection_start(url=config.url, browser=selected_browser)
+    inspect_input_config = InspectConfig(url=effective_url.strip(), context=resolved_context)
+    print_inspection_summary(url=inspect_input_config.url, context=inspect_input_config.context)
+    print_inspection_start(url=inspect_input_config.url, browser=selected_browser)
 
     # 5. Launch Browser Inspection
     try:
         result = inspect_website(
-            url=config.url,
-            context=config.context,
+            url=inspect_input_config.url,
+            context=inspect_input_config.context,
             output_dir=output_dir,
             browser_type=selected_browser,
             headless=effective_headless,
@@ -812,7 +865,7 @@ def inspect(
 
     console.print("\n[bold cyan]→[/bold cyan] Initializing AI model for persona generation...")
     try:
-        loaded_cfg = load_config(provider=ai_provider, model=ai_model)
+        loaded_cfg = load_config(custom_path=config, provider=ai_provider, model=ai_model)
         ai_cfg = loaded_cfg.ai
         effective_model = (
             ai_model

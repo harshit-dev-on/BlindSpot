@@ -73,9 +73,9 @@ Write-Host '   Autonomous AI UX & Usability Testing Agent' -ForegroundColor Dark
 Write-Host ""
 Write-Host 'To get started:' -ForegroundColor White
 Write-Host ''
-Write-Host '  1. Set your environment:' -ForegroundColor Cyan
+Write-Host '  1. Set your environment (identical to Strix):' -ForegroundColor Cyan
+Write-Host '     $env:BLINDSPOT_LLM = "gemini/gemini-2.5-flash"   # or $env:STRIX_LLM' -ForegroundColor DarkGray
 Write-Host '     $env:LLM_API_KEY = "your-api-key"' -ForegroundColor DarkGray
-Write-Host '     $env:BLINDSPOT_LLM = "google/gemini-2.5-flash"' -ForegroundColor DarkGray
 Write-Host '     (or run "blindspot setup" for interactive configuration)' -ForegroundColor DarkGray
 Write-Host ''
 Write-Host '  2. Run a UX & accessibility audit:' -ForegroundColor Cyan

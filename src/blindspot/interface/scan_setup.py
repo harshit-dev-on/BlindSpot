@@ -59,9 +59,11 @@ def run_setup_wizard() -> None:
     """Run a streamlined Strix-style setup wizard for BlindSpot."""
     # Load existing config to offer smart defaults
     existing_cfg = load_config()
-    current_route = f"{existing_cfg.ai.provider}/{existing_cfg.ai.model}"
-    if not existing_cfg.ai.model or existing_cfg.ai.model in ("default", "gemini-3.5-flash"):
-        current_route = "gemini/gemini-2.5-flash"
+    p = existing_cfg.ai.provider or "gemini"
+    m = existing_cfg.ai.model or "gemini-2.5-flash"
+    if m in ("default", "gemini-3.5-flash") or not m:
+        m = "gemini-2.5-flash"
+    current_route = f"{p}/{m}"
 
     console.print(
         Panel(

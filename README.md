@@ -218,13 +218,20 @@ playwright install chromium
 
 ### Step 1: Configure AI Credentials (Strix Standard)
 
-You can configure BlindSpot using standard environment variables (zero configuration):
+You can configure BlindSpot identically to Strix using standard environment variables (zero configuration required):
 
 ```bash
-# Set your model route and API key (identical to Strix format)
-export BLINDSPOT_LLM="google/gemini-2.5-flash"
+# Configure your AI provider (accepts BLINDSPOT_LLM or STRIX_LLM)
+export BLINDSPOT_LLM="gemini/gemini-2.5-flash"   # or export STRIX_LLM="openrouter/z-ai/glm-5.3"
 export LLM_API_KEY="your-api-key"
+
+# Optional: Custom endpoint for local models (Ollama, LMStudio, vLLM)
+export LLM_API_BASE="http://localhost:11434"
 ```
+
+> [!TIP]
+> **Automatic Persistence:** BlindSpot automatically persists your active environment configuration to `~/.blindspot/cli-config.json` (exact Strix JSON format) and `~/.blindspot/config.toml`. When you reopen your terminal, your settings are remembered without needing to re-export them.
+> If you already have Strix configured on your system (`~/.strix/cli-config.json`), BlindSpot automatically discovers and reads it out-of-the-box!
 
 Or launch the streamlined interactive setup wizard:
 
@@ -234,7 +241,7 @@ blindspot setup
 
 The wizard prompts for:
 1. **Model Route**: In standard `<provider>/<model>` format (e.g., `gemini/gemini-2.5-flash`, `openai/gpt-4o-mini`, `anthropic/claude-3-7-sonnet`, `ollama/gemma4`).
-2. **API Credentials**: Reads directly from your environment or securely saves to your local `~/.blindspot/config.toml`.
+2. **API Credentials**: Reads directly from your environment or securely saves to your local `~/.blindspot/config.toml` and `~/.blindspot/cli-config.json`.
 3. **Instant Preflight**: Automatically runs a live connection check.
 
 ### Step 2: Validate AI Provider Reachability
@@ -247,14 +254,18 @@ blindspot provider test
 
 ### Step 3: Execute an Autonomous Inspection Run
 
-Run an end-to-end evaluation directly with `--target`:
+Run an end-to-end evaluation directly with `--target` / `-t`:
 
 ```powershell
-# Direct execution (Strix style)
+# Direct execution (identical to Strix)
 blindspot --target "https://example.com"
 
-# With custom focus instruction
+# With custom focus instruction (or read from a file)
 blindspot -t "https://example.com" -i "Focus on navigation accessibility and checkout friction"
+blindspot -t "https://example.com" --instruction-file ./instructions.txt
+
+# Specify model route or run non-interactively (headless CI mode)
+blindspot -t "https://example.com" -m "gemini/gemini-2.5-flash" -n
 ```
 
 Or simply run bare `blindspot` to launch the interactive start screen / Web Studio:
@@ -276,32 +287,34 @@ Start-Process (Get-ChildItem reports/*/report.html | Sort-Object LastWriteTime -
 
 ## 6. Command-Line Interface (CLI) Manual
 
-### 6.1 `blindspot inspect`
+### 6.1 `blindspot` / `blindspot inspect`
 
 The primary execution command. Conducts DOM ingestion, persona synthesis, sandboxed task execution, evidence acquisition, and report generation.
 
 ```text
-Usage: blindspot inspect [OPTIONS]
+Usage: blindspot [OPTIONS]
+       blindspot inspect [OPTIONS]
 ```
 
-#### Options Reference
+#### Options Reference (Strix Parity)
 
 | Parameter | Short | Type | Default | Description |
 |---|---|---|---|---|
-| `--url` | `-u` | String | **Required** | Target website URL (HTTP or HTTPS scheme required). |
-| `--context` | `-c` | String | **Required** | Plain-text purpose and target audience description, or path to a text file. |
+| `--target` / `--url` | `-t`, `-u` | String | **Required** | Target website URL (HTTP or HTTPS scheme required). |
+| `--instruction` / `--context` | `-i`, `-c` | String | Auto | Focus instruction or plain-text website description. |
+| `--instruction-file` | | Path | None | Path to file containing custom instructions (Strix standard). |
+| `--model` | `-m` | String | None | AI model route in `<provider>/<model>` format (e.g. `gemini/gemini-2.5-flash`). |
+| `--non-interactive` | `-n` | Flag | `False` | Run non-interactively in headless mode (Strix standard for CI/CD). |
+| `--config` | | Path | None | Path to custom config file (JSON or TOML) to use instead of default. |
 | `--personas` | `-p` | Integer | `3` | Number of synthetic personas to simulate (clamped between 1 and 5). |
 | `--max-actions` | | Integer | `8` | Maximum interactive action steps permitted per persona task. |
 | `--browser` | `-b` | String | `chromium` | Browser engine: `chromium`, `firefox`, or `webkit`. |
-| `--headless` / `--no-headless` | | Boolean | `True` | Run browser in headless mode. |
-| `--headed` | | Flag | `False` | Launch browser in visible desktop window (alias for `--no-headless`). |
+| `--headed` | | Flag | `False` | Launch browser in visible desktop window. |
 | `--output-dir` | `-o` | Path | Auto | Custom destination directory for test artifacts (defaults to `reports/run_*`). |
 | `--allow-local` | | Flag | `False` | Explicitly permit navigation to loopback addresses (`localhost`, `127.0.0.1`). |
 | `--skip-ai` | | Flag | `False` | Run DOM inspection and element extraction without calling AI models. |
 | `--skip-execution` | | Flag | `False` | Synthesize personas and task plan without executing browser journeys. |
 | `--skip-report` | | Flag | `False` | Skip final UX analysis and HTML/JSON report generation. |
-| `--ai-provider` | | String | None | Runtime override for AI provider (e.g., `gemini`, `ollama`, `openai`). |
-| `--ai-model` | | String | None | Runtime override for model identifier (e.g., `gemini-2.5-flash`). |
 
 #### Examples
 

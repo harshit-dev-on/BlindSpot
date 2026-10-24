@@ -1,5 +1,6 @@
 """Configuration loading, environment variable override resolution, and persistence."""
 
+import json
 import os
 from pathlib import Path
 import sys
@@ -14,16 +15,28 @@ else:
 from blindspot.config.models import AIConfig, BlindSpotConfig, TaskModelsConfig
 
 
-DEFAULT_CONFIG_FILENAMES = ("blindspot.toml", ".blindspot.toml")
+DEFAULT_CONFIG_FILENAMES = ("blindspot.toml", ".blindspot.toml", "cli-config.json")
+USER_CONFIG_DIR = Path.home() / ".blindspot"
+USER_CONFIG_TOML = USER_CONFIG_DIR / "config.toml"
+USER_CONFIG_JSON = USER_CONFIG_DIR / "cli-config.json"
+STRIX_CONFIG_JSON = Path.home() / ".strix" / "cli-config.json"
 
 
 def get_user_config_path() -> Path:
     """Return user-level configuration path ~/.blindspot/config.toml."""
-    return Path.home() / ".blindspot" / "config.toml"
+    return USER_CONFIG_TOML
 
 
 def find_config_file(custom_path: Optional[Union[str, Path]] = None) -> Optional[Path]:
-    """Locate configuration file from custom path, working directory, or home directory."""
+    """Locate configuration file from custom path, working directory, or home directory.
+
+    Checks:
+      1. Custom path (CLI flag --config)
+      2. CWD (blindspot.toml, .blindspot.toml, cli-config.json)
+      3. ~/.blindspot/config.toml
+      4. ~/.blindspot/cli-config.json
+      5. ~/.strix/cli-config.json (Strix parity interop)
+    """
     if custom_path:
         p = Path(custom_path)
         if p.is_file():
@@ -37,16 +50,61 @@ def find_config_file(custom_path: Optional[Union[str, Path]] = None) -> Optional
         if candidate.is_file():
             return candidate
 
-    # 2. Check user home directory
-    user_config = get_user_config_path()
-    if user_config.is_file():
-        return user_config
+    # 2. Check user home directory (.blindspot/config.toml)
+    if USER_CONFIG_TOML.is_file():
+        return USER_CONFIG_TOML
+
+    # 3. Check user home directory (.blindspot/cli-config.json)
+    if USER_CONFIG_JSON.is_file():
+        return USER_CONFIG_JSON
+
+    # 4. Check Strix user configuration (~/.strix/cli-config.json)
+    if STRIX_CONFIG_JSON.is_file():
+        return STRIX_CONFIG_JSON
 
     return None
 
 
 def load_config_file(path: Path) -> Dict[str, Any]:
-    """Parse a TOML configuration file into a dictionary."""
+    """Parse a TOML or JSON configuration file into a dictionary."""
+    if path.suffix.lower() == ".json":
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            # If Strix {"env": {...}} schema
+            env_block = data.get("env", {}) if isinstance(data, dict) else {}
+            res: Dict[str, Any] = {}
+            llm_val = env_block.get("BLINDSPOT_LLM") or env_block.get("STRIX_LLM")
+            if llm_val:
+                cat, prov, mod = parse_model_route(str(llm_val))
+                res["category"] = cat
+                res["provider"] = prov
+                res["model"] = mod
+            api_key = env_block.get("LLM_API_KEY") or env_block.get("BLINDSPOT_API_KEY")
+            if api_key:
+                res["api_key"] = str(api_key).strip()
+            base_url = (
+                env_block.get("BLINDSPOT_BASE_URL")
+                or env_block.get("LLM_API_BASE")
+                or env_block.get("OPENAI_API_BASE")
+                or env_block.get("OLLAMA_API_BASE")
+            )
+            if base_url:
+                res["base_url"] = str(base_url).strip()
+            timeout = env_block.get("LLM_TIMEOUT") or env_block.get("BLINDSPOT_TIMEOUT")
+            if timeout:
+                try:
+                    res["timeout"] = float(timeout)
+                except ValueError:
+                    pass
+            if "ai" in data and isinstance(data["ai"], dict):
+                res.update(data["ai"])
+            elif any(k in data for k in ("provider", "model", "category")):
+                res.update({k: v for k, v in data.items() if k != "env"})
+            return {"ai": res}
+        except Exception as exc:
+            raise ValueError(f"Failed to parse JSON configuration from '{path}': {exc}") from exc
+
     try:
         with open(path, "rb") as f:
             return tomllib.load(f)
@@ -173,10 +231,11 @@ def load_config(
 
 
 def save_config(config: BlindSpotConfig, path: Optional[Union[str, Path]] = None) -> Path:
-    """Save a BlindSpotConfig to a TOML file.
+    """Save a BlindSpotConfig to configuration files.
 
-    Defaults to the user-level configuration path (~/.blindspot/config.toml).
-    Does NOT store sensitive credentials if api_key_env is defined.
+    Saves to:
+      1. ~/.blindspot/config.toml (standard TOML configuration)
+      2. ~/.blindspot/cli-config.json (standard Strix JSON format for interoperability)
     """
     target_path = Path(path) if path else get_user_config_path()
     target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -221,4 +280,34 @@ def save_config(config: BlindSpotConfig, path: Optional[Union[str, Path]] = None
     with open(target_path, "w", encoding="utf-8") as f:
         f.write(content)
 
+    # Also save Strix-format cli-config.json
+    try:
+        json_path = target_path.parent / "cli-config.json"
+        active_route = f"{ai.provider}/{ai.model}"
+        env_block: Dict[str, Any] = {
+            "BLINDSPOT_LLM": active_route,
+            "STRIX_LLM": active_route,
+        }
+        if ai.api_key:
+            env_block["LLM_API_KEY"] = ai.api_key
+        if ai.base_url:
+            env_block["LLM_API_BASE"] = ai.base_url
+        if ai.timeout:
+            env_block["LLM_TIMEOUT"] = str(ai.timeout)
+        with open(json_path, "w", encoding="utf-8") as jf:
+            json.dump({"env": env_block}, jf, indent=2)
+    except OSError:
+        pass
+
     return target_path
+
+
+def persist_current() -> None:
+    """Merge currently active settings and env vars into user config (~/.blindspot/).
+
+    Identical to Strix's persist_current(), ensuring settings survive across shell sessions
+    so the user never has to re-enter them on subsequent runs.
+    """
+    cfg = load_config()
+    save_config(cfg)
+
