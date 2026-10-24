@@ -3,13 +3,6 @@
 
 $ErrorActionPreference = "Stop"
 
-Write-Host ""
-Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║          BlindSpot — Autonomous AI UX Testing              ║" -ForegroundColor Cyan
-Write-Host "║     Simulate human user personas to uncover UX flaws       ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
-Write-Host ""
-
 # Verify Python is available
 $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
 if (-not $pythonCmd) {
@@ -47,7 +40,6 @@ if (Test-Path "$PSScriptRoot\..\pyproject.toml") {
     & $VenvPip install --quiet "git+https://github.com/harshit-dev-on/BlindSpot.git"
 }
 
-
 # Create runner batch file in ~/.blindspot/bin
 $ShimFile = Join-Path $InstallDir "blindspot.cmd"
 "@echo off`n`"$VenvBlindspot`" %*" | Out-File -FilePath $ShimFile -Encoding ASCII
@@ -69,11 +61,26 @@ if ($CurrentPath -notlike "*$InstallDir*") {
     Write-Host "✓ Added $InstallDir to user PATH" -ForegroundColor Green
 }
 
+Write-Host "✓ BlindSpot ready" -ForegroundColor Green
 Write-Host ""
-Write-Host "✓ BlindSpot successfully installed!" -ForegroundColor Green
+Write-Host "   ██████╗ ██╗     ██╗███╗   ██╗██████╗ ███████╗██████╗  ██████╗ ████████╗" -ForegroundColor Cyan
+Write-Host "   ██╔══██╗██║     ██║████╗  ██║██╔══██╗██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝" -ForegroundColor Cyan
+Write-Host "   ██████╔╝██║     ██║██╔██╗ ██║██║  ██║███████╗██████╔╝██║   ██║   ██║   " -ForegroundColor Cyan
+Write-Host "   ██╔══██╗██║     ██║██║╚██╗██║██║  ██║╚════██║██╔═══╝ ██║   ██║   ██║   " -ForegroundColor Cyan
+Write-Host "   ██████╔╝███████╗██║██║ ╚████║██████╔╝███████║██║     ╚██████╔╝   ██║   " -ForegroundColor Cyan
+Write-Host "   ╚═════╝ ╚══════╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝      ╚═════╝    ╚═╝   " -ForegroundColor Cyan
+Write-Host "  Autonomous AI UX & Usability Testing Agent" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "To get started:" -ForegroundColor White
-Write-Host "  1. Run interactive setup:    blindspot setup" -ForegroundColor Cyan
-Write-Host "  2. Test provider status:     blindspot provider test" -ForegroundColor Cyan
-Write-Host "  3. Launch your first audit:  blindspot inspect --url https://example.com" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "  1. Set your environment:" -ForegroundColor Cyan
+Write-Host "     `$env:LLM_API_KEY = 'your-api-key'" -ForegroundColor DarkGray
+Write-Host "     `$env:BLINDSPOT_LLM = 'google/gemini-2.5-flash'" -ForegroundColor DarkGray
+Write-Host "     (or run 'blindspot setup' for interactive configuration)" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "  2. Run a UX & accessibility audit:" -ForegroundColor Cyan
+Write-Host "     blindspot --target https://example.com" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "For more information visit https://github.com/harshit-dev-on/BlindSpot" -ForegroundColor DarkGray
+Write-Host "Supported models: Gemini, OpenAI, Claude, OpenRouter, Ollama" -ForegroundColor DarkGray
 Write-Host ""

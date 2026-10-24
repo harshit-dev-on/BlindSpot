@@ -737,7 +737,7 @@ def inspect(
         raise typer.Exit(code=1)
 
     # 4. Display Input Validation Summary
-    config = InspectConfig(url=url.strip(), context=resolved_context)
+    config = InspectConfig(url=effective_url.strip(), context=resolved_context)
     print_inspection_summary(url=config.url, context=config.context)
     print_inspection_start(url=config.url, browser=selected_browser)
 

@@ -8,31 +8,16 @@ APP="blindspot"
 INSTALL_DIR="$HOME/.blindspot/bin"
 VENV_DIR="$HOME/.blindspot/venv"
 
-GREEN='\033[0;32m'
-CYAN='\033[0;36m'
-YELLOW='\033[1;33m'
+MUTED='\033[0;2m'
 RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m'
-
-echo -e "${CYAN}"
-echo "╔════════════════════════════════════════════════════════════╗"
-echo "║          BlindSpot — Autonomous AI UX Testing              ║"
-echo "║     Simulate human user personas to uncover UX flaws       ║"
-echo "╚════════════════════════════════════════════════════════════╝"
-echo -e "${NC}"
 
 # Check for Python 3.10+
 if ! command -v python3 >/dev/null 2>&1; then
     echo -e "${RED}Error: Python 3 (3.10+) is required to install BlindSpot.${NC}"
-    exit 1
-fi
-
-PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
-MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
-
-if [ "$MAJOR" -lt 3 ] || ([ "$MAJOR" -eq 3 ] && [ "$MINOR" -lt 10 ]); then
-    echo -e "${RED}Error: BlindSpot requires Python 3.10 or higher. Found: $PYTHON_VERSION${NC}"
     exit 1
 fi
 
@@ -44,7 +29,6 @@ if [ ! -d "$VENV_DIR" ]; then
 fi
 
 "$VENV_DIR/bin/pip" install --quiet --upgrade pip
-echo -e "${CYAN}→ Installing BlindSpot into isolated environment...${NC}"
 if [ -f "./pyproject.toml" ]; then
     "$VENV_DIR/bin/pip" install --quiet .
 else
@@ -77,8 +61,30 @@ add_path "$HOME/.bashrc"
 add_path "$HOME/.zshrc"
 add_path "$HOME/.profile"
 
-echo -e "\n${GREEN}✓ BlindSpot successfully installed!${NC}\n"
-echo -e "To get started:"
-echo -e "  1. Restart your terminal or run: ${CYAN}export PATH=\"$HOME/.blindspot/bin:\$PATH\"${NC}"
-echo -e "  2. Configure your AI model:      ${CYAN}blindspot setup${NC}"
-echo -e "  3. Run your first audit:         ${CYAN}blindspot inspect --url https://example.com${NC}\n"
+echo -e "${GREEN}✓ BlindSpot ready${NC}"
+echo ""
+echo -e "${CYAN}"
+echo "   ██████╗ ██╗     ██╗███╗   ██╗██████╗ ███████╗██████╗  ██████╗ ████████╗"
+echo "   ██╔══██╗██║     ██║████╗  ██║██╔══██╗██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝"
+echo "   ██████╔╝██║     ██║██╔██╗ ██║██║  ██║███████╗██████╔╝██║   ██║   ██║   "
+echo "   ██╔══██╗██║     ██║██║╚██╗██║██║  ██║╚════██║██╔═══╝ ██║   ██║   ██║   "
+echo "   ██████╔╝███████╗██║██║ ╚████║██████╔╝███████║██║     ╚██████╔╝   ██║   "
+echo "   ╚═════╝ ╚══════╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝      ╚═════╝    ╚═╝   "
+echo -e "${NC}"
+echo -e "${MUTED}  Autonomous AI UX & Usability Testing Agent${NC}"
+echo ""
+echo -e "${MUTED}To get started:${NC}"
+echo ""
+echo -e "  ${CYAN}1.${NC} Set your environment:"
+echo -e "     ${MUTED}export LLM_API_KEY='your-api-key'${NC}"
+echo -e "     ${MUTED}export BLINDSPOT_LLM='google/gemini-2.5-flash'${NC}"
+echo -e "     ${MUTED}(or run 'blindspot setup' to configure interactively)${NC}"
+echo ""
+echo -e "  ${CYAN}2.${NC} Run a UX & accessibility audit:"
+echo -e "     ${MUTED}blindspot --target https://example.com${NC}"
+echo ""
+echo -e "${MUTED}For more information visit ${NC}https://github.com/harshit-dev-on/BlindSpot"
+echo -e "${MUTED}Supported models: Gemini, OpenAI, Claude, OpenRouter, Ollama${NC}"
+echo ""
+echo -e "${YELLOW}→${NC} Run ${MUTED}export PATH=\"$HOME/.blindspot/bin:\$PATH\"${NC} or open a new terminal"
+echo ""

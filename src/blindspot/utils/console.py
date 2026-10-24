@@ -79,10 +79,34 @@ def print_inspection_summary(url: str, context: str) -> None:
 
 
 def print_inspection_start(url: str, browser: str) -> None:
-    """Print an indicator that browser inspection has started."""
-    console.print(
-        f"[bold cyan]→[/bold cyan] Launching [bold]{browser}[/bold] to inspect [underline]{url}[/underline]..."
+    """Print Strix-style startup panel indicating the audit has initiated."""
+    start_text = Text()
+    start_text.append("UX & accessibility audit initiated", style="bold #22c55e")
+
+    target_text = Text()
+    target_text.append("Target", style="dim")
+    target_text.append("  ")
+    target_text.append(url, style="bold white")
+
+    note_text = Text()
+    note_text.append("\n\n", style="dim")
+    note_text.append(f"Engine: {browser} | Personas and UX friction will be evaluated in real-time.", style="dim")
+
+    startup_panel = Panel(
+        Text.assemble(
+            start_text,
+            "\n\n",
+            target_text,
+            note_text,
+        ),
+        title="[bold white]BLINDSPOT",
+        title_align="left",
+        border_style="#22c55e",
+        padding=(1, 2),
     )
+    console.print("\n")
+    console.print(startup_panel)
+    console.print()
 
 
 def print_browser_inspection_summary(
