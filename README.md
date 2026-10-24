@@ -142,18 +142,39 @@ BlindSpot features a universal AI abstraction layer powered by LiteLLM:
 
 ## 4. Installation and Environment Setup
 
-### 4.1 Clone the Repository
+### 4.1 Quick Install (Single Command — Strix Standard)
 
-Open a terminal (PowerShell on Windows, or bash/zsh on POSIX platforms) and clone the repository:
+BlindSpot installs natively with zero system-level dependencies and **no Docker requirement**. Headless Chromium binaries are auto-provisioned directly into user space (`~/.blindspot`), keeping your host clean and isolated.
 
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/harshit-dev-on/BlindSpot/master/scripts/install.ps1 | iex
+```
+
+**Linux / macOS (Bash / Zsh):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/harshit-dev-on/BlindSpot/master/scripts/install.sh | bash
+```
+
+The installer automatically:
+1. Clones and sets up a dedicated virtual environment in `~/.blindspot/venv`.
+2. Provisions the native Playwright Chromium browser binary without requiring administrator or root rights.
+3. Configures a direct CLI shim (`~/.blindspot/bin`) and adds it to your user `PATH`.
+4. Leaves your existing Python installations completely unmodified.
+
+---
+
+### 4.2 Contributor & Local Development Installation
+
+If you prefer to clone and contribute to the repository directly:
+
+#### Step 1: Clone the Repository
 ```powershell
 git clone https://github.com/harshit-dev-on/BlindSpot.git
 cd BlindSpot
 ```
 
-### 4.2 Initialize Virtual Environment
-
-Isolate dependencies within a dedicated virtual environment:
+#### Step 2: Initialize Virtual Environment
 
 **Windows PowerShell:**
 ```powershell
@@ -171,10 +192,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 4.3 Install Package Dependencies
-
-BlindSpot provides modular installation targets via standard packaging extras:
-
+#### Step 3: Install Package Dependencies
 ```powershell
 # Recommended: Install core engine with development tools, web studio, and MCP server
 pip install -e ".[dev,web,mcp]"
@@ -757,7 +775,7 @@ blindspot inspect `
 BlindSpot maintains a comprehensive automated test suite. All tests use deterministic mocks and local HTML fixtures, requiring zero active internet connections or third-party API keys:
 
 ```powershell
-# Run the complete test suite (143 tests)
+# Run the complete test suite (165 tests across 20 modules)
 pytest
 
 # Run tests with verbose output
@@ -771,18 +789,24 @@ pytest tests/test_smoke_e2e.py -v
 
 | Test Module | Coverage Scope |
 |---|---|
+| `tests/test_architecture_parity.py` | Strix modular architecture parity (`interface`, `runtime`, `agents`, `report`). |
 | `tests/test_validation.py` | URL syntax, context parameters, and flag boundary checks. |
-| `tests/test_config.py` | Configuration hierarchy resolution, defaults, and TOML serialization. |
+| `tests/test_config.py` | Configuration hierarchy resolution, defaults, model route parsing, and TOML serialization. |
 | `tests/test_ai_provider.py` | Universal adapter, retries, token tracking, and structured response parsing. |
-| `tests/test_cli_provider.py` | CLI provider subcommands (`list`, `test`, `prompt`) and model listing. |
+| `tests/test_cli_provider.py` | CLI provider subcommands (`list`, `test`, `prompt`) and Strix setup wizard. |
 | `tests/test_browser.py` | Playwright DOM extraction, bounding box calculations, and page inspection. |
+| `tests/test_provisioning.py` | Automatic first-run browser engine provisioning and fallback verification. |
+| `tests/test_session.py` | Browser inspection models, viewport serialization, and coordinate bounds. |
 | `tests/test_personas.py` | Persona synthesis, prompt injection containment, and Pydantic validation. |
 | `tests/test_execution.py` | Browser task execution, isolated contexts, action safety, and input masking. |
 | `tests/test_reporting.py` | Evidence aggregation, finding ranking, and HTML XSS escaping verification. |
+| `tests/test_sarif.py` | SARIF 2.1.0 log generation, GitHub Code Scanning schema compliance, and rules catalog. |
 | `tests/test_web.py` | FastAPI application routes, SSE event streaming, and path traversal guards. |
 | `tests/test_mcp.py` | Model Context Protocol tool execution, fix verification, and status schemas. |
 | `tests/test_skills.py` | Agent Skills discovery, spec checklist validation, export, and CLI commands. |
-| `tests/test_cli.py` | Typer CLI commands, option parsing, and safety enforcement flags. |
+| `tests/test_tools.py` | Tool registry, execution safety dispatch, and schema validation. |
+| `tests/test_knowledge.py` | Heuristics knowledge base, WCAG criteria matching, and domain patterns. |
+| `tests/test_cli.py` | Typer CLI commands, option parsing, `--target`/`-t` direct execution, and safety flags. |
 | `tests/test_smoke_e2e.py` | End-to-end integration smoke test running against a local loopback HTTP server. |
 
 ---
@@ -839,6 +863,9 @@ BlindSpot/
 ├── LICENSE                      # Apache License 2.0
 ├── pyproject.toml               # PEP 621 packaging metadata, dependencies, and CLI entry point
 ├── README.md                    # Official documentation manual
+├── scripts/
+│   ├── install.ps1              # 1-command native installer for Windows (PowerShell)
+│   └── install.sh               # 1-command native installer for Linux and macOS (Bash)
 ├── examples/
 │   └── sample_site/             # Standalone sample application for testing and demos
 │       ├── index.html           # TaskFlow sample application page
@@ -848,8 +875,26 @@ BlindSpot/
 │   └── blindspot/
 │       ├── __init__.py          # Package version and metadata
 │       ├── __main__.py          # python -m blindspot execution entry point
-│       ├── cli.py               # Typer CLI application commands
-│       ├── cli_setup.py         # Interactive setup wizard implementation
+│       ├── cli.py               # Typer CLI application commands (backward compatibility shim)
+│       ├── cli_setup.py         # Setup wizard backward compatibility shim
+│       ├── interface/           # Strix parity CLI interface & interactive terminal
+│       │   ├── main.py          # Primary application entrypoint
+│       │   ├── cli_args.py      # Argument definitions and callbacks
+│       │   ├── interactive.py   # Interactive start screen and prompts
+│       │   └── scan_setup.py    # Setup wizard & model preflight checks
+│       ├── runtime/             # Strix parity browser runtime execution engine
+│       │   ├── browser.py       # Playwright browser inspector and session manager
+│       │   ├── provisioning.py  # Zero-config automatic browser binary provisioning
+│       │   └── session.py       # Viewport and inspection result data models
+│       ├── agents/              # Strix parity autonomous agent layer
+│       │   ├── factory.py       # Agent and test runner instantiation factories
+│       │   ├── prompt.py        # System prompts and cognitive step decision builders
+│       │   └── runner.py        # Persona test runner and execution loop
+│       ├── report/              # Strix parity reporting and artifact generation
+│       │   ├── analysis.py      # Heuristic analyzers and finding deduplication
+│       │   ├── models.py        # UXFinding, severity, and report data models
+│       │   ├── sarif.py         # SARIF 2.1.0 generator for GitHub Code Scanning
+│       │   └── writer.py        # Multi-format report writing orchestrator
 │       ├── ai/                  # Universal AI provider integration layer (LiteLLM)
 │       │   ├── adapter.py       # UnifiedAIAdapter implementation
 │       │   ├── base.py          # BaseAIProvider abstract interface
@@ -857,57 +902,38 @@ BlindSpot/
 │       │   ├── factory.py       # Universal provider factory and registry
 │       │   ├── models.py        # Structured AI request/response models
 │       │   └── providers/       # Specific provider adaptors (Ollama, Gemini, OpenAI)
-│       ├── browser/             # Playwright browser automation engine
-│       │   ├── inspector.py     # DOM extraction, page loading, and screenshot capture
-│       │   └── models.py        # Pydantic schemas for elements, viewports, and summaries
+│       ├── browser/             # Backward-compatible browser module exports
 │       ├── config/              # Configuration loader, resolver, and schemas
 │       ├── core/                # Core pipeline orchestration and validation
 │       │   ├── runner.py        # Central pipeline coordinator (run_pipeline)
 │       │   └── validation.py    # URL and context syntax validation
-│       ├── execution/           # Autonomous persona browser execution engine
-│       │   ├── agent.py         # Autonomous browser task agent
-│       │   ├── models.py        # Action records, task results, and execution models
-│       │   ├── runner.py        # Multi-persona runner with session isolation
-│       │   └── safety.py        # SSRF defense, action safety, and input masking
+│       ├── execution/           # Backward-compatible execution module exports
 │       ├── mcp/                 # Model Context Protocol (MCP) server integration
-│       │   ├── comparison.py    # Multi-run diffing and fix verification logic
-│       │   ├── server.py        # Official Python MCP server entry point
-│       │   └── tools.py         # Core business logic for exposed MCP tools
 │       ├── personas/            # Persona synthesis and task planning
-│       │   ├── generator.py     # Persona generation engine with prompt injection defense
-│       │   └── models.py        # Pydantic schemas for personas, tasks, and plans
-│       ├── reporting/           # Evidence aggregation and UX reporting
-│       │   ├── analysis.py      # AI UX analysis and finding ranking
-│       │   ├── generator.py     # Report generator (JSON and HTML)
-│       │   ├── html_renderer.py # Responsive, self-contained HTML report renderer
-│       │   └── models.py        # Pydantic schemas for findings and metrics
+│       ├── reporting/           # Backward-compatible reporting module exports
 │       ├── skills/              # Agent Skills (Open Standard) definitions & manager
-│       │   ├── __init__.py      # Package export and discovery
-│       │   ├── manager.py       # Spec validation, parsing, and workspace installer
-│       │   ├── blindspot-ux-audit/
-│       │   ├── blindspot-verify-fix/
-│       │   ├── blindspot-wcag-audit/
-│       │   └── blindspot-persona-designer/
+│       ├── tools/               # Tool registry and execution dispatch
 │       ├── utils/
-│       │   └── console.py       # Rich terminal formatting, panels, tables, and skills
+│       │   └── console.py       # Rich terminal formatting, panels, and status displays
 │       └── web/                 # Interactive web demonstration studio (FastAPI)
-│           ├── app.py           # FastAPI application factory and static mounting
-│           ├── manager.py       # Asynchronous run manager and event coordinator
-│           ├── models.py        # Request and response schemas for web API
-│           ├── router.py        # API routes for run creation, SSE stream, and artifacts
-│           └── static/          # Web frontend assets (HTML, CSS, JavaScript)
-└── tests/                       # Automated test suite (143 tests across 13 modules)
+└── tests/                       # Automated test suite (165 tests across 20 modules)
+    ├── test_architecture_parity.py # Parity checks for interface, runtime, agents, report
     ├── test_ai_provider.py      # Provider adapter, retry, and structured parsing tests
     ├── test_browser.py          # Browser automation and element extraction tests
     ├── test_cli.py              # CLI command tests (setup, inspect, flags)
     ├── test_cli_provider.py     # Provider and model CLI subcommand tests
     ├── test_config.py           # Configuration loading and resolution tests
     ├── test_execution.py        # Browser agent execution and safety policy tests
+    ├── test_knowledge.py       # Knowledge base heuristic rules tests
     ├── test_mcp.py              # Model Context Protocol tool tests
     ├── test_personas.py         # Persona synthesis and prompt injection defense tests
+    ├── test_provisioning.py     # Automatic browser engine installation tests
     ├── test_reporting.py        # Evidence aggregation, HTML escaping, and report tests
+    ├── test_sarif.py            # SARIF 2.1.0 output formatting tests
+    ├── test_session.py          # Session models and inspection data tests
     ├── test_skills.py           # Agent Skills discovery, spec validation, and installation tests
     ├── test_smoke_e2e.py        # End-to-end pipeline smoke test on loopback HTTP
+    ├── test_tools.py            # Tool execution and dispatch tests
     ├── test_validation.py       # URL and context validation unit tests
     └── test_web.py              # Web demo FastAPI endpoints and SSE stream tests
 ```
