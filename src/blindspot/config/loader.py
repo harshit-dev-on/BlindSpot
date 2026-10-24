@@ -54,6 +54,45 @@ def load_config_file(path: Path) -> Dict[str, Any]:
         raise ValueError(f"Failed to parse TOML configuration from '{path}': {exc}") from exc
 
 
+PROVIDER_ALIASES: Dict[str, str] = {
+    "google": "gemini",
+    "vertex": "gemini",
+    "claude": "anthropic",
+}
+
+
+def parse_model_route(route: str) -> tuple[str, str, str]:
+    """Parse a <provider>/<model> string into (category, provider, model).
+
+    Supports formats like:
+      'google/gemini-2.5-flash' -> ('cloud', 'gemini', 'gemini-2.5-flash')
+      'gemini/gemini-3.5-flash' -> ('cloud', 'gemini', 'gemini-3.5-flash')
+      'openai/gpt-4o-mini'      -> ('cloud', 'openai', 'gpt-4o-mini')
+      'anthropic/claude-3-7'    -> ('cloud', 'anthropic', 'claude-3-7')
+      'ollama/gemma4'           -> ('local', 'ollama', 'gemma4')
+      'openrouter/...'          -> ('cloud', 'openrouter', '...')
+    """
+    cleaned = (route or "").strip()
+    if "/" in cleaned:
+        p_part, m_part = cleaned.split("/", 1)
+        p = p_part.strip().lower()
+        p = PROVIDER_ALIASES.get(p, p)
+        category = "local" if p == "ollama" else ("custom" if p in ("custom", "openai_compatible") else "cloud")
+        return category, p, m_part.strip()
+
+    low = cleaned.lower()
+    if low.startswith("gemini"):
+        return "cloud", "gemini", cleaned
+    if low.startswith("gpt") or low.startswith("o1") or low.startswith("o3"):
+        return "cloud", "openai", cleaned
+    if low.startswith("claude"):
+        return "cloud", "anthropic", cleaned
+    if low in ("gemma", "gemma4", "llama", "llama3", "mistral", "qwen", "phi3"):
+        return "local", "ollama", cleaned
+
+    return "cloud", "gemini", cleaned
+
+
 def load_config(
     custom_path: Optional[Union[str, Path]] = None,
     category: Optional[str] = None,
@@ -80,13 +119,10 @@ def load_config(
     # Support universal model identifier (e.g. "gemini/gemini-1.5-flash", "ollama/gemma4", "openai/gpt-4o-mini")
     universal_llm = os.environ.get("BLINDSPOT_LLM") or os.environ.get("STRIX_LLM")
     if universal_llm:
-        if "/" in universal_llm:
-            p_part, m_part = universal_llm.split("/", 1)
-            ai_data["provider"] = p_part.strip().lower()
-            ai_data["model"] = m_part.strip()
-            ai_data["category"] = "local" if p_part.lower() == "ollama" else "cloud"
-        else:
-            ai_data["model"] = universal_llm.strip()
+        parsed_cat, parsed_prov, parsed_mod = parse_model_route(universal_llm)
+        ai_data["category"] = parsed_cat
+        ai_data["provider"] = parsed_prov
+        ai_data["model"] = parsed_mod
 
     # Universal LLM API key (identical to Strix and other coding tools)
     if os.environ.get("LLM_API_KEY"):

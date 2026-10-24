@@ -50,7 +50,7 @@ app = typer.Typer(
     help="BlindSpot: Open-source AI-powered website UX testing tool.\n\n"
     "Simulates real user personas exploring websites to uncover UX flaws, "
     "accessibility barriers, and confusing user journeys.",
-    no_args_is_help=True,
+    no_args_is_help=False,
     add_completion=False,
 )
 
@@ -85,8 +85,61 @@ def version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main(
+    ctx: typer.Context,
+    target: Annotated[
+        Optional[str],
+        typer.Option(
+            "--target",
+            "-t",
+            help="Target website URL to test (e.g. https://example.com).",
+            show_default=False,
+        ),
+    ] = None,
+    url: Annotated[
+        Optional[str],
+        typer.Option(
+            "--url",
+            "-u",
+            help="Alias for --target.",
+            show_default=False,
+        ),
+    ] = None,
+    instruction: Annotated[
+        Optional[str],
+        typer.Option(
+            "--instruction",
+            "-i",
+            help="Custom focus or instruction for testing.",
+            show_default=False,
+        ),
+    ] = None,
+    context: Annotated[
+        Optional[str],
+        typer.Option(
+            "--context",
+            "-c",
+            help="Alias for --instruction.",
+            show_default=False,
+        ),
+    ] = None,
+    headed: Annotated[
+        bool,
+        typer.Option(
+            "--headed",
+            help="Run browser in visible window.",
+            show_default=False,
+        ),
+    ] = False,
+    allow_local: Annotated[
+        bool,
+        typer.Option(
+            "--allow-local",
+            help="Permit testing local loopback servers (localhost / 127.0.0.1).",
+            show_default=False,
+        ),
+    ] = False,
     version: Annotated[
         Optional[bool],
         typer.Option(
@@ -99,7 +152,58 @@ def main(
     ] = None,
 ) -> None:
     """BlindSpot CLI entry point."""
-    pass
+    if ctx.invoked_subcommand is not None:
+        return
+
+    effective_target = target or url
+    effective_instruction = instruction or context
+
+    if effective_target:
+        inspect(
+            url=effective_target,
+            context=effective_instruction,
+            headed=headed,
+            allow_local=allow_local,
+        )
+        return
+
+    # If bare `blindspot` command is run:
+    # Launch Strix-style interactive start screen
+    console.print(
+        Panel(
+            "[bold white]BlindSpot — Autonomous AI UX Testing[/bold white]\n\n"
+            "[dim]Simulate human user personas to uncover UX flaws, accessibility barriers, and friction.[/dim]",
+            title="[bold cyan]BlindSpot[/bold cyan]",
+            title_align="left",
+            border_style="cyan",
+            padding=(1, 2),
+        )
+    )
+    from rich.prompt import Prompt
+    try:
+        chosen_target = Prompt.ask(
+            "Enter Target URL to test [or press Enter to launch Web Studio]",
+            default="",
+        )
+        if not chosen_target.strip():
+            from blindspot.web import run_web_studio
+            console.print("[bold cyan]→[/bold cyan] Launching BlindSpot Web Studio...")
+            run_web_studio(port=8501, host="127.0.0.1")
+            return
+
+        chosen_instruction = Prompt.ask(
+            "Custom instructions [optional, e.g. 'Focus on checkout flow']",
+            default="",
+        )
+        inspect(
+            url=chosen_target.strip(),
+            context=chosen_instruction.strip() if chosen_instruction.strip() else None,
+            headed=headed,
+            allow_local=allow_local,
+        )
+    except (KeyboardInterrupt, typer.Abort):
+        console.print("\n[yellow]Exited.[/yellow]")
+        raise typer.Exit(code=0)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -436,23 +540,41 @@ def provider_prompt(
 )
 def inspect(
     url: Annotated[
-        str,
+        Optional[str],
         typer.Option(
             "--url",
             "-u",
             help="Target website URL to test (e.g. https://example.com).",
             show_default=False,
         ),
-    ],
+    ] = None,
+    target: Annotated[
+        Optional[str],
+        typer.Option(
+            "--target",
+            "-t",
+            help="Alias for --url (Strix standard).",
+            show_default=False,
+        ),
+    ] = None,
     context: Annotated[
-        str,
+        Optional[str],
         typer.Option(
             "--context",
             "-c",
             help="Context describing website purpose & audience, or path to text file.",
             show_default=False,
         ),
-    ],
+    ] = None,
+    instruction: Annotated[
+        Optional[str],
+        typer.Option(
+            "--instruction",
+            "-i",
+            help="Alias for --context (Strix standard).",
+            show_default=False,
+        ),
+    ] = None,
     output_dir: Annotated[
         Optional[Path],
         typer.Option(
@@ -557,8 +679,24 @@ def inspect(
     # Determine effective headless mode
     effective_headless = False if headed else headless
 
+    # Determine effective target and context
+    effective_url = target or url
+    if not effective_url:
+        print_error(
+            title="Missing Target URL",
+            message="Target website URL was not provided.",
+            suggestion="Specify a target using --target or --url (e.g. blindspot --target https://example.com).",
+        )
+        raise typer.Exit(code=1)
+
+    effective_context = (
+        instruction
+        or context
+        or "Autonomous exploration of user journeys, interface accessibility, and usability."
+    )
+
     # 1. Validate Target URL
-    url_res = validate_url(url)
+    url_res = validate_url(effective_url)
     if not url_res.is_valid:
         print_error(
             title="Invalid URL Provided",
@@ -569,7 +707,7 @@ def inspect(
 
     # SSRF & Private Network Security Check
     from blindspot.execution.safety import validate_navigation_url
-    is_safe, ssrf_reason = validate_navigation_url(url, allow_local=allow_local)
+    is_safe, ssrf_reason = validate_navigation_url(effective_url, allow_local=allow_local)
     if not is_safe:
         print_error(
             title="Security Policy Blocked URL",
@@ -579,7 +717,7 @@ def inspect(
         raise typer.Exit(code=1)
 
     # 2. Validate Context Description
-    context_res, resolved_context = validate_context(context)
+    context_res, resolved_context = validate_context(effective_context)
     if not context_res.is_valid:
         print_error(
             title="Invalid Context Provided",

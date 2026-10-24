@@ -97,17 +97,15 @@ def test_setup_wizard_local_scripted(tmp_path, monkeypatch):
     monkeypatch.setattr("blindspot.cli_setup.get_user_config_path", lambda: user_config)
     monkeypatch.setattr("blindspot.config.loader.get_user_config_path", lambda: user_config)
 
-    # Inputs:
-    # 1 (Category: local)
-    # 1 (Model: gemma4)
-    # Y (Default endpoint)
-    # n (Skip connection test)
-    wizard_inputs = "\n".join(["1", "1", "Y", "n"]) + "\n"
+    # Streamlined Strix-style input:
+    # 1. Model Route: "ollama/gemma4"
+    # 2. Save confirmation if offline check fails: "y"
+    wizard_inputs = "\n".join(["ollama/gemma4", "y"]) + "\n"
 
     result = runner.invoke(app, ["setup"], input=wizard_inputs)
     assert result.exit_code == 0
-    assert "Welcome to the BlindSpot AI Setup Wizard" in result.stdout
-    assert "Configuration saved successfully" in result.stdout
+    assert "BlindSpot AI Setup" in result.stdout
+    assert "BlindSpot successfully configured" in result.stdout
     assert user_config.exists()
     content = user_config.read_text(encoding="utf-8")
     assert 'provider = "ollama"' in content
