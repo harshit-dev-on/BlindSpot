@@ -21,38 +21,61 @@ if ! command -v python3 >/dev/null 2>&1; then
     exit 1
 fi
 
-echo -e "${CYAN}→ Installing BlindSpot in isolated environment...${NC}"
 mkdir -p "$INSTALL_DIR"
 
+# Braille animation spinner
+spin() {
+    local pid=$1
+    local msg="$2"
+    local delay=0.08
+    local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+    while kill -0 "$pid" 2>/dev/null; do
+        local temp=${spinstr#?}
+        printf "\r%c %s" "$spinstr" "$msg"
+        spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+    done
+    printf "\r\033[K"
+}
+
+run_spinner() {
+    local msg="$1"
+    shift
+    "$@" >/dev/null 2>&1 &
+    local pid=$!
+    spin "$pid" "$msg"
+    wait "$pid"
+}
+
+# 1. Setup isolated venv environment
 if [ ! -d "$VENV_DIR" ]; then
-    python3 -m venv "$VENV_DIR"
+    run_spinner "setting up isolated environment" python3 -m venv "$VENV_DIR"
 fi
 
+# 2. Install / upgrade BlindSpot
 if [ -f "./pyproject.toml" ]; then
-    "$VENV_DIR/bin/pip" install --quiet -e .
+    run_spinner "installing blindspot" "$VENV_DIR/bin/pip" install --quiet --upgrade -e .
 else
-    "$VENV_DIR/bin/pip" install --quiet --upgrade "git+https://github.com/harshit-dev-on/BlindSpot.git"
+    run_spinner "installing blindspot" "$VENV_DIR/bin/pip" install --quiet --upgrade "git+https://github.com/harshit-dev-on/BlindSpot.git"
 fi
 
-# Create symlink/wrapper script in ~/.blindspot/bin
+# 3. Create symlink/wrapper script in ~/.blindspot/bin
 cat << 'EOF' > "$INSTALL_DIR/blindspot"
 #!/usr/bin/env bash
 exec "$HOME/.blindspot/venv/bin/blindspot" "$@"
 EOF
 chmod +x "$INSTALL_DIR/blindspot"
 
-# Auto-provision Chromium browser binary
-echo -e "${CYAN}→ Provisioning headless browser engine...${NC}"
-"$VENV_DIR/bin/python" -m playwright install chromium --quiet || true
+# 4. Provision browser engine
+run_spinner "provisioning headless browser engine" "$VENV_DIR/bin/python" -m playwright install chromium || true
 
-# Add to PATH in shell profile if not already present
+# 5. Add to PATH in shell profile if not already present
 add_path() {
     local profile="$1"
     if [ -f "$profile" ] && ! grep -q ".blindspot/bin" "$profile"; then
         echo "" >> "$profile"
         echo '# BlindSpot CLI' >> "$profile"
         echo 'export PATH="$HOME/.blindspot/bin:$PATH"' >> "$profile"
-        echo -e "${GREEN}✓ Added BlindSpot to $profile${NC}"
     fi
 }
 
@@ -60,7 +83,13 @@ add_path "$HOME/.bashrc"
 add_path "$HOME/.zshrc"
 add_path "$HOME/.profile"
 
-echo -e "${GREEN}✓ BlindSpot ready${NC}"
+# 6. Terminal completion output (matching Strix look)
+py_ver=$("$VENV_DIR/bin/python" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')")
+echo -e "  installed package blindspot 0.1.0, installed using Python $py_ver"
+echo -e "  These apps are now available"
+echo -e "    - blindspot"
+echo -e "done! ✨ 🌟 ✨"
+
 echo ""
 echo -e "${CYAN}"
 echo "   ██████╗ ██╗     ██╗███╗   ██╗██████╗ ███████╗██████╗  ██████╗ ████████╗"
@@ -84,6 +113,7 @@ echo -e "     ${MUTED}blindspot --target https://example.com${NC}"
 echo ""
 echo -e "${MUTED}For more information visit ${NC}https://github.com/harshit-dev-on/BlindSpot"
 echo -e "${MUTED}Supported models: Gemini, OpenAI, Claude, OpenRouter, Ollama${NC}"
+echo -e "${MUTED}Join our community ${NC}https://github.com/harshit-dev-on/BlindSpot"
 echo ""
-echo -e "${YELLOW}→${NC} Run ${MUTED}export PATH=\"$HOME/.blindspot/bin:\$PATH\"${NC} or open a new terminal"
+echo -e "${YELLOW}→${NC} Run ${MUTED}source ~/.$(basename "$SHELL")rc${NC} or open a new terminal"
 echo ""

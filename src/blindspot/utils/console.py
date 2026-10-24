@@ -478,36 +478,79 @@ def print_report_summary(
     top_findings: Optional[List[Any]] = None,
 ) -> None:
     """Display final UX report generation summary and top prioritized findings in console."""
-    table = Table(show_header=False, box=None, padding=(0, 1))
-    table.add_column("Field", style="bold cyan", width=24)
-    table.add_column("Value", style="white")
+    completion_text = Text()
+    completion_text.append("UX & accessibility audit completed", style="bold #22c55e")
 
-    table.add_row("Target Website", target_url)
-    table.add_row("Report ID", report_id)
-    table.add_row(
-        "Task Results",
-        f"{total_tasks} total tasks | [green]{passed_tasks} passed[/green] | [red]{failed_tasks} failed[/red]",
-    )
-    table.add_row(
-        "Discovered Findings",
-        f"[bold red]{verified_issues} Verified Defects[/bold red] • [bold yellow]{usability_observations} Usability Observations[/bold yellow] • [bold cyan]{potential_improvements} Potential Improvements[/bold cyan]",
-    )
-    table.add_row("Machine-Readable JSON", str(json_path))
-    table.add_row("Interactive HTML Report", f"[bold underline green]{html_path}[/bold underline green]")
+    target_text = Text()
+    target_text.append("Target", style="dim")
+    target_text.append("  ")
+    target_text.append(target_url, style="bold white")
 
-    border_color = "red" if verified_issues > 0 else "yellow" if usability_observations > 0 else "green"
+    stats_text = Text()
+    stats_text.append("Tasks   ", style="dim")
+    stats_text.append(f"{passed_tasks} passed", style="#22c55e")
+    if failed_tasks > 0:
+        stats_text.append(f" · {failed_tasks} failed", style="bold red")
+    stats_text.append(f" ({total_tasks} total)\n")
+
+    stats_text.append("Findings ", style="dim")
+    finding_parts: list[str] = []
+    if verified_issues > 0:
+        finding_parts.append(f"[bold red]{verified_issues} verified defects[/bold red]")
+    if usability_observations > 0:
+        finding_parts.append(f"[bold yellow]{usability_observations} observations[/bold yellow]")
+    if potential_improvements > 0:
+        finding_parts.append(f"[bold cyan]{potential_improvements} potential improvements[/bold cyan]")
+    if not finding_parts:
+        finding_parts.append("[green]0 issues detected[/green]")
+    stats_text.append(" · ".join(finding_parts))
+
+    results_text = Text()
+    results_text.append("\nOutput", style="dim")
+    results_text.append("  ")
+    results_text.append(str(json_path), style="#60a5fa")
+
+    report_text = Text()
+    report_text.append("\nReport", style="dim")
+    report_text.append("  ")
+    report_text.append(str(html_path), style="#22c55e")
+
+    view_text = Text()
+    view_text.append("\nView", style="dim")
+    view_text.append("    ")
+    view_text.append(f"blindspot view {report_id}", style="#22c55e")
+
+    border_color = "red" if verified_issues > 0 else "#22c55e"
+    panel = Panel(
+        Text.assemble(
+            completion_text,
+            "\n\n",
+            target_text,
+            "\n\n",
+            stats_text,
+            "\n",
+            results_text,
+            report_text,
+            view_text,
+        ),
+        title="[bold white]BLINDSPOT",
+        title_align="left",
+        border_style=border_color,
+        padding=(1, 2),
+    )
+
+    console.print("\n")
+    console.print(panel)
+    console.print()
     console.print(
-        Panel(
-            table,
-            title="[bold green]BlindSpot UX Testing & Analysis Complete[/bold green]",
-            subtitle="[dim]Status: Report generated and saved[/dim]",
-            border_style=border_color,
-            padding=(1, 2),
-        )
+        "[#60a5fa]blindspot.ai[/]  [dim]·[/]  "
+        "[#60a5fa]docs.blindspot.ai[/]  [dim]·[/]  "
+        "[#60a5fa]github.com/harshit-dev-on/BlindSpot[/]"
     )
+    console.print()
 
     if top_findings:
-        console.print("\n[bold]Top Prioritized Usability Recommendations:[/bold]")
+        console.print("[bold]Top Prioritized Usability Recommendations:[/bold]")
         f_table = Table(box=None, padding=(0, 1))
         f_table.add_column("Rank", style="dim", width=6)
         f_table.add_column("Category", width=22)
@@ -536,6 +579,29 @@ def print_report_summary(
             )
         console.print(f_table)
         console.print(f"\n[dim]To view full evidence, reproduction steps & screenshots: open {html_path}[/dim]\n")
+
+
+def print_finding_panel(finding_id: str, title: str, category: str, severity: str, impact: str) -> None:
+    """Print real-time finding panel matching Strix vulnerability display style."""
+    text = Text()
+    text.append(f"{title}\n\n", style="bold white")
+    text.append("Severity: ", style="dim")
+    sev_color = "red" if severity in ("Critical", "High") else "yellow"
+    text.append(f"{severity}\n", style=f"bold {sev_color}")
+    text.append("Category: ", style="dim")
+    text.append(f"{category}\n", style="white")
+    text.append("Impact:   ", style="dim")
+    text.append(f"{impact}\n", style="dim white")
+
+    panel = Panel(
+        text,
+        title=f"[bold red]{finding_id.upper()}",
+        title_align="left",
+        border_style="red" if severity in ("Critical", "High") else "yellow",
+        padding=(1, 2),
+    )
+    console.print(panel)
+    console.print()
 
 
 def print_skills_list(skills: list) -> None:

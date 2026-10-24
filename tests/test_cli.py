@@ -374,7 +374,7 @@ def test_inspect_executes_and_saves_execution_results(tmp_path: Path):
     assert (out_dir / "execution_results.json").exists()
     assert (out_dir / "report.json").exists()
     assert (out_dir / "report.html").exists()
-    assert "BlindSpot UX Testing & Analysis Complete" in result.stdout
+    assert ("UX & accessibility audit completed" in result.stdout or "BlindSpot UX Testing & Analysis Complete" in result.stdout)
 
 
 def test_inspect_with_skip_report(tmp_path: Path):

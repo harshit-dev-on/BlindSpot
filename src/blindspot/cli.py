@@ -826,14 +826,15 @@ def inspect(
 
     # 5. Launch Browser Inspection
     try:
-        result = inspect_website(
-            url=inspect_input_config.url,
-            context=inspect_input_config.context,
-            output_dir=output_dir,
-            browser_type=selected_browser,
-            headless=effective_headless,
-            allow_local=allow_local,
-        )
+        with console.status("[bold cyan]Crawling target DOM and capturing viewport state...[/bold cyan]", spinner="dots"):
+            result = inspect_website(
+                url=inspect_input_config.url,
+                context=inspect_input_config.context,
+                output_dir=output_dir,
+                browser_type=selected_browser,
+                headless=effective_headless,
+                allow_local=allow_local,
+            )
     except Exception as exc:
         print_error(
             title="Browser Inspection Failed",
@@ -863,7 +864,6 @@ def inspect(
         console.print("[dim]AI persona synthesis skipped (--skip-ai flag provided).[/dim]")
         return
 
-    console.print("\n[bold cyan]→[/bold cyan] Initializing AI model for persona generation...")
     try:
         loaded_cfg = load_config(custom_path=config, provider=ai_provider, model=ai_model)
         ai_cfg = loaded_cfg.ai
@@ -882,18 +882,18 @@ def inspect(
         )
         raise typer.Exit(code=1)
 
-    console.print(
-        f"[bold cyan]→[/bold cyan] Synthesizing [bold]{personas}[/bold] AI personas & tasks using [bold]{provider_instance.name}[/bold] ({provider_instance.model})..."
-    )
-
     try:
         run_output_dir = Path(result.result_json_path).parent if result.result_json_path else output_dir
-        plan = generate_personas_and_tasks(
-            inspection_result=result,
-            provider=provider_instance,
-            num_personas=personas,
-            output_dir=run_output_dir,
-        )
+        with console.status(
+            f"[bold cyan]Synthesizing {personas} AI user personas & test tasks ({provider_instance.name})...[/bold cyan]",
+            spinner="dots",
+        ):
+            plan = generate_personas_and_tasks(
+                inspection_result=result,
+                provider=provider_instance,
+                num_personas=personas,
+                output_dir=run_output_dir,
+            )
         print_personas_summary(plan)
     except AIProviderError as exc:
         print_error(
@@ -915,20 +915,20 @@ def inspect(
     if skip_execution:
         console.print("[dim]Persona task execution skipped (--skip-execution flag provided).[/dim]")
     else:
-        console.print(
-            f"\n[bold cyan]→[/bold cyan] Launching automated browser execution for [bold]{len(plan.personas)}[/bold] personas across isolated sessions..."
-        )
-
         try:
-            execution_result = execute_persona_tasks(
-                plan=plan,
-                provider=provider_instance,
-                output_dir=run_output_dir or Path(result.result_json_path).parent,
-                browser_type=selected_browser,
-                headless=effective_headless,
-                max_actions_per_task=max_actions,
-                allow_local=allow_local,
-            )
+            with console.status(
+                f"[bold cyan]Executing persona user journeys across isolated browser sessions...[/bold cyan]",
+                spinner="dots",
+            ):
+                execution_result = execute_persona_tasks(
+                    plan=plan,
+                    provider=provider_instance,
+                    output_dir=run_output_dir or Path(result.result_json_path).parent,
+                    browser_type=selected_browser,
+                    headless=effective_headless,
+                    max_actions_per_task=max_actions,
+                    allow_local=allow_local,
+                )
             print_execution_summary(execution_result)
         except Exception as exc:
             print_error(
@@ -943,16 +943,19 @@ def inspect(
         console.print("[dim]UX report generation skipped (--skip-report flag provided).[/dim]")
         return
 
-    console.print("\n[bold cyan]→[/bold cyan] Aggregating evidence and generating UX reports...")
     try:
-        report, json_path, html_path = generate_ux_report(
-            inspection_result=result,
-            plan=plan,
-            execution_result=execution_result,
-            provider=provider_instance,
-            output_dir=run_output_dir or Path(result.result_json_path).parent,
-            context=resolved_context,
-        )
+        with console.status(
+            "[bold cyan]Synthesizing UX findings and generating reports...[/bold cyan]",
+            spinner="dots",
+        ):
+            report, json_path, html_path = generate_ux_report(
+                inspection_result=result,
+                plan=plan,
+                execution_result=execution_result,
+                provider=provider_instance,
+                output_dir=run_output_dir or Path(result.result_json_path).parent,
+                context=resolved_context,
+            )
         print_report_summary(
             report_id=report.report_id,
             target_url=report.target_url,
@@ -1049,6 +1052,69 @@ def web(
             webbrowser.open(url)
         except Exception:
             pass
+
+
+@app.command(
+    name="view",
+    help="Open an interactive local web view of a BlindSpot audit run (Strix standard).",
+)
+def view_cmd(
+    run: Annotated[
+        Optional[str],
+        typer.Argument(
+            help="Run ID or path to report (defaults to the most recent run).",
+            show_default=False,
+        ),
+    ] = None,
+    no_open: Annotated[
+        bool,
+        typer.Option(
+            "--no-open",
+            help="Do not open the browser automatically.",
+            show_default=False,
+        ),
+    ] = False,
+) -> None:
+    """Open and view completed or running BlindSpot audit report in the default browser."""
+    import webbrowser
+
+    reports_dir = Path("reports")
+    target_report_html = None
+
+    if run:
+        p = Path(run)
+        if p.is_file() and p.suffix == ".html":
+            target_report_html = p
+        elif (reports_dir / run / "report.html").is_file():
+            target_report_html = reports_dir / run / "report.html"
+        elif (p / "report.html").is_file():
+            target_report_html = p / "report.html"
+
+    if not target_report_html:
+        # Find latest run in reports/
+        if reports_dir.is_dir():
+            candidates = sorted(
+                [d for d in reports_dir.iterdir() if d.is_dir() and (d / "report.html").is_file()],
+                key=lambda x: x.stat().st_mtime,
+                reverse=True,
+            )
+            if candidates:
+                target_report_html = candidates[0] / "report.html"
+
+    if not target_report_html or not target_report_html.is_file():
+        print_error(
+            title="Report Not Found",
+            message=f"Could not locate an HTML report for '{run or 'latest run'}'.",
+            suggestion="Run an audit first with: blindspot --target https://example.com",
+        )
+        raise typer.Exit(code=1)
+
+    console.print(f"\nServing [bold white]{target_report_html.parent.name}[/bold white] at:")
+    console.print(f"  [#60a5fa]{target_report_html.resolve().as_uri()}[/]", soft_wrap=True)
+    console.print("[dim]Report opened in your browser. Press Ctrl-C or close browser window when finished.[/dim]\n")
+
+    if not no_open:
+        webbrowser.open(target_report_html.resolve().as_uri())
 
     uvicorn.run("blindspot.web.app:app", host=host, port=port, reload=reload)
 

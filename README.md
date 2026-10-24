@@ -158,9 +158,24 @@ curl -fsSL https://raw.githubusercontent.com/harshit-dev-on/BlindSpot/master/scr
 
 The installer automatically:
 1. Clones and sets up a dedicated virtual environment in `~/.blindspot/venv`.
-2. Provisions the native Playwright Chromium browser binary without requiring administrator or root rights.
-3. Configures a direct CLI shim (`~/.blindspot/bin`) and adds it to your user `PATH`.
-4. Leaves your existing Python installations completely unmodified.
+2. Displays the animated downloading spinner during setup.
+3. Provisions the native Playwright Chromium browser binary without requiring administrator or root rights.
+4. Configures a direct CLI shim (`~/.blindspot/bin`) and adds it to your user `PATH`.
+5. Leaves your existing Python installations completely unmodified.
+
+### 4.2 Pipx Installation (Alternative)
+
+If you have `pipx` installed:
+
+```powershell
+# From Git repository:
+pipx install git+https://github.com/harshit-dev-on/BlindSpot.git
+
+# Or from local clone:
+pipx install .
+```
+
+`pipx` automatically manages the virtual environment, shows the download animation, and exposes `blindspot.exe` (or `blindspot`) directly to your system `PATH`.
 
 ---
 
@@ -274,13 +289,17 @@ Or simply run bare `blindspot` to launch the interactive start screen / Web Stud
 blindspot
 ```
 
-### Step 4: Review Audit Artifacts
+### Step 4: Review Audit Artifacts (`blindspot view`)
 
-BlindSpot writes all run outputs to a dedicated folder under `reports/run_<sanitized_host>_<timestamp>/` containing both the interactive HTML report and the standardized `findings.sarif` report for GitHub / CI security scanning:
+BlindSpot writes all run outputs to a dedicated folder under `reports/run_<sanitized_host>_<timestamp>/` containing both the interactive HTML report and the standardized `findings.sarif` report for GitHub / CI accessibility scanning.
 
-**Windows PowerShell:**
+View the latest run directly in your browser:
 ```powershell
-Start-Process (Get-ChildItem reports/*/report.html | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+blindspot view
+```
+Or view a specific run:
+```powershell
+blindspot view run_example_com_20261024_214532
 ```
 
 ---
