@@ -44,8 +44,10 @@ if [ ! -d "$VENV_DIR" ]; then
 fi
 
 "$VENV_DIR/bin/pip" install --quiet --upgrade pip
-if ! "$VENV_DIR/bin/pip" install --quiet blindspot 2>/dev/null; then
-    echo -e "${YELLOW}Notice: Installing latest package from repository...${NC}"
+echo -e "${CYAN}→ Installing BlindSpot into isolated environment...${NC}"
+if [ -f "./pyproject.toml" ]; then
+    "$VENV_DIR/bin/pip" install --quiet .
+else
     "$VENV_DIR/bin/pip" install --quiet "git+https://github.com/harshit-dev-on/BlindSpot.git"
 fi
 

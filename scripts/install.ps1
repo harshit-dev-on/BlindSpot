@@ -38,10 +38,12 @@ $VenvPip = Join-Path $VenvDir "Scripts\pip.exe"
 $VenvBlindspot = Join-Path $VenvDir "Scripts\blindspot.exe"
 
 & $VenvPip install --quiet --upgrade pip
-try {
-    & $VenvPip install --quiet blindspot
-} catch {
-    Write-Host "Notice: Installing latest package from repository..." -ForegroundColor Yellow
+Write-Host "→ Installing BlindSpot into isolated environment..." -ForegroundColor Cyan
+if (Test-Path "$PSScriptRoot\..\pyproject.toml") {
+    & $VenvPip install --quiet "$PSScriptRoot\.."
+} elseif (Test-Path ".\pyproject.toml") {
+    & $VenvPip install --quiet "."
+} else {
     & $VenvPip install --quiet "git+https://github.com/harshit-dev-on/BlindSpot.git"
 }
 
