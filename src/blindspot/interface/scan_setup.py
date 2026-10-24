@@ -60,7 +60,7 @@ def run_setup_wizard() -> None:
     # Load existing config to offer smart defaults
     existing_cfg = load_config()
     current_route = f"{existing_cfg.ai.provider}/{existing_cfg.ai.model}"
-    if not existing_cfg.ai.model or existing_cfg.ai.model == "default":
+    if not existing_cfg.ai.model or existing_cfg.ai.model in ("default", "gemini-3.5-flash"):
         current_route = "gemini/gemini-2.5-flash"
 
     console.print(

@@ -134,8 +134,15 @@ def load_config(
         ai_data["provider"] = os.environ["BLINDSPOT_PROVIDER"]
     if os.environ.get("BLINDSPOT_MODEL"):
         ai_data["model"] = os.environ["BLINDSPOT_MODEL"]
-    if os.environ.get("BLINDSPOT_BASE_URL"):
-        ai_data["base_url"] = os.environ["BLINDSPOT_BASE_URL"]
+    # Universal Base URL (Strix compatibility)
+    universal_base = (
+        os.environ.get("BLINDSPOT_BASE_URL")
+        or os.environ.get("LLM_API_BASE")
+        or os.environ.get("OPENAI_API_BASE")
+        or os.environ.get("OLLAMA_API_BASE")
+    )
+    if universal_base:
+        ai_data["base_url"] = universal_base.strip()
     if os.environ.get("BLINDSPOT_API_KEY_ENV"):
         ai_data["api_key_env"] = os.environ["BLINDSPOT_API_KEY_ENV"]
     if os.environ.get("BLINDSPOT_API_KEY"):

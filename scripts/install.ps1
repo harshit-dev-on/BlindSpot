@@ -42,7 +42,7 @@ if (Test-Path "$PSScriptRoot\..\pyproject.toml") {
 
 # Create runner batch file in ~/.blindspot/bin
 $ShimFile = Join-Path $InstallDir "blindspot.cmd"
-$ShimContent = "@echo off`r`n`"$VenvBlindspot`" %*"
+$ShimContent = "@echo off`r`n`"$VenvPython`" -m blindspot %*"
 [System.IO.File]::WriteAllText($ShimFile, $ShimContent, [System.Text.Encoding]::ASCII)
 
 # Auto-provision Chromium browser binary

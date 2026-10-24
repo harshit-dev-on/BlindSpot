@@ -11,6 +11,7 @@ from blindspot.config.loader import (
     find_config_file,
     get_user_config_path,
     load_config,
+    parse_model_route,
     save_config,
 )
 
@@ -23,5 +24,6 @@ __all__ = [
     "find_config_file",
     "get_user_config_path",
     "load_config",
+    "parse_model_route",
     "save_config",
 ]

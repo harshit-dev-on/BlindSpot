@@ -15,7 +15,7 @@ from blindspot.ai import (
 )
 from blindspot.ai.exceptions import AIProviderError
 from blindspot.browser import inspect_website
-from blindspot.config import find_config_file, load_config
+from blindspot.config import find_config_file, load_config, parse_model_route
 from blindspot.core.models import InspectConfig
 from blindspot.core.validation import validate_context, validate_url
 from blindspot.execution import execute_persona_tasks
@@ -124,6 +124,23 @@ def main(
             show_default=False,
         ),
     ] = None,
+    instruction_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--instruction-file",
+            help="Path to file containing custom instructions (Strix standard).",
+            show_default=False,
+        ),
+    ] = None,
+    model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--model",
+            "-m",
+            help="AI model route in <provider>/<model> format (e.g. gemini/gemini-2.5-flash, openai/gpt-4o-mini).",
+            show_default=False,
+        ),
+    ] = None,
     headed: Annotated[
         bool,
         typer.Option(
@@ -157,6 +174,12 @@ def main(
 
     effective_target = target or url
     effective_instruction = instruction or context
+    if instruction_file and instruction_file.is_file():
+        effective_instruction = instruction_file.read_text(encoding="utf-8").strip()
+
+    ai_prov, ai_mod = None, None
+    if model:
+        _, ai_prov, ai_mod = parse_model_route(model)
 
     if effective_target:
         inspect(
@@ -164,6 +187,8 @@ def main(
             context=effective_instruction,
             headed=headed,
             allow_local=allow_local,
+            ai_provider=ai_prov,
+            ai_model=ai_mod,
         )
         return
 
@@ -182,6 +207,8 @@ def main(
         context=chosen_instruction,
         headed=headed,
         allow_local=allow_local,
+        ai_provider=ai_prov,
+        ai_model=ai_mod,
     )
 
 
@@ -621,6 +648,23 @@ def inspect(
             show_default=False,
         ),
     ] = None,
+    model: Annotated[
+        Optional[str],
+        typer.Option(
+            "--model",
+            "-m",
+            help="AI model route in <provider>/<model> format (e.g. gemini/gemini-2.5-flash, openai/gpt-4o-mini).",
+            show_default=False,
+        ),
+    ] = None,
+    instruction_file: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--instruction-file",
+            help="Path to file containing custom instructions (Strix standard).",
+            show_default=False,
+        ),
+    ] = None,
     skip_execution: Annotated[
         bool,
         typer.Option(
@@ -673,6 +717,13 @@ def inspect(
         or context
         or "Autonomous exploration of user journeys, interface accessibility, and usability."
     )
+    if instruction_file and instruction_file.is_file():
+        effective_context = instruction_file.read_text(encoding="utf-8").strip()
+
+    if model:
+        _, parsed_prov, parsed_mod = parse_model_route(model)
+        ai_provider = ai_provider or parsed_prov
+        ai_model = ai_model or parsed_mod
 
     # 1. Validate Target URL
     url_res = validate_url(effective_url)
