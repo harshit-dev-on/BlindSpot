@@ -1,0 +1,10 @@
+# Set default behavior to automatically handle line endings
+* text=auto
+
+# Ensure bash scripts always use LF (otherwise Linux shells break)
+*.sh text eol=lf
+
+# Windows scripts can use CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
