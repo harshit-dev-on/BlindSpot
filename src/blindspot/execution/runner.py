@@ -80,11 +80,12 @@ class PersonaTestRunner:
             except PlaywrightError as exc:
                 err_msg = str(exc)
                 if "Executable doesn't exist" in err_msg or "Please run" in err_msg:
-                    raise RuntimeError(
-                        f"Playwright browser '{self.browser_type}' is not installed.\n"
-                        f"Run 'playwright install {self.browser_type}' to install it."
-                    ) from exc
-                raise
+                    from blindspot.browser.provisioning import ensure_browser_engine
+                    ensure_browser_engine(self.browser_type)
+                    browser = launcher.launch(headless=self.headless)
+                else:
+                    raise
+
 
             try:
                 for persona in plan.personas:

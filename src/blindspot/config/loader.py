@@ -77,6 +77,21 @@ def load_config(
         ai_data = raw_data
 
     # 2. Apply Environment Variables
+    # Support universal model identifier (e.g. "gemini/gemini-1.5-flash", "ollama/gemma4", "openai/gpt-4o-mini")
+    universal_llm = os.environ.get("BLINDSPOT_LLM") or os.environ.get("STRIX_LLM")
+    if universal_llm:
+        if "/" in universal_llm:
+            p_part, m_part = universal_llm.split("/", 1)
+            ai_data["provider"] = p_part.strip().lower()
+            ai_data["model"] = m_part.strip()
+            ai_data["category"] = "local" if p_part.lower() == "ollama" else "cloud"
+        else:
+            ai_data["model"] = universal_llm.strip()
+
+    # Universal LLM API key (identical to Strix and other coding tools)
+    if os.environ.get("LLM_API_KEY"):
+        ai_data["api_key"] = os.environ["LLM_API_KEY"].strip()
+
     if os.environ.get("BLINDSPOT_CATEGORY"):
         ai_data["category"] = os.environ["BLINDSPOT_CATEGORY"]
     if os.environ.get("BLINDSPOT_PROVIDER"):
@@ -94,6 +109,7 @@ def load_config(
             ai_data["timeout"] = float(os.environ["BLINDSPOT_TIMEOUT"])
         except ValueError:
             pass
+
 
     # 3. Apply Explicit CLI Overrides
     if category:

@@ -16,6 +16,7 @@ from blindspot.reporting.analysis import (
 )
 from blindspot.reporting.html_renderer import render_html_report
 from blindspot.reporting.models import BlindSpotReport, TaskMetricSummary
+from blindspot.reporting.sarif import write_sarif_file
 
 
 def generate_ux_report(
@@ -128,4 +129,16 @@ def generate_ux_report(
     html_content = render_html_report(report, output_dir=out_dir)
     html_path.write_text(html_content, encoding="utf-8")
 
+    # 11. Save findings.sarif for CI/CD & GitHub Code Scanning
+    try:
+        findings_dicts = [f.model_dump() for f in prioritized_findings]
+        write_sarif_file(
+            findings=findings_dicts,
+            output_path=out_dir / "findings.sarif",
+            target_url=target_url,
+        )
+    except Exception:
+        pass
+
     return report, json_path, html_path
+

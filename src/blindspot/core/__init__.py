@@ -7,6 +7,12 @@ from blindspot.core.runner import (
     generate_run_id,
     run_pipeline,
 )
+from blindspot.core.session import (
+    CoverageTracker,
+    RunSession,
+    ScanMode,
+    TokenBudget,
+)
 from blindspot.core.validation import validate_context, validate_url
 
 __all__ = [
@@ -18,4 +24,9 @@ __all__ = [
     "run_pipeline",
     "validate_url",
     "validate_context",
+    "RunSession",
+    "ScanMode",
+    "TokenBudget",
+    "CoverageTracker",
 ]
+

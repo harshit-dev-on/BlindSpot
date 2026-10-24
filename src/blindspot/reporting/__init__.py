@@ -14,6 +14,7 @@ from blindspot.reporting.models import (
     TaskMetricSummary,
     UXFinding,
 )
+from blindspot.reporting.sarif import build_sarif_report, write_sarif_file
 
 __all__ = [
     "BlindSpotReport",
@@ -26,4 +27,7 @@ __all__ = [
     "DeduplicatorAndPrioritizer",
     "render_html_report",
     "generate_ux_report",
+    "build_sarif_report",
+    "write_sarif_file",
 ]
+

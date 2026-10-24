@@ -112,3 +112,22 @@ def test_save_and_load_config(tmp_path: Path):
     assert loaded.ai.model == "gemini-2.5-flash"
     assert loaded.ai.tasks.persona_generation == "gemini-2.5-flash"
     assert loaded.ai.tasks.ux_analysis == "gemini-2.5-pro"
+
+
+def test_universal_llm_env_vars(monkeypatch):
+    monkeypatch.setenv("BLINDSPOT_LLM", "gemini/gemini-1.5-flash")
+    monkeypatch.setenv("LLM_API_KEY", "secret-key-12345")
+
+    cfg = load_config()
+    assert cfg.ai.provider == "gemini"
+    assert cfg.ai.model == "gemini-1.5-flash"
+    assert cfg.ai.api_key == "secret-key-12345"
+
+    # Test STRIX_LLM fallback alias
+    monkeypatch.delenv("BLINDSPOT_LLM")
+    monkeypatch.setenv("STRIX_LLM", "ollama/llama3.2")
+    cfg_strix = load_config()
+    assert cfg_strix.ai.provider == "ollama"
+    assert cfg_strix.ai.model == "llama3.2"
+    assert cfg_strix.ai.category == "local"
+
