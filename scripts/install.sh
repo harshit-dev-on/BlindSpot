@@ -28,11 +28,10 @@ if [ ! -d "$VENV_DIR" ]; then
     python3 -m venv "$VENV_DIR"
 fi
 
-"$VENV_DIR/bin/pip" install --quiet --upgrade pip
 if [ -f "./pyproject.toml" ]; then
-    "$VENV_DIR/bin/pip" install --quiet .
+    "$VENV_DIR/bin/pip" install --quiet -e .
 else
-    "$VENV_DIR/bin/pip" install --quiet "git+https://github.com/harshit-dev-on/BlindSpot.git"
+    "$VENV_DIR/bin/pip" install --quiet --upgrade "git+https://github.com/harshit-dev-on/BlindSpot.git"
 fi
 
 # Create symlink/wrapper script in ~/.blindspot/bin

@@ -33,11 +33,11 @@ $VenvBlindspot = Join-Path $VenvDir "Scripts\blindspot.exe"
 & $VenvPip install --quiet --upgrade pip
 Write-Host "-> Installing BlindSpot into isolated environment..." -ForegroundColor Cyan
 if (Test-Path "$PSScriptRoot\..\pyproject.toml") {
-    & $VenvPip install --quiet "$PSScriptRoot\.."
+    & $VenvPip install --quiet -e "$PSScriptRoot\.."
 } elseif (Test-Path ".\pyproject.toml") {
-    & $VenvPip install --quiet "."
+    & $VenvPip install --quiet -e "."
 } else {
-    & $VenvPip install --quiet "git+https://github.com/harshit-dev-on/BlindSpot.git"
+    & $VenvPip install --quiet --upgrade "git+https://github.com/harshit-dev-on/BlindSpot.git"
 }
 
 # Create runner batch file in ~/.blindspot/bin
