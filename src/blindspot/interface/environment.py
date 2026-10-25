@@ -6,7 +6,6 @@ import logging
 import os
 import sys
 from rich.console import Console
-from rich.panel import Panel
 from rich.text import Text
 
 from blindspot.config.loader import load_config
@@ -90,14 +89,7 @@ def validate_environment(config: Optional[BlindSpotConfig] = None) -> None:
         error_text.append("\nTip: Run 'blindspot setup' for interactive guided configuration.\n", style="bold green")
 
         console.print()
-        console.print(
-            Panel(
-                error_text,
-                title="[bold white]BLINDSPOT",
-                title_align="left",
-                border_style="red",
-                padding=(1, 2),
-            )
-        )
+        console.print("[bold red]✖ BLINDSPOT ENVIRONMENT ERROR[/bold red]\n")
+        console.print(error_text)
         console.print()
         sys.exit(1)

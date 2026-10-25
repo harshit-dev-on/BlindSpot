@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 from typing import Optional
 import typer
-from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 
 from blindspot.ai.adapter import (
@@ -65,26 +64,19 @@ def run_setup_wizard() -> None:
         m = "gemini-2.5-flash"
     current_route = f"{p}/{m}"
 
-    console.print(
-        Panel(
-            "[bold white]BlindSpot AI Setup[/bold white]\n\n"
-            "Configure your model in standard [cyan]<provider>/<model>[/cyan] format.\n\n"
-            "[dim]Popular models:\n"
-            "  • [bold cyan]gemini/gemini-2.5-flash[/bold cyan] (or google/gemini-2.5-flash) [Recommended]\n"
-            "  • [bold white]openai/gpt-4o-mini[/bold white]\n"
-            "  • [bold yellow]anthropic/claude-3-7-sonnet[/bold yellow]\n"
-            "  • [bold green]ollama/gemma4[/bold green] (Local, free & private)\n"
-            "  • [bold blue]openrouter/meta-llama/llama-3.1-8b-instruct[/bold blue][/dim]",
-            title="[bold cyan]BlindSpot[/bold cyan]",
-            title_align="left",
-            border_style="cyan",
-            padding=(1, 2),
-        )
-    )
+    console.print()
+    console.print("[bold white]BlindSpot AI Setup[/bold white]")
+    console.print("[dim]Configure your model in standard[/dim] [cyan]<provider>/<model>[/cyan] [dim]format.[/dim]\n")
+    console.print("[dim]Popular models:[/dim]")
+    console.print("  • [bold cyan]gemini/gemini-2.5-flash[/bold cyan] [dim](Recommended)[/dim]")
+    console.print("  • [bold white]openai/gpt-4o-mini[/bold white]")
+    console.print("  • [bold yellow]anthropic/claude-3-7-sonnet[/bold yellow]")
+    console.print("  • [bold green]ollama/gemma4[/bold green] [dim](Local, free & private)[/dim]")
+    console.print("  • [bold blue]openrouter/meta-llama/llama-3.1-8b-instruct[/bold blue]\n")
 
     # 1. Model Route Prompt
     model_route = Prompt.ask(
-        "[bold]Model Route[/bold] (<provider>/<model>)",
+        "[bold cyan]?[/bold cyan] [bold]Model Route[/bold] (<provider>/<model>)",
         default=current_route,
     )
 
@@ -98,12 +90,12 @@ def run_setup_wizard() -> None:
         env_val = os.environ.get(api_key_env) or os.environ.get("LLM_API_KEY")
         has_existing = bool(api_key or env_val)
 
-        console.print(f"\nProvider [bold]{provider.upper()}[/bold] requires an API key (reads from [cyan]{api_key_env}[/cyan] or [cyan]LLM_API_KEY[/cyan]).")
+        console.print(f"\nProvider [bold]{provider.upper()}[/bold] requires an API key [dim](reads from {api_key_env} or LLM_API_KEY)[/dim].")
         if has_existing:
             console.print("[dim]An API key was detected in your environment/config. Press Enter to keep it.[/dim]")
 
         entered_key = typer.prompt(
-            f"Enter {provider.upper()} API Key",
+            f"? Enter {provider.upper()} API Key",
             default="" if has_existing else None,
             show_default=False,
             hide_input=True,
@@ -151,18 +143,11 @@ def run_setup_wizard() -> None:
     # Save
     saved_path = save_config(blindspot_config)
 
-    console.print(
-        Panel(
-            f"[bold green]✓ BlindSpot successfully configured![/bold green]\n\n"
-            f"[bold]Active Route:[/bold] [cyan]{provider}/{model}[/cyan]\n"
-            f"[bold]Saved to:[/bold] [dim]{saved_path}[/dim]\n\n"
-            "[bold white]Ready to test:[/bold white]\n"
-            f"  • Quick scan:     [cyan]blindspot --target https://example.com[/cyan]\n"
-            f"  • Verify status:  [cyan]blindspot provider test[/cyan]\n"
-            f"  • Launch studio:  [cyan]blindspot web[/cyan]",
-            title="[bold green]Ready[/bold green]",
-            title_align="left",
-            border_style="green",
-            padding=(1, 2),
-        )
-    )
+    console.print()
+    console.print(f"[bold green]✓ BlindSpot successfully configured![/bold green]\n")
+    console.print(f"  [dim]Active Route:[/dim] [bold cyan]{provider}/{model}[/bold cyan]")
+    console.print(f"  [dim]Saved to:[/dim]     [dim]{saved_path}[/dim]\n")
+    console.print("[bold white]Ready to test:[/bold white]")
+    console.print(f"  • Quick scan:     [cyan]blindspot --target https://example.com[/cyan]")
+    console.print(f"  • Verify status:  [cyan]blindspot provider test[/cyan]")
+    console.print(f"  • Launch studio:  [cyan]blindspot web[/cyan]\n")

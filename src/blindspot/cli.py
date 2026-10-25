@@ -4,6 +4,15 @@ import os
 from pathlib import Path
 from typing import Optional
 import typer
+try:
+    import typer.rich_utils as _typer_ru
+    from rich.console import Group
+    from rich.text import Text
+
+    _typer_ru.Panel = lambda r, title="", *a, **kw: Group(Text(f"\n{title}", style="bold cyan"), r) if title else r  # type: ignore
+except Exception:
+    pass
+
 from typing_extensions import Annotated
 
 from blindspot import __version__
@@ -916,6 +925,24 @@ def inspect(
         console.print("[dim]Persona task execution skipped (--skip-execution flag provided).[/dim]")
     else:
         try:
+            def _live_event_handler(event: dict) -> None:
+                etype = event.get("type")
+                if etype == "task_start":
+                    pname = event.get("persona_name", "")
+                    tobj = event.get("task_objective", "")
+                    console.print(f"  [bold cyan]›[/bold cyan] [bold white]{pname}[/bold white] [dim]executing:[/dim] {tobj}")
+                elif etype == "action_step":
+                    step = event.get("step")
+                    act = event.get("action", "")
+                    tgt = event.get("target") or ""
+                    reasoning = event.get("reasoning") or ""
+                    ok = event.get("success", True)
+                    status_badge = "[green]✓[/green]" if ok else "[red]✖[/red]"
+                    target_display = f" '{tgt}'" if tgt else ""
+                    console.print(f"    {status_badge} [dim]Step {step}:[/dim] [cyan]{act}[/cyan]{target_display}")
+                    if reasoning:
+                        console.print(f"      [dim]Thought: {reasoning}[/dim]")
+
             with console.status(
                 f"[bold cyan]Executing persona user journeys across isolated browser sessions...[/bold cyan]",
                 spinner="dots",
@@ -928,6 +955,7 @@ def inspect(
                     headless=effective_headless,
                     max_actions_per_task=max_actions,
                     allow_local=allow_local,
+                    on_event=_live_event_handler,
                 )
             print_execution_summary(execution_result)
         except Exception as exc:
@@ -1021,7 +1049,6 @@ def web(
     """Launch the interactive BlindSpot web demonstration server."""
     try:
         import uvicorn
-        from rich.panel import Panel
         from blindspot.web.app import app as fastapi_app
     except ImportError as exc:
         print_error(
@@ -1032,19 +1059,13 @@ def web(
         raise typer.Exit(code=1)
 
     url = f"http://{host}:{port}"
-    console.print(
-        Panel(
-            f"[bold cyan]BlindSpot UX Testing Studio[/bold cyan]\n\n"
-            f"• Local URL:   [bold green]{url}[/bold green]\n"
-            f"• API Docs:    [dim]{url}/docs[/dim]\n"
-            f"• Bound Host:  [dim]{host}[/dim]\n"
-            f"• Port:        [dim]{port}[/dim]\n\n"
-            f"[italic dim]Press Ctrl+C to stop the web server.[/italic dim]",
-            title="[bold white] Web Server Online [/bold white]",
-            border_style="cyan",
-            expand=False,
-        )
-    )
+    console.print()
+    console.print(f"[bold cyan]BlindSpot UX Testing Studio[/bold cyan] [dim](Web Server Online)[/dim]\n")
+    console.print(f"  • Local URL:   [bold green]{url}[/bold green]")
+    console.print(f"  • API Docs:    [dim]{url}/docs[/dim]")
+    console.print(f"  • Bound Host:  [dim]{host}[/dim]")
+    console.print(f"  • Port:        [dim]{port}[/dim]\n")
+    console.print(f"  [dim]Press Ctrl+C to stop the web server.[/dim]\n")
 
     if open_browser:
         import webbrowser

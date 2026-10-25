@@ -1,11 +1,10 @@
 """Terminal formatting and console output helpers using Rich."""
 
+from pathlib import Path
 import sys
-from typing import Any, Optional
+from typing import Any, List, Optional
 from rich.console import Console
-from rich.panel import Panel
 from rich.table import Table
-from rich.text import Text
 
 # Enable UTF-8 encoding stream on Windows when available to prevent charmap encoding errors
 if sys.platform == "win32":
@@ -32,23 +31,17 @@ def print_error(title: str, message: str, suggestion: Optional[str] = None) -> N
         message: Detailed explanation of what failed.
         suggestion: Actionable suggestion or example command to fix the issue.
     """
-    body = f"[bold red][ERROR] {message}[/bold red]"
+    err_console.print()
+    err_console.print(f"[bold red]✖ Error:[/bold red] [bold white]{title}[/bold white]")
+    err_console.print(f"  [red]{message}[/red]")
     if suggestion:
-        body += f"\n\n[bold yellow][TIP][/bold yellow] [dim]{suggestion}[/dim]"
-
-    panel = Panel(
-        body,
-        title=f"[bold red]{title}[/bold red]",
-        title_align="left",
-        border_style="red",
-        padding=(1, 2),
-    )
-    err_console.print(panel)
+        err_console.print(f"  [bold yellow]Tip:[/bold yellow] [dim]{suggestion}[/dim]")
+    err_console.print()
 
 
 def print_success(message: str) -> None:
     """Print a success message."""
-    console.print(f"[bold green][OK][/bold green] {message}")
+    console.print(f"[bold green]✔[/bold green] {message}")
 
 
 def print_inspection_summary(url: str, context: str) -> None:
@@ -58,8 +51,10 @@ def print_inspection_summary(url: str, context: str) -> None:
         url: Validated target website URL.
         context: Validated website purpose and audience context.
     """
-    table = Table(show_header=False, box=None, padding=(0, 1))
-    table.add_column("Field", style="bold cyan", width=16)
+    console.print()
+    console.print("[bold cyan]BlindSpot Website Inspection Plan[/bold cyan] [dim](Input validation passed)[/dim]\n")
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column("Field", style="dim", width=18)
     table.add_column("Value", style="white")
 
     table.add_row("Website URL", f"[underline]{url}[/underline]")
@@ -69,45 +64,16 @@ def print_inspection_summary(url: str, context: str) -> None:
     table.add_row("Context", display_context)
     table.add_row("Context Length", f"{len(context)} characters")
 
-    panel = Panel(
-        table,
-        title="[bold blue]BlindSpot Website Inspection Plan[/bold blue]",
-        subtitle="[dim]Status: Input validation passed[/dim]",
-        border_style="blue",
-        padding=(1, 2),
-    )
-    console.print(panel)
+    console.print(table)
+    console.print()
 
 
 def print_inspection_start(url: str, browser: str) -> None:
-    """Print startup panel indicating the audit has initiated."""
-    start_text = Text()
-    start_text.append("UX & accessibility audit initiated", style="bold #22c55e")
-
-    target_text = Text()
-    target_text.append("Target", style="dim")
-    target_text.append("  ")
-    target_text.append(url, style="bold white")
-
-    note_text = Text()
-    note_text.append("\n\n", style="dim")
-    note_text.append(f"Engine: {browser} | Personas and UX friction will be evaluated in real-time.", style="dim")
-
-    startup_panel = Panel(
-        Text.assemble(
-            start_text,
-            "\n\n",
-            target_text,
-            note_text,
-        ),
-        title="[bold white]BLINDSPOT",
-        title_align="left",
-        border_style="#22c55e",
-        padding=(1, 2),
-    )
-    console.print("\n")
-    console.print(startup_panel)
+    """Print startup information indicating the audit has initiated."""
     console.print()
+    console.print("[bold green]●[/bold green] [bold white]BLINDSPOT[/bold white] [dim]UX & accessibility audit initiated[/dim]")
+    console.print(f"  [dim]Target[/dim]  [bold white]{url}[/bold white]")
+    console.print(f"  [dim]Engine[/dim]  [dim]{browser} · Personas and UX friction will be evaluated in real-time[/dim]\n")
 
 
 def print_browser_inspection_summary(
@@ -140,8 +106,9 @@ def print_browser_inspection_summary(
         screenshot_path: Path to captured full-page screenshot.
         result_json_path: Path to saved structured JSON inspection file.
     """
-    table = Table(show_header=False, box=None, padding=(0, 1))
-    table.add_column("Metric", style="bold cyan", width=22)
+    console.print("[bold green]BlindSpot Browser Inspection Complete[/bold green] [dim](Artifacts captured)[/dim]\n")
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column("Metric", style="dim", width=22)
     table.add_column("Value", style="white")
 
     table.add_row("Page Title", title or "[dim](No title)[/dim]")
@@ -155,16 +122,9 @@ def print_browser_inspection_summary(
     table.add_row("Screenshot Saved", f"[green]{screenshot_path}[/green]")
     table.add_row("Structured Data Saved", f"[green]{result_json_path}[/green]")
 
-    panel = Panel(
-        table,
-        title="[bold green]BlindSpot Browser Inspection Complete[/bold green]",
-        subtitle="[dim]Status: Artifacts captured[/dim]",
-        border_style="green",
-        padding=(1, 2),
-    )
-    console.print(panel)
+    console.print(table)
     console.print(
-        f"[bold green][OK] Inspection successful.[/bold green] Artifacts saved to directory."
+        f"\n[bold green]✔ Inspection successful.[/bold green] Artifacts saved to directory.\n"
     )
 
 
@@ -177,7 +137,7 @@ def print_provider_list(
     config_source: Optional[str] = None,
 ) -> None:
     """Print a list of supported AI providers and the currently active configuration."""
-    table = Table(title="[bold blue]BlindSpot AI Providers[/bold blue]", box=None, padding=(0, 2))
+    table = Table(title="[bold cyan]BlindSpot AI Providers[/bold cyan]", box=None, padding=(0, 2))
     table.add_column("Provider", style="bold cyan")
     table.add_column("Category", style="white")
     table.add_column("Key Env Var", style="dim")
@@ -197,11 +157,12 @@ def print_provider_list(
         label = p_id + (" [bold green](active)[/bold green]" if is_active else "")
         table.add_row(label, cat, key_env, f"[green]{status}[/green]")
 
+    console.print()
     console.print(table)
     console.print()
 
-    summary_table = Table(show_header=False, box=None, padding=(0, 1))
-    summary_table.add_column("Key", style="bold cyan", width=18)
+    summary_table = Table(show_header=False, box=None, padding=(0, 2))
+    summary_table.add_column("Key", style="dim", width=18)
     summary_table.add_column("Value", style="white")
 
     summary_table.add_row("Active Category", active_category)
@@ -212,30 +173,21 @@ def print_provider_list(
     if config_source:
         summary_table.add_row("Config Source", config_source)
 
-    panel = Panel(
-        summary_table,
-        title="[bold blue]Active Configuration[/bold blue]",
-        border_style="blue",
-        padding=(1, 2),
-    )
-    console.print(panel)
+    console.print("[bold cyan]Active Configuration[/bold cyan]")
+    console.print(summary_table)
+    console.print()
 
 
 def print_model_list(provider: str, models: list[str]) -> None:
     """Print available or verified models for a provider."""
+    console.print()
+    console.print(f"[bold cyan]Models for {provider.upper()}[/bold cyan]")
     if not models:
-        console.print(
-            Panel(
-                f"[yellow]No predefined or discovered models found for '{provider}'.[/yellow]\n"
-                "You can specify any valid model identifier using [cyan]--model <name>[/cyan] or in your config file.",
-                title=f"[bold blue]Models for {provider.upper()}[/bold blue]",
-                border_style="yellow",
-                padding=(1, 2),
-            )
-        )
+        console.print(f"  [yellow]No predefined or discovered models found for '{provider}'.[/yellow]")
+        console.print("  [dim]You can specify any valid model identifier using --model <name> or in your config file.[/dim]\n")
         return
 
-    table = Table(title=f"[bold blue]Models for {provider.upper()}[/bold blue]", box=None, padding=(0, 2))
+    table = Table(box=None, padding=(0, 2))
     table.add_column("#", style="dim", width=4)
     table.add_column("Model Identifier", style="bold white")
     table.add_column("Status", style="green")
@@ -244,7 +196,7 @@ def print_model_list(provider: str, models: list[str]) -> None:
         table.add_row(str(idx), m, "[green]Available[/green]")
 
     console.print(table)
-    console.print("\n[dim]To test any model: blindspot provider test --provider " + provider + " --model <name>[/dim]")
+    console.print("\n[dim]To test any model: blindspot provider test --provider " + provider + " --model <name>[/dim]\n")
 
 
 def print_provider_status(
@@ -256,12 +208,12 @@ def print_provider_status(
     latency_ms: Optional[float],
     message: str,
 ) -> None:
-    """Display connection test results in a styled panel."""
+    """Display connection test results cleanly."""
     status_str = "[bold green][ONLINE][/bold green]" if is_reachable else "[bold red][OFFLINE][/bold red]"
     model_str = "[bold green][READY][/bold green]" if model_available else "[bold red][NOT FOUND][/bold red]"
 
-    table = Table(show_header=False, box=None, padding=(0, 1))
-    table.add_column("Field", style="bold cyan", width=18)
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column("Field", style="dim", width=18)
     table.add_column("Value", style="white")
 
     table.add_row("Provider", provider)
@@ -274,42 +226,30 @@ def print_provider_status(
     if message:
         table.add_row("Details", message)
 
-    border_color = "green" if (is_reachable and model_available) else "yellow" if is_reachable else "red"
-    title = "[bold green]Provider Test Passed[/bold green]" if (is_reachable and model_available) else "[bold red]Provider Test Issue[/bold red]"
-
-    panel = Panel(
-        table,
-        title=title,
-        border_style=border_color,
-        padding=(1, 2),
-    )
-    console.print(panel)
+    console.print()
+    if is_reachable and model_available:
+        console.print("[bold green]✔ Provider Test Passed[/bold green]")
+    else:
+        console.print("[bold red]✖ Provider Test Issue[/bold red]")
+    console.print(table)
+    console.print()
 
 
 def print_ai_prompt_result(prompt: str, model: str, provider: str, content: str) -> None:
-    """Display prompt and model response."""
-    table = Table(show_header=False, box=None, padding=(0, 1))
-    table.add_column("Field", style="bold cyan", width=14)
-    table.add_column("Value", style="white")
-
-    table.add_row("Provider", f"{provider} ({model})")
-    table.add_row("Prompt", prompt)
-    table.add_row("Response", content)
-
-    panel = Panel(
-        table,
-        title="[bold green]AI Model Response[/bold green]",
-        border_style="green",
-        padding=(1, 2),
-    )
-    console.print(panel)
+    """Display prompt and model response cleanly."""
+    console.print()
+    console.print(f"[bold cyan]AI Provider:[/bold cyan] [bold white]{provider}[/bold white] [dim]({model})[/dim]")
+    console.print(f"[bold cyan]User Prompt:[/bold cyan]\n  [white]{prompt}[/white]\n")
+    console.print(f"[bold green]AI Response:[/bold green]\n{content}\n")
 
 
 def print_personas_summary(plan: Any) -> None:
-    """Display AI persona generation and task planning findings."""
-    # 1. Overview Panel
-    overview_table = Table(show_header=False, box=None, padding=(0, 1))
-    overview_table.add_column("Field", style="bold cyan", width=18)
+    """Display AI persona generation and task planning findings cleanly without boxes."""
+    console.print()
+    console.print("[bold cyan]AI Persona Synthesis & Task Planning Complete[/bold cyan] [dim](Plan ready for execution)[/dim]\n")
+
+    overview_table = Table(show_header=False, box=None, padding=(0, 2))
+    overview_table.add_column("Field", style="dim", width=22)
     overview_table.add_column("Value", style="white")
 
     overview_table.add_row("Website Summary", plan.website_summary)
@@ -336,40 +276,22 @@ def print_personas_summary(plan: Any) -> None:
     if plan.plan_file_path:
         overview_table.add_row("Plan Saved To", f"[bold green]{plan.plan_file_path}[/bold green]")
 
-    console.print(
-        Panel(
-            overview_table,
-            title="[bold blue]AI Persona Synthesis & Task Planning Complete[/bold blue]",
-            subtitle="[dim]Status: Plan ready for autonomous execution[/dim]",
-            border_style="blue",
-            padding=(1, 2),
-        )
-    )
+    console.print(overview_table)
+    console.print()
 
-    # 2. Display Personas & Assigned Tasks
+    # Display Personas & Assigned Tasks
     for p_idx, persona in enumerate(plan.personas, start=1):
-        p_table = Table(show_header=False, box=None, padding=(0, 1))
-        p_table.add_column("Key", style="bold cyan", width=16)
-        p_table.add_column("Val", style="white")
+        console.print(f"[bold cyan]Persona {p_idx}: {persona.name}[/bold cyan] [dim]({persona.id}) · {persona.experience_level}[/dim]")
+        console.print(f"  [dim]Description:[/dim]      {persona.description}")
+        console.print(f"  [dim]Browsing / Needs:[/dim] {persona.accessibility_needs or 'Standard'}")
+        console.print(f"  [dim]Primary Goals:[/dim]    {', '.join(persona.goals)}")
+        if persona.likely_difficulties:
+            console.print(f"  [dim]Difficulties:[/dim]     {', '.join(persona.likely_difficulties)}")
 
-        p_table.add_row("Description", persona.description)
-        p_table.add_row("Experience Level", f"[magenta]{persona.experience_level}[/magenta]")
-        p_table.add_row("Browsing / Needs", persona.accessibility_needs or "Standard")
-        p_table.add_row("Primary Goals", ", ".join(persona.goals))
-        p_table.add_row("Likely Difficulties", ", ".join(persona.likely_difficulties))
-
-        console.print(
-            Panel(
-                p_table,
-                title=f"[bold cyan]Persona {p_idx}: {persona.name}[/bold cyan] [dim]({persona.id})[/dim]",
-                border_style="cyan",
-                padding=(0, 2),
-            )
-        )
-
+        console.print()
         # Task Table for this Persona
-        t_table = Table(box=None, padding=(0, 1))
-        t_table.add_column("Task ID", style="bold white", width=16)
+        t_table = Table(box=None, padding=(0, 2))
+        t_table.add_column("Task ID", style="bold white", width=14)
         t_table.add_column("Objective & Success Criteria", style="white", ratio=3)
         t_table.add_column("Evidence", style="dim", ratio=2)
         t_table.add_column("Status", width=14)
@@ -387,7 +309,6 @@ def print_personas_summary(plan: Any) -> None:
                 obj_text += f"\n[yellow]Note: {task.uncertainty_notes}[/yellow]"
 
             evidence_text = "\n".join(f"• {e}" for e in task.evidence_to_collect)
-
             t_table.add_row(task.id, obj_text, evidence_text, status_badge)
 
         console.print(t_table)
@@ -395,9 +316,13 @@ def print_personas_summary(plan: Any) -> None:
 
 
 def print_execution_summary(run_result: Any) -> None:
-    """Display results of persona-based browser task execution."""
-    table = Table(show_header=False, box=None, padding=(0, 1))
-    table.add_column("Field", style="bold cyan", width=18)
+    """Display results of persona-based browser task execution cleanly without boxes."""
+    console.print()
+    title_color = "green" if run_result.failed_tasks == 0 else "yellow"
+    console.print(f"[bold {title_color}]Persona-Based Browser Testing Complete[/bold {title_color}] [dim](Evidence & logs captured)[/dim]\n")
+
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column("Field", style="dim", width=20)
     table.add_column("Value", style="white")
 
     table.add_row("Target Website", run_result.target_url)
@@ -419,22 +344,14 @@ def print_execution_summary(run_result: Any) -> None:
             f"[bold green]{run_result.results_file_path}[/bold green]",
         )
 
-    border_color = "green" if run_result.failed_tasks == 0 else "yellow"
-    console.print(
-        Panel(
-            table,
-            title="[bold green]Persona-Based Browser Testing Complete[/bold green]",
-            subtitle="[dim]Status: Evidence and task logs captured[/dim]",
-            border_style=border_color,
-            padding=(1, 2),
-        )
-    )
+    console.print(table)
+    console.print()
 
     # Detailed task outcome tables per persona
     for persona in run_result.personas:
         console.print(f"[bold cyan]Persona: {persona.persona_name}[/bold cyan] [dim]({persona.persona_id})[/dim]")
-        p_table = Table(box=None, padding=(0, 1))
-        p_table.add_column("Task ID", style="bold white", width=16)
+        p_table = Table(box=None, padding=(0, 2))
+        p_table.add_column("Task ID", style="bold white", width=14)
         p_table.add_column("Objective", style="white", ratio=3)
         p_table.add_column("Actions", width=10)
         p_table.add_column("Outcome", width=16)
@@ -478,22 +395,16 @@ def print_report_summary(
     top_findings: Optional[List[Any]] = None,
 ) -> None:
     """Display final UX report generation summary and top prioritized findings in console."""
-    completion_text = Text()
-    completion_text.append("UX & accessibility audit completed", style="bold #22c55e")
+    console.print()
+    console.print("[bold green]✔ UX & accessibility audit completed[/bold green]\n")
+    console.print(f"  [dim]Target[/dim]    [bold white]{target_url}[/bold white]")
 
-    target_text = Text()
-    target_text.append("Target", style="dim")
-    target_text.append("  ")
-    target_text.append(target_url, style="bold white")
-
-    stats_text = Text()
-    stats_text.append("Tasks   ", style="dim")
-    stats_text.append(f"{passed_tasks} passed", style="#22c55e")
+    stats_parts: list[str] = [f"[bold green]{passed_tasks} passed[/bold green]"]
     if failed_tasks > 0:
-        stats_text.append(f" · {failed_tasks} failed", style="bold red")
-    stats_text.append(f" ({total_tasks} total)\n")
+        stats_parts.append(f"[bold red]{failed_tasks} failed[/bold red]")
+    stats_parts.append(f"[dim]({total_tasks} total)[/dim]")
+    console.print(f"  [dim]Tasks[/dim]     {' · '.join(stats_parts)}")
 
-    stats_text.append("Findings ", style="dim")
     finding_parts: list[str] = []
     if verified_issues > 0:
         finding_parts.append(f"[bold red]{verified_issues} verified defects[/bold red]")
@@ -503,55 +414,21 @@ def print_report_summary(
         finding_parts.append(f"[bold cyan]{potential_improvements} potential improvements[/bold cyan]")
     if not finding_parts:
         finding_parts.append("[green]0 issues detected[/green]")
-    stats_text.append(" · ".join(finding_parts))
+    console.print(f"  [dim]Findings[/dim]  {' · '.join(finding_parts)}\n")
 
-    results_text = Text()
-    results_text.append("\nOutput", style="dim")
-    results_text.append("  ")
-    results_text.append(str(json_path), style="#60a5fa")
+    console.print(f"  [dim]Output[/dim]    [#60a5fa]{json_path}[/]")
+    console.print(f"  [dim]Report[/dim]    [#22c55e]{html_path}[/]")
+    console.print(f"  [dim]View[/dim]      [bold #22c55e]blindspot view {report_id}[/]\n")
 
-    report_text = Text()
-    report_text.append("\nReport", style="dim")
-    report_text.append("  ")
-    report_text.append(str(html_path), style="#22c55e")
-
-    view_text = Text()
-    view_text.append("\nView", style="dim")
-    view_text.append("    ")
-    view_text.append(f"blindspot view {report_id}", style="#22c55e")
-
-    border_color = "red" if verified_issues > 0 else "#22c55e"
-    panel = Panel(
-        Text.assemble(
-            completion_text,
-            "\n\n",
-            target_text,
-            "\n\n",
-            stats_text,
-            "\n",
-            results_text,
-            report_text,
-            view_text,
-        ),
-        title="[bold white]BLINDSPOT",
-        title_align="left",
-        border_style=border_color,
-        padding=(1, 2),
-    )
-
-    console.print("\n")
-    console.print(panel)
-    console.print()
     console.print(
         "[#60a5fa]blindspot.ai[/]  [dim]·[/]  "
         "[#60a5fa]docs.blindspot.ai[/]  [dim]·[/]  "
-        "[#60a5fa]github.com/harshit-dev-on/BlindSpot[/]"
+        "[#60a5fa]github.com/harshit-dev-on/BlindSpot[/]\n"
     )
-    console.print()
 
     if top_findings:
         console.print("[bold]Top Prioritized Usability Recommendations:[/bold]")
-        f_table = Table(box=None, padding=(0, 1))
+        f_table = Table(box=None, padding=(0, 2))
         f_table.add_column("Rank", style="dim", width=6)
         f_table.add_column("Category", width=22)
         f_table.add_column("Severity", width=12)
@@ -582,26 +459,12 @@ def print_report_summary(
 
 
 def print_finding_panel(finding_id: str, title: str, category: str, severity: str, impact: str) -> None:
-    """Print real-time finding panel."""
-    text = Text()
-    text.append(f"{title}\n\n", style="bold white")
-    text.append("Severity: ", style="dim")
+    """Print real-time finding cleanly without a box."""
     sev_color = "red" if severity in ("Critical", "High") else "yellow"
-    text.append(f"{severity}\n", style=f"bold {sev_color}")
-    text.append("Category: ", style="dim")
-    text.append(f"{category}\n", style="white")
-    text.append("Impact:   ", style="dim")
-    text.append(f"{impact}\n", style="dim white")
-
-    panel = Panel(
-        text,
-        title=f"[bold red]{finding_id.upper()}",
-        title_align="left",
-        border_style="red" if severity in ("Critical", "High") else "yellow",
-        padding=(1, 2),
-    )
-    console.print(panel)
     console.print()
+    console.print(f"[bold {sev_color}]● {finding_id.upper()}[/bold {sev_color}]  [bold white]{title}[/bold white]")
+    console.print(f"  [dim]Severity:[/dim] [{sev_color}]{severity}[/{sev_color}]  [dim]·  Category:[/dim] {category}")
+    console.print(f"  [dim]Impact:[/dim]   [white]{impact}[/white]\n")
 
 
 def print_skills_list(skills: list) -> None:
@@ -658,4 +521,3 @@ def print_skills_installed(installed: dict) -> None:
 
     console.print(table)
     console.print("\n[dim]AI coding agents (Cursor, Copilot, Antigravity, Claude) in this workspace can now activate these skills.[/dim]\n")
-
