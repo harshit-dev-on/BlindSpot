@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from blindspot.ai.base import BaseAIProvider
-from blindspot.browser.models import BrowserInspectionResult
+from blindspot.runtime import BrowserInspectionResult
 from blindspot.personas.models import Persona, PersonaPlan, PersonaPlanPayload, PersonaTask
 
 

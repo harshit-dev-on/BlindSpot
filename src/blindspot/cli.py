@@ -84,14 +84,7 @@ skill_app = typer.Typer(
 )
 app.add_typer(skill_app)
 
-SUPPORTED_BROWSERS = ("chromium", "firefox", "webkit")
-
-
-def version_callback(value: bool) -> None:
-    """Print BlindSpot version and exit."""
-    if value:
-        typer.echo(f"BlindSpot version {__version__}")
-        raise typer.Exit()
+from blindspot.interface.cli_args import SUPPORTED_BROWSERS, version_callback
 
 
 @app.callback(invoke_without_command=True)

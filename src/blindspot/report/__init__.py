@@ -3,21 +3,22 @@
 Provides UX report writers, SARIF generation, and heuristic analyzers.
 """
 
-from blindspot.report.analysis import (
+from blindspot.reporting import (
     AIUXAnalyzer,
+    BlindSpotReport,
     DeduplicatorAndPrioritizer,
     EvidenceAggregator,
-)
-from blindspot.report.models import (
-    BlindSpotReport,
     FindingCategory,
-    FindingItem,
     SeverityLevel,
     TaskMetricSummary,
     UXFinding,
+    generate_ux_report,
+    render_html_report,
 )
-from blindspot.report.sarif import build_sarif_report, generate_sarif_log, write_sarif_file
-from blindspot.report.writer import generate_ux_report, render_html_report
+from blindspot.reporting.sarif import build_sarif_report, write_sarif_file
+
+FindingItem = UXFinding
+generate_sarif_log = build_sarif_report
 
 __all__ = [
     "AIUXAnalyzer",

@@ -4,7 +4,7 @@ import html
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 from blindspot.ai.base import BaseAIProvider
-from blindspot.browser.models import BrowserInspectionResult
+from blindspot.runtime import BrowserInspectionResult
 from blindspot.execution.models import (
     ActionExecutionRecord,
     ExecutionRunResult,

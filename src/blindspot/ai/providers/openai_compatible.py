@@ -5,7 +5,7 @@ import time
 from typing import Any, Dict, List, Optional
 import httpx
 
-from blindspot.ai.base import BaseAIProvider
+from blindspot.ai.base import BaseAIProvider, mask_api_key
 from blindspot.ai.exceptions import (
     AIAuthenticationError,
     AIConnectionError,
@@ -17,16 +17,6 @@ from blindspot.ai.models import AIResponse, ProviderStatus
 
 DEFAULT_OPENAI_URL = "https://api.openai.com/v1"
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
-
-
-def mask_api_key(key: Optional[str]) -> str:
-    """Safely mask an API key for logs and UI display."""
-    if not key or not key.strip():
-        return "(none)"
-    k = key.strip()
-    if len(k) <= 8:
-        return "********"
-    return f"{k[:3]}...{k[-4:]}"
 
 
 class OpenAICompatibleProvider(BaseAIProvider):

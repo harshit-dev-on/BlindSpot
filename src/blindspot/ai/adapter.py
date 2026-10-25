@@ -15,7 +15,7 @@ from blindspot.ai.exceptions import (
     AIProviderError,
 )
 from blindspot.ai.models import AIResponse, ProviderStatus
-from blindspot.ai.providers.openai_compatible import mask_api_key
+from blindspot.ai.base import mask_api_key
 
 # Suppress noisy debug logs and drop unsupported provider parameters automatically
 import logging

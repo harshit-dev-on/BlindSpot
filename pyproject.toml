@@ -46,7 +46,7 @@ mcp = [
 ]
 
 [project.scripts]
-blindspot = "blindspot.interface.main:main"
+blindspot = "blindspot.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/blindspot"]

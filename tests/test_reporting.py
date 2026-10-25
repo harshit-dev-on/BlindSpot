@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from blindspot.ai.base import BaseAIProvider
-from blindspot.browser.models import (
+from blindspot.runtime import (
     BrowserInspectionResult,
     InspectionSummary,
     InteractiveElement,

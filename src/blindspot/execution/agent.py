@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from playwright.sync_api import Error as PlaywrightError, Page
 
 from blindspot.ai.base import BaseAIProvider
-from blindspot.browser.inspector import EXTRACT_INTERACTIVE_ELEMENTS_JS, EXTRACT_PAGE_TEXT_JS
+from blindspot.runtime.browser import EXTRACT_INTERACTIVE_ELEMENTS_JS, EXTRACT_PAGE_TEXT_JS
 from blindspot.execution.models import (
     ActionExecutionRecord,
     ActionType,

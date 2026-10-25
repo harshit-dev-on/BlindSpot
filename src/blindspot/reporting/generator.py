@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 from uuid import uuid4
 
 from blindspot.ai.base import BaseAIProvider
-from blindspot.browser.models import BrowserInspectionResult
+from blindspot.runtime import BrowserInspectionResult
 from blindspot.execution.models import ExecutionRunResult
 from blindspot.personas.models import PersonaPlan
 from blindspot.reporting.analysis import (

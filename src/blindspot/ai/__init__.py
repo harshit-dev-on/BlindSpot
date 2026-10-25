@@ -8,7 +8,7 @@ from blindspot.ai.adapter import (
     UnifiedAIAdapter,
     get_models_for_provider,
 )
-from blindspot.ai.base import BaseAIProvider, extract_json_string
+from blindspot.ai.base import BaseAIProvider, extract_json_string, mask_api_key
 from blindspot.ai.exceptions import (
     AIAuthenticationError,
     AIConnectionError,
@@ -20,7 +20,7 @@ from blindspot.ai.exceptions import (
 from blindspot.ai.factory import create_provider
 from blindspot.ai.models import AIResponse, ProviderStatus
 from blindspot.ai.providers.ollama import OllamaProvider
-from blindspot.ai.providers.openai_compatible import OpenAICompatibleProvider, mask_api_key
+from blindspot.ai.providers.openai_compatible import OpenAICompatibleProvider
 
 __all__ = [
     "AIAuthenticationError",

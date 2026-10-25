@@ -80,7 +80,7 @@ class PersonaTestRunner:
             except PlaywrightError as exc:
                 err_msg = str(exc)
                 if "Executable doesn't exist" in err_msg or "Please run" in err_msg:
-                    from blindspot.browser.provisioning import ensure_browser_engine
+                    from blindspot.runtime import ensure_browser_engine
                     ensure_browser_engine(self.browser_type)
                     browser = launcher.launch(headless=self.headless)
                 else:

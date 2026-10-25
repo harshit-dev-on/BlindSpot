@@ -94,7 +94,6 @@ def test_provider_test_invalid_provider_option():
 def test_setup_wizard_local_scripted(tmp_path, monkeypatch):
     """Test interactive setup wizard end-to-end with scripted inputs."""
     user_config = tmp_path / "config.toml"
-    monkeypatch.setattr("blindspot.cli_setup.get_user_config_path", lambda: user_config)
     monkeypatch.setattr("blindspot.config.loader.get_user_config_path", lambda: user_config)
 
     # Streamlined interactive input:

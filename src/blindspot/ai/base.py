@@ -177,3 +177,14 @@ class BaseAIProvider(ABC):
             raw_output="",
             provider=self.name,
         )
+
+
+def mask_api_key(key: Optional[str]) -> str:
+    """Safely mask an API key for logs and UI display."""
+    if not key or not key.strip():
+        return "(none)"
+    k = key.strip()
+    if len(k) <= 8:
+        return "********"
+    return f"{k[:3]}...{k[-4:]}"
+

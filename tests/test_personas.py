@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from blindspot.ai.base import BaseAIProvider
 from blindspot.ai.exceptions import AIAuthenticationError, AIStructuredOutputError
-from blindspot.browser.models import (
+from blindspot.runtime import (
     BoundingBox,
     BrowserInspectionResult,
     InspectionSummary,

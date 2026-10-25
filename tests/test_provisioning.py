@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from playwright.sync_api import Error as PlaywrightError
-from blindspot.browser.provisioning import ensure_browser_engine
+from blindspot.runtime import ensure_browser_engine
 
 
 def test_ensure_browser_engine_already_installed():
