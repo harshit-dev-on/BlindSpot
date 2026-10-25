@@ -10,3 +10,6 @@
   - `strix/strix/report/` -> Report state, models, SARIF generation, structured findings.
 - **Zero Docker Requirement**: Maintain native host Playwright browser execution for BlindSpot while preserving 100% of Strix's CLI and configuration ergonomics.
 - **Always verify against Strix source**: Before writing new code, search and view the relevant Strix implementation in [`strix/`](file:///d:/Projects/BlindSpot/strix) to mirror function signatures, argument conventions, and design patterns.
+
+## 2. Zero References in BlindSpot
+- **Never mention Strix**: Absolutely zero references, mentions, docstrings, comments, environment variable examples, or credits to Strix anywhere in the BlindSpot codebase, documentation, CLI outputs, or configuration files. BlindSpot is a completely standalone project.

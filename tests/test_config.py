@@ -123,11 +123,10 @@ def test_universal_llm_env_vars(monkeypatch):
     assert cfg.ai.model == "gemini-1.5-flash"
     assert cfg.ai.api_key == "secret-key-12345"
 
-    # Test STRIX_LLM fallback alias
-    monkeypatch.delenv("BLINDSPOT_LLM")
-    monkeypatch.setenv("STRIX_LLM", "ollama/llama3.2")
-    cfg_strix = load_config()
-    assert cfg_strix.ai.provider == "ollama"
-    assert cfg_strix.ai.model == "llama3.2"
-    assert cfg_strix.ai.category == "local"
+    # Test local provider route with BLINDSPOT_LLM
+    monkeypatch.setenv("BLINDSPOT_LLM", "ollama/llama3.2")
+    cfg_local = load_config()
+    assert cfg_local.ai.provider == "ollama"
+    assert cfg_local.ai.model == "llama3.2"
+    assert cfg_local.ai.category == "local"
 

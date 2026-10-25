@@ -1,4 +1,4 @@
-"""Agent prompt definitions for persona UX testing (Strix parity)."""
+"""Agent prompt definitions for persona UX testing."""
 
 from typing import Any, Dict, List
 

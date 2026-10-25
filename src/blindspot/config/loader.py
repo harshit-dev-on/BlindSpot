@@ -19,7 +19,6 @@ DEFAULT_CONFIG_FILENAMES = ("blindspot.toml", ".blindspot.toml", "cli-config.jso
 USER_CONFIG_DIR = Path.home() / ".blindspot"
 USER_CONFIG_TOML = USER_CONFIG_DIR / "config.toml"
 USER_CONFIG_JSON = USER_CONFIG_DIR / "cli-config.json"
-STRIX_CONFIG_JSON = Path.home() / ".strix" / "cli-config.json"
 
 
 def get_user_config_path() -> Path:
@@ -35,7 +34,6 @@ def find_config_file(custom_path: Optional[Union[str, Path]] = None) -> Optional
       2. CWD (blindspot.toml, .blindspot.toml, cli-config.json)
       3. ~/.blindspot/config.toml
       4. ~/.blindspot/cli-config.json
-      5. ~/.strix/cli-config.json (Strix parity interop)
     """
     if custom_path:
         p = Path(custom_path)
@@ -58,10 +56,6 @@ def find_config_file(custom_path: Optional[Union[str, Path]] = None) -> Optional
     if USER_CONFIG_JSON.is_file():
         return USER_CONFIG_JSON
 
-    # 4. Check Strix user configuration (~/.strix/cli-config.json)
-    if STRIX_CONFIG_JSON.is_file():
-        return STRIX_CONFIG_JSON
-
     return None
 
 
@@ -71,10 +65,10 @@ def load_config_file(path: Path) -> Dict[str, Any]:
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            # If Strix {"env": {...}} schema
+            # If standard {"env": {...}} schema
             env_block = data.get("env", {}) if isinstance(data, dict) else {}
             res: Dict[str, Any] = {}
-            llm_val = env_block.get("BLINDSPOT_LLM") or env_block.get("STRIX_LLM")
+            llm_val = env_block.get("BLINDSPOT_LLM")
             if llm_val:
                 cat, prov, mod = parse_model_route(str(llm_val))
                 res["category"] = cat
@@ -175,14 +169,14 @@ def load_config(
 
     # 2. Apply Environment Variables
     # Support universal model identifier (e.g. "gemini/gemini-1.5-flash", "ollama/gemma4", "openai/gpt-4o-mini")
-    universal_llm = os.environ.get("BLINDSPOT_LLM") or os.environ.get("STRIX_LLM")
+    universal_llm = os.environ.get("BLINDSPOT_LLM")
     if universal_llm:
         parsed_cat, parsed_prov, parsed_mod = parse_model_route(universal_llm)
         ai_data["category"] = parsed_cat
         ai_data["provider"] = parsed_prov
         ai_data["model"] = parsed_mod
 
-    # Universal LLM API key (identical to Strix and other coding tools)
+    # Universal LLM API key
     if os.environ.get("LLM_API_KEY"):
         ai_data["api_key"] = os.environ["LLM_API_KEY"].strip()
 
@@ -192,7 +186,7 @@ def load_config(
         ai_data["provider"] = os.environ["BLINDSPOT_PROVIDER"]
     if os.environ.get("BLINDSPOT_MODEL"):
         ai_data["model"] = os.environ["BLINDSPOT_MODEL"]
-    # Universal Base URL (Strix compatibility)
+    # Universal Base URL
     universal_base = (
         os.environ.get("BLINDSPOT_BASE_URL")
         or os.environ.get("LLM_API_BASE")
@@ -235,7 +229,7 @@ def save_config(config: BlindSpotConfig, path: Optional[Union[str, Path]] = None
 
     Saves to:
       1. ~/.blindspot/config.toml (standard TOML configuration)
-      2. ~/.blindspot/cli-config.json (standard Strix JSON format for interoperability)
+      2. ~/.blindspot/cli-config.json (unified JSON configuration)
     """
     target_path = Path(path) if path else get_user_config_path()
     target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -280,13 +274,12 @@ def save_config(config: BlindSpotConfig, path: Optional[Union[str, Path]] = None
     with open(target_path, "w", encoding="utf-8") as f:
         f.write(content)
 
-    # Also save Strix-format cli-config.json
+    # Also save unified cli-config.json
     try:
         json_path = target_path.parent / "cli-config.json"
         active_route = f"{ai.provider}/{ai.model}"
         env_block: Dict[str, Any] = {
             "BLINDSPOT_LLM": active_route,
-            "STRIX_LLM": active_route,
         }
         if ai.api_key:
             env_block["LLM_API_KEY"] = ai.api_key
@@ -305,8 +298,8 @@ def save_config(config: BlindSpotConfig, path: Optional[Union[str, Path]] = None
 def persist_current() -> None:
     """Merge currently active settings and env vars into user config (~/.blindspot/).
 
-    Identical to Strix's persist_current(), ensuring settings survive across shell sessions
-    so the user never has to re-enter them on subsequent runs.
+    Ensures settings survive across shell sessions so the user never has to re-enter
+    them on subsequent runs.
     """
     cfg = load_config()
     save_config(cfg)

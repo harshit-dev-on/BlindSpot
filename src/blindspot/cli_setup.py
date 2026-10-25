@@ -1,4 +1,4 @@
-"""Interactive setup wizard for configuring AI model routes (Strix format).
+"""Interactive setup wizard for configuring AI model routes.
 
 This module re-exports setup routines from `blindspot.interface.scan_setup`
 for backward compatibility.

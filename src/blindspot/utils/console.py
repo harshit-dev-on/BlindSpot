@@ -80,7 +80,7 @@ def print_inspection_summary(url: str, context: str) -> None:
 
 
 def print_inspection_start(url: str, browser: str) -> None:
-    """Print Strix-style startup panel indicating the audit has initiated."""
+    """Print startup panel indicating the audit has initiated."""
     start_text = Text()
     start_text.append("UX & accessibility audit initiated", style="bold #22c55e")
 
@@ -582,7 +582,7 @@ def print_report_summary(
 
 
 def print_finding_panel(finding_id: str, title: str, category: str, severity: str, impact: str) -> None:
-    """Print real-time finding panel matching Strix vulnerability display style."""
+    """Print real-time finding panel."""
     text = Text()
     text.append(f"{title}\n\n", style="bold white")
     text.append("Severity: ", style="dim")

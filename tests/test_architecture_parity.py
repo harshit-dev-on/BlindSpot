@@ -1,4 +1,4 @@
-"""Tests verifying Strix architectural alignment for BlindSpot modules.
+"""Tests verifying architectural alignment for BlindSpot modules.
 
 Ensures interface, runtime, agents, and report packages export expected symbols
 and integrate seamlessly with backward-compatible legacy paths.

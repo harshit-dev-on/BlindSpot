@@ -128,7 +128,7 @@ def main(
         Optional[Path],
         typer.Option(
             "--instruction-file",
-            help="Path to file containing custom instructions (Strix standard).",
+            help="Path to file containing custom instructions.",
             show_default=False,
         ),
     ] = None,
@@ -146,7 +146,7 @@ def main(
         typer.Option(
             "--non-interactive",
             "-n",
-            help="Run non-interactively in headless mode (Strix standard).",
+            help="Run non-interactively in headless mode.",
             show_default=False,
         ),
     ] = False,
@@ -214,7 +214,7 @@ def main(
         return
 
     # If bare `blindspot` command is run:
-    # Launch Strix-style interactive start screen
+    # Launch interactive start screen
     from blindspot.interface.interactive import show_interactive_start_screen
     chosen_target, chosen_instruction = show_interactive_start_screen()
     if not chosen_target:
@@ -582,7 +582,7 @@ def inspect(
         typer.Option(
             "--target",
             "-t",
-            help="Alias for --url (Strix standard).",
+            help="Alias for --url.",
             show_default=False,
         ),
     ] = None,
@@ -600,7 +600,7 @@ def inspect(
         typer.Option(
             "--instruction",
             "-i",
-            help="Alias for --context (Strix standard).",
+            help="Alias for --context.",
             show_default=False,
         ),
     ] = None,
@@ -684,7 +684,7 @@ def inspect(
         Optional[Path],
         typer.Option(
             "--instruction-file",
-            help="Path to file containing custom instructions (Strix standard).",
+            help="Path to file containing custom instructions.",
             show_default=False,
         ),
     ] = None,
@@ -693,7 +693,7 @@ def inspect(
         typer.Option(
             "--non-interactive",
             "-n",
-            help="Run non-interactively in headless mode (Strix standard).",
+            help="Run non-interactively in headless mode.",
             show_default=False,
         ),
     ] = False,
@@ -765,7 +765,7 @@ def inspect(
         ai_provider = ai_provider or parsed_prov
         ai_model = ai_model or parsed_mod
 
-    # Strix startup validation and persistence
+    # Startup environment validation and persistence
     if not skip_ai:
         from blindspot.config.loader import load_config, persist_current
         from blindspot.interface.environment import validate_environment
@@ -1056,7 +1056,7 @@ def web(
 
 @app.command(
     name="view",
-    help="Open an interactive local web view of a BlindSpot audit run (Strix standard).",
+    help="Open an interactive local web view of a BlindSpot audit run.",
 )
 def view_cmd(
     run: Annotated[

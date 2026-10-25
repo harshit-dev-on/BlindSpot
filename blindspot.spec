@@ -1,7 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
 """PyInstaller build specification for compiling standalone BlindSpot executables.
-
-Modeled after Strix's strix.spec packaging architecture.
 Produces a single, self-contained binary for Windows (blindspot.exe), macOS, and Linux.
 """
 

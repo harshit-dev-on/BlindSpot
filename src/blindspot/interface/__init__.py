@@ -1,4 +1,4 @@
-"""BlindSpot Interface package (Strix parity)."""
+"""BlindSpot Interface package."""
 
 from blindspot.interface.cli_args import SUPPORTED_BROWSERS, version_callback
 from blindspot.interface.environment import validate_environment

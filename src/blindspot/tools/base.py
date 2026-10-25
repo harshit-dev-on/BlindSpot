@@ -1,7 +1,4 @@
-"""Base classes and interfaces for BlindSpot Agent Tools.
-
-Follows the modular tool architecture pattern seen in Strix.
-"""
+"""Base classes and interfaces for BlindSpot Agent Tools."""
 
 from __future__ import annotations
 

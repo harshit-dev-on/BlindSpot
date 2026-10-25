@@ -97,7 +97,7 @@ def test_setup_wizard_local_scripted(tmp_path, monkeypatch):
     monkeypatch.setattr("blindspot.cli_setup.get_user_config_path", lambda: user_config)
     monkeypatch.setattr("blindspot.config.loader.get_user_config_path", lambda: user_config)
 
-    # Streamlined Strix-style input:
+    # Streamlined interactive input:
     # 1. Model Route: "ollama/gemma4"
     # 2. Save confirmation if offline check fails: "y"
     wizard_inputs = "\n".join(["ollama/gemma4", "y"]) + "\n"

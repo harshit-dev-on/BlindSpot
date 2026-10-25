@@ -1,7 +1,4 @@
-"""Session, state, and coverage tracking for BlindSpot test runs.
-
-Inspired by Strix's central run state and budget tracking architecture.
-"""
+"""Session, state, and coverage tracking for BlindSpot test runs."""
 
 from __future__ import annotations
 
@@ -180,7 +177,7 @@ class RunSession:
         }
 
     def save_state(self, filepath: Optional[Path] = None) -> Path:
-        """Persist session state to a JSON file (analogous to Strix's run.json)."""
+        """Persist session state to a JSON file."""
         target_path = filepath
         if target_path is None:
             base_dir = self.output_dir or Path(f"reports/{self.run_id}")

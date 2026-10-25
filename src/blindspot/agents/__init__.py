@@ -1,4 +1,4 @@
-"""Agents module for BlindSpot (Strix parity).
+"""Agents module for BlindSpot.
 
 Provides autonomous agent factories, persona testing loops, and prompts.
 """

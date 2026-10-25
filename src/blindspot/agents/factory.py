@@ -1,4 +1,4 @@
-"""Agent factory for instantiating persona test agents (Strix parity)."""
+"""Agent factory for instantiating persona test agents."""
 
 from typing import Optional
 

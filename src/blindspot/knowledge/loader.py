@@ -1,7 +1,7 @@
 """Domain knowledge playbook loader for BlindSpot persona agents.
 
-Analogous to Strix's internal skills loader, this injects specialized WCAG 2.2
-and UX heuristic playbooks into persona prompts based on the testing context.
+Injects specialized WCAG 2.2 and UX heuristic playbooks into persona prompts
+based on the testing context.
 """
 
 from __future__ import annotations

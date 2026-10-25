@@ -1,7 +1,7 @@
 """BlindSpot Agent Tools suite.
 
-Inspired by Strix's modular tool ecosystem, providing specialized capabilities
-for persona simulation, cognitive tracking, UX friction logging, and WCAG accessibility audits.
+Provides specialized capabilities for persona simulation, cognitive tracking,
+UX friction logging, and WCAG accessibility audits.
 """
 
 from blindspot.tools.accessibility import (

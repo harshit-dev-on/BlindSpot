@@ -56,7 +56,7 @@ def preflight_model_connection(
 
 
 def run_setup_wizard() -> None:
-    """Run a streamlined Strix-style setup wizard for BlindSpot."""
+    """Run a streamlined setup wizard for BlindSpot."""
     # Load existing config to offer smart defaults
     existing_cfg = load_config()
     p = existing_cfg.ai.provider or "gemini"
@@ -68,8 +68,7 @@ def run_setup_wizard() -> None:
     console.print(
         Panel(
             "[bold white]BlindSpot AI Setup[/bold white]\n\n"
-            "Configure your model in standard [cyan]<provider>/<model>[/cyan] format "
-            "(identical to Strix and modern agent CLI tools).\n\n"
+            "Configure your model in standard [cyan]<provider>/<model>[/cyan] format.\n\n"
             "[dim]Popular models:\n"
             "  • [bold cyan]gemini/gemini-2.5-flash[/bold cyan] (or google/gemini-2.5-flash) [Recommended]\n"
             "  • [bold white]openai/gpt-4o-mini[/bold white]\n"

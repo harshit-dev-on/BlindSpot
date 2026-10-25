@@ -83,7 +83,7 @@ add_path "$HOME/.bashrc"
 add_path "$HOME/.zshrc"
 add_path "$HOME/.profile"
 
-# 6. Terminal completion output (matching Strix look)
+# 6. Terminal completion output
 py_ver=$("$VENV_DIR/bin/python" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')")
 echo -e "  installed package blindspot 0.1.0, installed using Python $py_ver"
 echo -e "  These apps are now available"
@@ -103,8 +103,8 @@ echo -e "${MUTED}  Autonomous AI UX & Usability Testing Agent${NC}"
 echo ""
 echo -e "${MUTED}To get started:${NC}"
 echo ""
-echo -e "  ${CYAN}1.${NC} Set your environment (identical to Strix):"
-echo -e "     ${MUTED}export BLINDSPOT_LLM='gemini/gemini-2.5-flash'  # or export STRIX_LLM${NC}"
+echo -e "  ${CYAN}1.${NC} Set your environment:"
+echo -e "     ${MUTED}export BLINDSPOT_LLM='gemini/gemini-2.5-flash'${NC}"
 echo -e "     ${MUTED}export LLM_API_KEY='your-api-key'${NC}"
 echo -e "     ${MUTED}(or run 'blindspot setup' to configure interactively)${NC}"
 echo ""

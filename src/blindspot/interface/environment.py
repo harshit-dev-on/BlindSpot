@@ -1,4 +1,4 @@
-"""Startup environment validation and configuration preflight (Strix parity)."""
+"""Startup environment validation and configuration preflight."""
 
 from __future__ import annotations
 
@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 def validate_environment(config: Optional[BlindSpotConfig] = None) -> None:
     """Validate that required environment variables or saved configuration are present.
 
-    Identical to Strix's startup validation, providing instant, actionable feedback
-    if model routes or API credentials are not yet configured.
+    Provides instant, actionable feedback if model routes or API credentials are not yet configured.
     """
     logger.info("Validating environment and AI configuration")
     console = Console()
@@ -36,7 +35,7 @@ def validate_environment(config: Optional[BlindSpotConfig] = None) -> None:
     # Check model
     is_model_set = bool(ai.model and ai.model != "default")
     if not is_model_set:
-        missing_required_vars.append("BLINDSPOT_LLM (or STRIX_LLM)")
+        missing_required_vars.append("BLINDSPOT_LLM")
 
     # Check API key if cloud provider
     provider = (ai.provider or "").lower()
@@ -70,7 +69,7 @@ def validate_environment(config: Optional[BlindSpotConfig] = None) -> None:
 
         error_text.append("\nRequired configuration:\n", style="white")
         error_text.append("• ", style="white")
-        error_text.append("BLINDSPOT_LLM (or STRIX_LLM)", style="bold cyan")
+        error_text.append("BLINDSPOT_LLM", style="bold cyan")
         error_text.append(
             " - Model route to use (e.g. 'gemini/gemini-2.5-flash', 'openai/gpt-4o-mini', 'ollama/gemma4')\n",
             style="white",

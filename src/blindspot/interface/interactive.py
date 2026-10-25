@@ -1,4 +1,4 @@
-"""Interactive terminal interface for BlindSpot (Strix parity)."""
+"""Interactive terminal interface for BlindSpot."""
 
 from typing import Optional, Tuple
 import typer

@@ -1,4 +1,4 @@
-"""Runtime execution engine for BlindSpot (Strix parity).
+"""Runtime execution engine for BlindSpot.
 
 Manages browser automation, environment provisioning, and page inspection.
 """

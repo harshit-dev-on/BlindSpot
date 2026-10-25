@@ -1,4 +1,4 @@
-"""BlindSpot Agent Interface (Strix parity).
+"""BlindSpot Agent Interface.
 
 This module serves as the primary CLI entrypoint, dispatching commands
 to the interactive launcher, scanner, or sub-command routers.

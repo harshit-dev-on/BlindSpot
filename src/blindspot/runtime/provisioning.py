@@ -1,7 +1,4 @@
-"""Automatic browser binary provisioning for zero-config first runs.
-
-Analogous to Strix's automatic first-run container provisioning.
-"""
+"""Automatic browser binary provisioning for zero-config first runs."""
 
 from __future__ import annotations
 

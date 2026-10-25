@@ -1,4 +1,4 @@
-"""Reporting module for BlindSpot (Strix parity).
+"""Reporting module for BlindSpot.
 
 Provides UX report writers, SARIF generation, and heuristic analyzers.
 """
