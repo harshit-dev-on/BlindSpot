@@ -22,14 +22,14 @@
 <a href="https://github.com/harshit-dev-on/BlindSpot"><img src="https://img.shields.io/github/stars/harshit-dev-on/BlindSpot?style=flat-square" alt="GitHub Stars"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-3b82f6?style=flat-square" alt="License"></a>
 <a href="https://pypi.org/project/blindspot/"><img src="https://img.shields.io/badge/PyPI-v0.1.0-orange?style=flat-square" alt="PyPI Version"></a>
-<a href="https://github.com/harshit-dev-on/BlindSpot/actions"><img src="https://img.shields.io/badge/Tests-165%20Passing-brightgreen?style=flat-square" alt="Tests"></a>
+<a href="https://github.com/harshit-dev-on/BlindSpot/actions"><img src="https://img.shields.io/badge/Tests-175%20Passing-brightgreen?style=flat-square" alt="Tests"></a>
 
 </div>
 
 <br/>
 
 > [!TIP]
-> **New!** BlindSpot integrates seamlessly with GitHub Actions and CI/CD pipelines. Automatically audit UX, accessibility (WCAG 2.2 AA), and user journeys on every pull request with native SARIF output — [Get started with zero Docker required](#-quick-start).
+> **Token-Efficient & Grounded!** BlindSpot analyzes web pages directly through semantic DOM HTML, computed CSS styles, and compact element refs (`@e1`, `@e2`) — eliminating token exhaustion from heavy images while capturing complete layout and styling context.
 
 ---
 
@@ -39,6 +39,8 @@ BlindSpot are autonomous AI UX and accessibility testing agents that act just li
 
 **Key Capabilities:**
 
+- **Token-Efficient DOM HTML & CSS Analysis** — Personas inspect semantic DOM structure, computed CSS styles, and compact element references (`@e1`, `@e2`) with zero image token overhead
+- **Live Browser Execution** — Watch personas navigate in real time with interactive element highlighting and a floating Heads-Up Display (HUD)
 - **Full UX & Accessibility Toolkit** — DOM structure extraction, cognitive load evaluation, WCAG 2.2 Level AA checks, and interactive journey auditing out of the box
 - **Synthetic User Personas** — Diverse AI personas modeling real-world technical literacy, motor impairments, visual needs, and specific user goals
 - **Zero Docker Requirement** — Native host Playwright browser automation running cleanly in user space (`~/.blindspot`), with no heavy containers or background daemons
@@ -69,9 +71,11 @@ BlindSpot are autonomous AI UX and accessibility testing agents that act just li
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ Stage 3: Autonomous Sandboxed Browser Execution                 │
+│ Stage 3: Token-Efficient DOM & CSS Browser Execution            │
+│ • Semantic DOM HTML & computed CSS styling ingestion            │
+│ • Compact element reference resolution (@e1, @e2, CSS/text)     │
 │ • 100% isolated browser contexts per persona                    │
-│ • Autonomous decision loop: click, fill, select, scroll, wait   │
+│ • Live headed mode with floating HUD and element highlighting   │
 │ • Destructive action filtering & sensitive credential masking   │
 └─────────────────────────────────────────────────────────────────┘
                                  │
@@ -263,6 +267,21 @@ Safely test local servers (localhost / 127.0.0.1) using the `--allow-local` flag
 
 ```bash
 blindspot -t http://localhost:3000 --allow-local
+```
+
+### Live Visible Browser & Persona Concurrency Control
+
+Watch personas operate on your website live on screen with element highlighting, human pacing, and a real-time HUD, and control how many personas to test or run simultaneously:
+
+```bash
+# Watch a single persona operate live for fast interactive testing
+blindspot -t https://example.com --headed -p 1
+
+# Run multiple personas simultaneously in parallel
+blindspot -t https://example.com -p 3 --concurrency 3
+
+# Launch the interactive terminal wizard (prompts for live view & persona count)
+blindspot
 ```
 
 ### Headless CI Mode

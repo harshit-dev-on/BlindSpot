@@ -90,6 +90,7 @@ class BaseAIProvider(ABC):
         system_prompt: Optional[str] = None,
         temperature: float = 0.7,
         format_json: bool = False,
+        image_b64: Optional[str] = None,
     ) -> AIResponse:
         """Send a prompt to the model and return its text response."""
         pass
@@ -101,6 +102,7 @@ class BaseAIProvider(ABC):
         system_prompt: Optional[str] = None,
         temperature: float = 0.2,
         max_retries: int = 1,
+        image_b64: Optional[str] = None,
     ) -> T:
         """Request structured output complying with a Pydantic model schema.
 
@@ -113,6 +115,7 @@ class BaseAIProvider(ABC):
             system_prompt: Optional overarching system instructions.
             temperature: Sampling temperature (default 0.2 for structured output).
             max_retries: Number of correction attempts if parsing fails.
+            image_b64: Optional base64-encoded screenshot image for multimodal visual inference.
 
         Returns:
             Validated instance of the provided Pydantic model schema.
@@ -138,12 +141,28 @@ class BaseAIProvider(ABC):
 
         while attempts <= max_retries:
             attempts += 1
-            response = self.generate(
-                prompt=current_prompt,
-                system_prompt=effective_system,
-                temperature=temperature,
-                format_json=True,
-            )
+            try:
+                response = self.generate(
+                    prompt=current_prompt,
+                    system_prompt=effective_system,
+                    temperature=temperature,
+                    format_json=True,
+                    image_b64=image_b64,
+                )
+            except TypeError:
+                try:
+                    response = self.generate(
+                        prompt=current_prompt,
+                        system_prompt=effective_system,
+                        temperature=temperature,
+                        format_json=True,
+                    )
+                except TypeError:
+                    response = self.generate(
+                        prompt=current_prompt,
+                        system_prompt=effective_system,
+                        temperature=temperature,
+                    )
 
             raw_text = response.content.strip()
             extracted_json = extract_json_string(raw_text)

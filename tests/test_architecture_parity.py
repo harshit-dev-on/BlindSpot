@@ -70,6 +70,18 @@ def test_interface_exports_and_cli():
     assert f"BlindSpot version {__version__}" in result.stdout
 
 
+def test_start_screen_result_unpacking_and_attrs():
+    """Verify StartScreenResult supports 2-tuple unpacking while exposing headed, personas, concurrency."""
+    from blindspot.interface.interactive import StartScreenResult
+    res = StartScreenResult("https://example.com", "Focus on login", headed=True, personas=1, concurrency=1)
+    target, instruction = res
+    assert target == "https://example.com"
+    assert instruction == "Focus on login"
+    assert res.headed is True
+    assert res.personas == 1
+    assert res.concurrency == 1
+
+
 def test_runtime_exports_and_models():
     """Verify runtime module exports and model instantiation."""
     vp = ViewportSize(width=1280, height=800)

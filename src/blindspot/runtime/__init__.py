@@ -16,6 +16,8 @@ from blindspot.runtime.session import (
     ViewportSize,
 )
 
+from blindspot.runtime.scroll_test import run_live_scroll_test
+
 __all__ = [
     "BoundingBox",
     "BrowserInspectionResult",
@@ -25,4 +27,5 @@ __all__ = [
     "ViewportSize",
     "ensure_browser_engine",
     "inspect_website",
+    "run_live_scroll_test",
 ]

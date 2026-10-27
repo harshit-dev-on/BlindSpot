@@ -3,8 +3,11 @@
 from pathlib import Path
 import sys
 from typing import Any, List, Optional
-from rich.console import Console
+from rich.console import Console, Group
+import rich.panel
+import rich.table
 from rich.table import Table
+from rich.text import Text
 
 # Enable UTF-8 encoding stream on Windows when available to prevent charmap encoding errors
 if sys.platform == "win32":
@@ -21,6 +24,72 @@ if sys.platform == "win32":
 
 console = Console()
 err_console = Console(stderr=True)
+
+# ── Clean Modern Terminal Formatting (No Boxes / Borders) ────────────────────
+_OrigPanel = rich.panel.Panel
+
+
+class CleanPanel(_OrigPanel):
+    """Panel replacement that renders clean borderless output without ASCII/Unicode boxes."""
+
+    def __rich_console__(self, console_instance, options):
+        items = []
+        if self.title:
+            if isinstance(self.title, str):
+                items.append(Text(f"\n{self.title}", style="bold cyan"))
+            else:
+                items.append(self.title)
+        items.append(self.renderable)
+        yield Group(*items)
+
+
+# Override rich.panel.Panel globally so no component or library draws box outlines
+rich.panel.Panel = CleanPanel
+
+# Configure Table to default to borderless (box=None) unless explicitly specified
+_orig_table_init = rich.table.Table.__init__
+
+
+def _clean_table_init(self, *args, **kwargs):
+    if "box" not in kwargs:
+        kwargs["box"] = None
+    _orig_table_init(self, *args, **kwargs)
+
+
+rich.table.Table.__init__ = _clean_table_init
+
+# Configure Typer rich_utils if available
+try:
+    import typer.rich_utils as _typer_ru
+
+    _typer_ru.Panel = CleanPanel  # type: ignore
+    _typer_ru.STYLE_OPTIONS_TABLE_BOX = ""
+    _typer_ru.STYLE_COMMANDS_TABLE_BOX = ""
+    _typer_ru.STYLE_ERRORS_PANEL_BORDER = "none"
+    _typer_ru.STYLE_OPTIONS_PANEL_BORDER = "none"
+    _typer_ru.STYLE_COMMANDS_PANEL_BORDER = "none"
+
+    def _clean_rich_format_error(self) -> None:
+        if self.__class__.__name__ == "NoArgsIsHelpError":
+            return
+        c = _typer_ru._get_rich_console(stderr=True)
+        ctx = getattr(self, "ctx", None)
+        if ctx is not None:
+            c.print(_typer_ru.highlighter(ctx.get_usage()), style=_typer_ru.STYLE_USAGE_COMMAND)
+            if ctx.command.get_help_option(ctx) is not None:
+                c.print(
+                    _typer_ru.RICH_HELP.format(
+                        command_path=_typer_ru.escape(ctx.command_path),
+                        help_option=ctx.help_option_names[0],
+                    ),
+                    style=_typer_ru.STYLE_ERRORS_SUGGESTION,
+                )
+        c.print(f"\n[bold red]✖ Error:[/bold red] {self.format_message()}\n")
+
+    _typer_ru.rich_format_error = _clean_rich_format_error  # type: ignore
+except Exception:
+    pass
+
 
 
 def print_error(title: str, message: str, suggestion: Optional[str] = None) -> None:
@@ -68,12 +137,27 @@ def print_inspection_summary(url: str, context: str) -> None:
     console.print()
 
 
-def print_inspection_start(url: str, browser: str) -> None:
+def print_inspection_start(
+    url: str,
+    browser: str,
+    headed: bool = False,
+    personas: int = 3,
+    concurrency: int = 1,
+) -> None:
     """Print startup information indicating the audit has initiated."""
     console.print()
     console.print("[bold green]●[/bold green] [bold white]BLINDSPOT[/bold white] [dim]UX & accessibility audit initiated[/dim]")
-    console.print(f"  [dim]Target[/dim]  [bold white]{url}[/bold white]")
-    console.print(f"  [dim]Engine[/dim]  [dim]{browser} · Personas and UX friction will be evaluated in real-time[/dim]\n")
+    console.print(f"  [dim]Target[/dim]    [bold white]{url}[/bold white]")
+    if headed:
+        console.print(f"  [dim]Engine[/dim]    [dim]{browser}[/dim] · [bold cyan]Live Visible Window[/bold cyan] [dim](watching personas operate in real-time)[/dim]")
+    else:
+        console.print(f"  [dim]Engine[/dim]    [dim]{browser} · Headless (tip: pass '--headed' to watch live on screen)[/dim]")
+
+    if personas == 1:
+        console.print("  [dim]Personas[/dim]  [bold cyan]1 persona[/bold cyan] [dim](single testing mode)[/dim]\n")
+    else:
+        mode_desc = f"{concurrency} running simultaneously" if concurrency > 1 else "sequential (1 at a time)"
+        console.print(f"  [dim]Personas[/dim]  [bold white]{personas}[/bold white] personas · [dim]{mode_desc}[/dim]\n")
 
 
 def print_browser_inspection_summary(

@@ -380,3 +380,149 @@ def test_independent_persona_sessions(tmp_path: Path, monkeypatch):
     saved = json.loads((run_dir / "execution_results.json").read_text(encoding="utf-8"))
     assert saved["target_url"] == f"{page_url}#init"
     assert len(saved["personas"]) == 2
+
+
+def test_runner_max_personas_limit(tmp_path, monkeypatch):
+    """Verify that max_personas limits execution to the requested number of personas."""
+    html_file = tmp_path / "page.html"
+    html_file.write_text("<html><body><h1>Test</h1></body></html>", encoding="utf-8")
+    page_url = html_file.as_uri()
+
+    monkeypatch.setattr(
+        "blindspot.execution.agent.validate_navigation_url",
+        lambda url, **kw: (True, None),
+    )
+
+    persona1 = Persona(
+        id="p1",
+        name="User 1",
+        description="First",
+        experience_level="Novice",
+        goals=["G1"],
+        likely_difficulties=[],
+        tasks=[
+            PersonaTask(
+                id="t1",
+                objective="View page",
+                starting_conditions="",
+                success_criteria=["Test"],
+                evidence_to_collect=["Title"],
+            )
+        ],
+    )
+    persona2 = Persona(
+        id="p2",
+        name="User 2",
+        description="Second",
+        experience_level="Expert",
+        goals=["G2"],
+        likely_difficulties=[],
+        tasks=[
+            PersonaTask(
+                id="t2",
+                objective="View page",
+                starting_conditions="",
+                success_criteria=["Test"],
+                evidence_to_collect=["Title"],
+            )
+        ],
+    )
+
+    plan = PersonaPlan(
+        website_url=page_url,
+        context="Test",
+        website_summary="Test page",
+        personas=[persona1, persona2],
+    )
+
+    mock_provider = MagicMock(spec=BaseAIProvider)
+    mock_provider.generate_structured.return_value = AgentAction(
+        action=ActionType.FINISH,
+        reasoning="Done.",
+    )
+
+    run_dir = tmp_path / "limit_run"
+    runner = PersonaTestRunner(
+        provider=mock_provider,
+        browser_type="chromium",
+        headless=True,
+        max_personas=1,
+    )
+
+    result = runner.run_plan(plan=plan, output_dir=run_dir)
+    assert len(result.personas) == 1
+    assert result.personas[0].persona_id == "p1"
+
+
+def test_runner_concurrency_simultaneous(tmp_path, monkeypatch):
+    """Verify simultaneous multi-worker persona execution with concurrency > 1."""
+    html_file = tmp_path / "page2.html"
+    html_file.write_text("<html><body><h1>Test Concurrent</h1></body></html>", encoding="utf-8")
+    page_url = html_file.as_uri()
+
+    monkeypatch.setattr(
+        "blindspot.execution.agent.validate_navigation_url",
+        lambda url, **kw: (True, None),
+    )
+
+    persona1 = Persona(
+        id="p1",
+        name="User 1",
+        description="First",
+        experience_level="Novice",
+        goals=["G1"],
+        likely_difficulties=[],
+        tasks=[
+            PersonaTask(
+                id="t1",
+                objective="View page",
+                starting_conditions="",
+                success_criteria=["Concurrent"],
+                evidence_to_collect=["Title"],
+            )
+        ],
+    )
+    persona2 = Persona(
+        id="p2",
+        name="User 2",
+        description="Second",
+        experience_level="Expert",
+        goals=["G2"],
+        likely_difficulties=[],
+        tasks=[
+            PersonaTask(
+                id="t2",
+                objective="View page",
+                starting_conditions="",
+                success_criteria=["Concurrent"],
+                evidence_to_collect=["Title"],
+            )
+        ],
+    )
+
+    plan = PersonaPlan(
+        website_url=page_url,
+        context="Test",
+        website_summary="Concurrent test",
+        personas=[persona1, persona2],
+    )
+
+    mock_provider = MagicMock(spec=BaseAIProvider)
+    mock_provider.generate_structured.return_value = AgentAction(
+        action=ActionType.FINISH,
+        reasoning="Done.",
+    )
+
+    run_dir = tmp_path / "concurrent_run"
+    runner = PersonaTestRunner(
+        provider=mock_provider,
+        browser_type="chromium",
+        headless=True,
+        concurrency=2,
+    )
+
+    events = []
+    result = runner.run_plan(plan=plan, output_dir=run_dir, on_event=lambda ev: events.append(ev))
+    assert len(result.personas) == 2
+    assert len(events) >= 2
+

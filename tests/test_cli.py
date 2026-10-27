@@ -172,6 +172,22 @@ def test_inspect_valid_arguments():
     assert "https://example.com" in result.stdout
 
 
+def test_inspect_positional_url():
+    """Verify successful inspect command execution with positional target URL."""
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "https://example.com",
+            "--context",
+            "A technical documentation portal for open source developers.",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "BlindSpot Browser Inspection Complete" in result.stdout
+    assert "https://example.com" in result.stdout
+
+
 def test_inspect_custom_output_dir(tmp_path: Path):
     """Verify inspect command respects custom --output-dir option."""
     out_dir = tmp_path / "custom_cli_out"
@@ -397,5 +413,56 @@ def test_inspect_with_skip_report(tmp_path: Path):
     assert "UX report generation skipped" in result.stdout
     assert not (out_dir / "report.json").exists()
     assert not (out_dir / "report.html").exists()
+
+
+def test_main_with_personas_flag(tmp_path: Path):
+    """Verify -p / --personas flag works directly in main() command."""
+    out_dir = tmp_path / "personas_flag_out"
+    result = runner.invoke(
+        app,
+        [
+            "-t",
+            "https://example.com",
+            "-p",
+            "1",
+            "--output-dir",
+            str(out_dir),
+            "--skip-execution",
+            "--skip-report",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "1 persona" in result.stdout or "Synthesizing 1 AI user personas" in result.stdout
+
+
+def test_main_with_concurrency_flag(tmp_path: Path):
+    """Verify --concurrency flag works directly in main() command."""
+    out_dir = tmp_path / "concurrency_flag_out"
+    result = runner.invoke(
+        app,
+        [
+            "-t",
+            "https://example.com",
+            "-p",
+            "2",
+            "--concurrency",
+            "2",
+            "--output-dir",
+            str(out_dir),
+            "--skip-execution",
+            "--skip-report",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "2 running simultaneously" in result.stdout or "2 personas" in result.stdout
+
+
+def test_scroll_command_help():
+    """Verify blindspot scroll --help displays usage."""
+    result = runner.invoke(app, ["scroll", "--help"])
+    assert result.exit_code == 0
+    assert "Perform a zero-AI live browser scrolling test" in result.stdout
+
+
 
 

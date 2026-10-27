@@ -4,14 +4,8 @@ import os
 from pathlib import Path
 from typing import Optional
 import typer
-try:
-    import typer.rich_utils as _typer_ru
-    from rich.console import Group
-    from rich.text import Text
+import blindspot.utils.console  # noqa: F401
 
-    _typer_ru.Panel = lambda r, title="", *a, **kw: Group(Text(f"\n{title}", style="bold cyan"), r) if title else r  # type: ignore
-except Exception:
-    pass
 
 from typing_extensions import Annotated
 
@@ -176,6 +170,57 @@ def main(
             show_default=False,
         ),
     ] = False,
+    personas: Annotated[
+        Optional[int],
+        typer.Option(
+            "--personas",
+            "-p",
+            help="Number of AI user personas to generate and test (e.g. 1 for quick testing).",
+            show_default=False,
+        ),
+    ] = None,
+    concurrency: Annotated[
+        Optional[int],
+        typer.Option(
+            "--concurrency",
+            "--simultaneous",
+            help="Number of personas to execute simultaneously (default: 1).",
+            show_default=False,
+        ),
+    ] = None,
+    output_dir: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--output-dir",
+            "-o",
+            help="Custom directory to store artifacts.",
+            show_default=False,
+        ),
+    ] = None,
+    skip_ai: Annotated[
+        bool,
+        typer.Option(
+            "--skip-ai",
+            help="Skip AI persona generation (browser inspection only).",
+            show_default=False,
+        ),
+    ] = False,
+    skip_execution: Annotated[
+        bool,
+        typer.Option(
+            "--skip-execution",
+            help="Skip browser task execution.",
+            show_default=False,
+        ),
+    ] = False,
+    skip_report: Annotated[
+        bool,
+        typer.Option(
+            "--skip-report",
+            help="Skip JSON and HTML UX report generation.",
+            show_default=False,
+        ),
+    ] = False,
     version: Annotated[
         Optional[bool],
         typer.Option(
@@ -201,12 +246,20 @@ def main(
         _, ai_prov, ai_mod = parse_model_route(model)
 
     effective_headed = False if non_interactive else headed
+    effective_personas = personas if personas is not None else 3
+    effective_concurrency = concurrency if concurrency is not None else 1
 
     if effective_target:
         inspect(
             url=effective_target,
             context=effective_instruction,
+            output_dir=output_dir,
             headed=effective_headed,
+            personas=effective_personas,
+            concurrency=effective_concurrency,
+            skip_ai=skip_ai,
+            skip_execution=skip_execution,
+            skip_report=skip_report,
             allow_local=allow_local,
             ai_provider=ai_prov,
             ai_model=ai_mod,
@@ -218,17 +271,29 @@ def main(
     # If bare `blindspot` command is run:
     # Launch interactive start screen
     from blindspot.interface.interactive import show_interactive_start_screen
-    chosen_target, chosen_instruction = show_interactive_start_screen()
+    start_res = show_interactive_start_screen()
+    chosen_target, chosen_instruction = start_res[0], start_res[1]
     if not chosen_target:
         from blindspot.web import run_web_studio
         console.print("[bold cyan]→[/bold cyan] Launching BlindSpot Web Studio...")
         run_web_studio(port=8501, host="127.0.0.1")
         return
 
+    interactive_headed = getattr(start_res, "headed", False)
+    effective_headed = interactive_headed if (not non_interactive and not headed) else effective_headed
+
+    interactive_personas = getattr(start_res, "personas", 1)
+    effective_personas = personas if personas is not None else interactive_personas
+
+    interactive_concurrency = getattr(start_res, "concurrency", 1)
+    effective_concurrency = concurrency if concurrency is not None else interactive_concurrency
+
     inspect(
         url=chosen_target,
         context=chosen_instruction,
         headed=effective_headed,
+        personas=effective_personas,
+        concurrency=effective_concurrency,
         allow_local=allow_local,
         ai_provider=ai_prov,
         ai_model=ai_mod,
@@ -570,6 +635,14 @@ def provider_prompt(
     no_args_is_help=True,
 )
 def inspect(
+    target_url: Annotated[
+        Optional[str],
+        typer.Argument(
+            metavar="[URL]",
+            help="Target website URL to test (e.g. https://example.com).",
+            show_default=False,
+        ),
+    ] = None,
     url: Annotated[
         Optional[str],
         typer.Option(
@@ -645,10 +718,19 @@ def inspect(
         typer.Option(
             "--personas",
             "-p",
-            help="Number of AI user personas to generate (default: 3).",
+            help="Number of AI user personas to generate and test (default: 3).",
             show_default=True,
         ),
     ] = 3,
+    concurrency: Annotated[
+        int,
+        typer.Option(
+            "--concurrency",
+            "--simultaneous",
+            help="Number of personas to execute simultaneously (default: 1).",
+            show_default=True,
+        ),
+    ] = 1,
     skip_ai: Annotated[
         bool,
         typer.Option(
@@ -745,12 +827,12 @@ def inspect(
     effective_headless = True if non_interactive else (False if headed else headless)
 
     # Determine effective target and context
-    effective_url = target or url
+    effective_url = target_url or target or url
     if not effective_url:
         print_error(
             title="Missing Target URL",
             message="Target website URL was not provided.",
-            suggestion="Specify a target using --target or --url (e.g. blindspot --target https://example.com).",
+            suggestion="Specify a target URL (e.g. blindspot inspect https://example.com or blindspot -t https://example.com).",
         )
         raise typer.Exit(code=1)
 
@@ -824,7 +906,13 @@ def inspect(
     # 4. Display Input Validation Summary
     inspect_input_config = InspectConfig(url=effective_url.strip(), context=resolved_context)
     print_inspection_summary(url=inspect_input_config.url, context=inspect_input_config.context)
-    print_inspection_start(url=inspect_input_config.url, browser=selected_browser)
+    print_inspection_start(
+        url=inspect_input_config.url,
+        browser=selected_browser,
+        headed=not effective_headless,
+        personas=personas,
+        concurrency=concurrency,
+    )
 
     # 5. Launch Browser Inspection
     try:
@@ -834,7 +922,7 @@ def inspect(
                 context=inspect_input_config.context,
                 output_dir=output_dir,
                 browser_type=selected_browser,
-                headless=effective_headless,
+                headless=True,
                 allow_local=allow_local,
             )
     except Exception as exc:
@@ -936,20 +1024,20 @@ def inspect(
                     if reasoning:
                         console.print(f"      [dim]Thought: {reasoning}[/dim]")
 
-            with console.status(
-                f"[bold cyan]Executing persona user journeys across isolated browser sessions...[/bold cyan]",
-                spinner="dots",
-            ):
-                execution_result = execute_persona_tasks(
-                    plan=plan,
-                    provider=provider_instance,
-                    output_dir=run_output_dir or Path(result.result_json_path).parent,
-                    browser_type=selected_browser,
-                    headless=effective_headless,
-                    max_actions_per_task=max_actions,
-                    allow_local=allow_local,
-                    on_event=_live_event_handler,
-                )
+            console.print()
+            console.print("[bold cyan]●[/bold cyan] [bold white]Executing Persona User Journeys[/bold white] [dim](live browser sessions)[/dim]\n")
+            execution_result = execute_persona_tasks(
+                plan=plan,
+                provider=provider_instance,
+                output_dir=run_output_dir or Path(result.result_json_path).parent,
+                browser_type=selected_browser,
+                headless=effective_headless,
+                max_actions_per_task=max_actions,
+                allow_local=allow_local,
+                concurrency=concurrency,
+                max_personas=personas,
+                on_event=_live_event_handler,
+            )
             print_execution_summary(execution_result)
         except Exception as exc:
             print_error(
@@ -1067,6 +1155,8 @@ def web(
         except Exception:
             pass
 
+    uvicorn.run("blindspot.web.app:app", host=host, port=port, reload=reload)
+
 
 @app.command(
     name="view",
@@ -1130,8 +1220,6 @@ def view_cmd(
     if not no_open:
         webbrowser.open(target_report_html.resolve().as_uri())
 
-    uvicorn.run("blindspot.web.app:app", host=host, port=port, reload=reload)
-
 
 @app.command(
     name="mcp",
@@ -1160,6 +1248,24 @@ def mcp_cmd(
         raise typer.Exit(code=1)
 
     run_mcp_server(transport=transport)
+
+
+@app.command(
+    name="scroll",
+    help="Perform a zero-AI live browser scrolling test in front of you.",
+)
+def scroll_cmd(
+    target: Annotated[
+        str,
+        typer.Argument(
+            help="Target website URL to scroll (e.g. https://amazon.com).",
+        ),
+    ] = "https://amazon.com",
+) -> None:
+    """Launch a visible Chromium window and smoothly scroll down and back up with 0 AI tokens."""
+    from blindspot.runtime.scroll_test import run_live_scroll_test
+
+    run_live_scroll_test(target)
 
 
 @skill_app.command(

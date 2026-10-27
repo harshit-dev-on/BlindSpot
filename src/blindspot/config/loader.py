@@ -12,6 +12,12 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib  # type: ignore
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from blindspot.config.models import AIConfig, BlindSpotConfig, TaskModelsConfig
 
 

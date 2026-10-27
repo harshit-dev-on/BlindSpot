@@ -36,6 +36,7 @@ EXTRACT_INTERACTIVE_ELEMENTS_JS = """
 
     for (const el of candidates) {
         if (!isVisible(el)) continue;
+        if (el.id.startsWith('__blindspot') || el.closest('[id^="__blindspot"]')) continue;
         const rect = el.getBoundingClientRect();
         const tag = el.tagName.toLowerCase();
 
@@ -85,6 +86,126 @@ EXTRACT_INTERACTIVE_ELEMENTS_JS = """
         });
     }
     return elements;
+}
+"""
+
+EXTRACT_DOM_SNAPSHOT_JS = """
+() => {
+    const isVisible = (el) => {
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity || '1') < 0.05) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    };
+
+    const selector = 'button, a[href], input, select, textarea, [role="button"], [role="link"], [role="tab"], [role="menuitem"], [role="checkbox"], [role="switch"], [role="option"], [tabindex="0"]';
+    const candidates = Array.from(document.querySelectorAll(selector));
+    const elements = [];
+    let idx = 1;
+
+    for (const el of candidates) {
+        if (!isVisible(el)) continue;
+        if (el.id.startsWith('__blindspot') || el.closest('[id^="__blindspot"]')) continue;
+
+        const rect = el.getBoundingClientRect();
+        const tag = el.tagName.toLowerCase();
+        const style = window.getComputedStyle(el);
+
+        let elType = 'interactive';
+        if (tag === 'a') elType = 'link';
+        else if (tag === 'button' || el.getAttribute('role') === 'button') elType = 'button';
+        else if (tag === 'input') {
+            const inputType = (el.getAttribute('type') || 'text').toLowerCase();
+            elType = ['button', 'submit', 'reset'].includes(inputType) ? 'button' : 'input';
+        } else if (tag === 'select') elType = 'select';
+        else if (tag === 'textarea') elType = 'textarea';
+
+        const rawText = el.innerText || el.textContent || (el.value ? String(el.value) : '') || '';
+        const text = rawText.replace(/\\s+/g, ' ').trim().slice(0, 100);
+        const ariaLabel = (el.getAttribute('aria-label') || '').trim().slice(0, 80);
+        const placeholder = (el.getAttribute('placeholder') || '').trim().slice(0, 60);
+        const idVal = (el.id || '').trim();
+        const nameVal = (el.getAttribute('name') || '').trim();
+        const hrefVal = (el.getAttribute('href') || '').trim().slice(0, 120);
+        const inputType = (el.getAttribute('type') || '').trim();
+        const disabled = el.disabled || el.getAttribute('aria-disabled') === 'true';
+
+        // Extract key CSS styling attributes that influence UX
+        const cssProps = [];
+        if (style.color) cssProps.push(`color: ${style.color}`);
+        if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent') {
+            cssProps.push(`bg: ${style.backgroundColor}`);
+        }
+        if (style.fontSize) cssProps.push(`font: ${style.fontSize}`);
+        if (style.cursor && style.cursor !== 'auto') cssProps.push(`cursor: ${style.cursor}`);
+        if (style.display && style.display !== 'block' && style.display !== 'inline') cssProps.push(`display: ${style.display}`);
+
+        const cssSummary = cssProps.join('; ');
+
+        elements.push({
+            ref: `@e${idx}`,
+            index: idx,
+            element_type: elType,
+            tag: tag,
+            id: idVal,
+            name: nameVal,
+            text: text,
+            aria_label: ariaLabel,
+            placeholder: placeholder,
+            input_type: inputType,
+            href: hrefVal,
+            disabled: disabled,
+            css: cssSummary,
+            bounding_box: {
+                x: Math.round(rect.x),
+                y: Math.round(rect.y),
+                width: Math.round(rect.width),
+                height: Math.round(rect.height)
+            }
+        });
+        idx++;
+    }
+
+    // Prioritize elements visible in or near current viewport, cap at 60 to prevent token bloat
+    const vh = window.innerHeight || 800;
+    elements.sort((a, b) => {
+        const aInView = a.bounding_box.y >= -100 && a.bounding_box.y <= vh + 100;
+        const bInView = b.bounding_box.y >= -100 && b.bounding_box.y <= vh + 100;
+        if (aInView && !bInView) return -1;
+        if (!aInView && bInView) return 1;
+        return a.bounding_box.y - b.bounding_box.y;
+    });
+
+    const cappedElements = elements.slice(0, 60);
+    cappedElements.forEach((el, i) => {
+        el.index = i + 1;
+        el.ref = `@e${i + 1}`;
+    });
+
+    // Extract semantic DOM HTML snippet (cleaned of scripts, styles, SVGs)
+    const clone = document.body.cloneNode(true);
+    const toRemove = clone.querySelectorAll('script, style, noscript, svg, iframe, canvas, link, meta, [id^="__blindspot"]');
+    toRemove.forEach(n => n.remove());
+
+    const allNodes = clone.querySelectorAll('*');
+    allNodes.forEach(node => {
+        const keepAttrs = ['id', 'class', 'role', 'type', 'name', 'href', 'placeholder', 'aria-label', 'aria-expanded', 'disabled', 'value', 'title'];
+        const attrs = Array.from(node.attributes);
+        for (const attr of attrs) {
+            if (!keepAttrs.includes(attr.name.toLowerCase())) {
+                node.removeAttribute(attr.name);
+            }
+        }
+    });
+
+    let domHtml = clone.innerHTML || '';
+    domHtml = domHtml.replace(/\\s+/g, ' ').replace(/> </g, '><').trim().slice(0, 3500);
+
+    return {
+        elements: cappedElements,
+        dom_html: domHtml,
+    };
 }
 """
 

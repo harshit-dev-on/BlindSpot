@@ -7,14 +7,17 @@ from pydantic import BaseModel, Field
 
 
 class ActionType(str, Enum):
-    """Supported browser actions for the controlled execution agent."""
+    """Supported browser actions for the vision-based execution agent."""
 
-    NAVIGATE = "navigate"
     CLICK = "click"
+    TYPE = "type"
     FILL = "fill"
+    PRESS = "press"
     SELECT = "select"
     SCROLL = "scroll"
+    HOVER = "hover"
     WAIT = "wait"
+    NAVIGATE = "navigate"
     CHECK_SUCCESS = "check_success"
     FINISH = "finish"
 
@@ -28,23 +31,55 @@ class TaskStatus(str, Enum):
 
 
 class AgentAction(BaseModel):
-    """Structured action response returned by the AI agent."""
+    """Structured action response returned by the vision agent."""
 
     action: ActionType = Field(
         ...,
-        description="The browser action to perform ('navigate', 'click', 'fill', 'select', 'scroll', 'wait', 'check_success', 'finish')",
+        description="The browser action: 'click', 'type', 'fill', 'press', 'scroll', 'hover', 'wait', 'finish'",
+    )
+    mark: Optional[int] = Field(
+        default=None,
+        description="Mark badge number [N] to interact with",
+    )
+    x: Optional[int] = Field(
+        default=None,
+        description="Screen horizontal X coordinate (pixels) to click/hover",
+    )
+    y: Optional[int] = Field(
+        default=None,
+        description="Screen vertical Y coordinate (pixels) to click/hover",
+    )
+    text: Optional[str] = Field(
+        default=None,
+        description="Text to type into input field",
+    )
+    press_enter: Optional[bool] = Field(
+        default=False,
+        description="Whether to press Enter key immediately after typing",
+    )
+    key: Optional[str] = Field(
+        default=None,
+        description="Keyboard key to press (e.g. 'Enter', 'Tab', 'Escape', 'ArrowDown')",
+    )
+    direction: Optional[str] = Field(
+        default="down",
+        description="Scroll direction ('up', 'down', 'left', 'right')",
+    )
+    amount: Optional[int] = Field(
+        default=400,
+        description="Scroll amount in pixels (default: 400)",
     )
     target: Optional[str] = Field(
         default=None,
-        description="Target selector, element ID, or text identifier to interact with",
+        description="Legacy target identifier, selector, or mark reference",
     )
     value: Optional[str] = Field(
         default=None,
-        description="Input text for 'fill', option value for 'select', or direction ('up'/'down') for 'scroll'",
+        description="Legacy input text or scroll parameter",
     )
     reasoning: str = Field(
         ...,
-        description="Short rationale explaining how this action advances the persona's task",
+        description="Visual reasoning: what you see on the screenshot and why you chose this action",
     )
 
 

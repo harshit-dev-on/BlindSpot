@@ -330,12 +330,27 @@ class UnifiedAIAdapter(BaseAIProvider):
         system_prompt: Optional[str] = None,
         temperature: float = 0.7,
         format_json: bool = False,
+        image_b64: Optional[str] = None,
     ) -> AIResponse:
-        """Execute text completion via LiteLLM adapter."""
-        messages: List[Dict[str, str]] = []
+        """Execute text completion via LiteLLM adapter with multimodal vision support."""
+        messages: List[Dict[str, Any]] = []
         if system_prompt and system_prompt.strip():
             messages.append({"role": "system", "content": system_prompt.strip()})
-        messages.append({"role": "user", "content": prompt.strip()})
+
+        if image_b64:
+            user_content = [
+                {"type": "text", "text": prompt.strip()},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{image_b64}"
+                    },
+                },
+            ]
+        else:
+            user_content = prompt.strip()
+
+        messages.append({"role": "user", "content": user_content})
 
         requires_key = self._provider_name in ("gemini", "openai", "anthropic", "openrouter")
         if requires_key and not self._api_key:

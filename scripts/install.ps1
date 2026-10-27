@@ -1,4 +1,4 @@
-﻿# BlindSpot Universal 1-Line Installer for Windows PowerShell
+# BlindSpot Universal 1-Line Installer for Windows PowerShell
 # Usage: irm https://raw.githubusercontent.com/harshit-dev-on/BlindSpot/master/scripts/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
@@ -106,14 +106,9 @@ $sparkles = "$([char]::ConvertFromUtf32(0x2728)) $([char]::ConvertFromUtf32(0x1F
 Write-Host "done! $sparkles"
 
 Write-Host ""
-Write-Host "   ██████╗ ██╗     ██╗███╗   ██╗██████╗ ███████╗██████╗  ██████╗ ████████╗" -ForegroundColor Cyan
-Write-Host "   ██╔══██╗██║     ██║████╗  ██║██╔══██╗██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝" -ForegroundColor Cyan
-Write-Host "   ██████╔╝██║     ██║██╔██╗ ██║██║  ██║███████╗██████╔╝██║   ██║   ██║   " -ForegroundColor Cyan
-Write-Host "   ██╔══██╗██║     ██║██║╚██╗██║██║  ██║╚════██║██╔═══╝ ██║   ██║   ██║   " -ForegroundColor Cyan
-Write-Host "   ██████╔╝███████╗██║██║ ╚████║██████╔╝███████║██║     ╚██████╔╝   ██║   " -ForegroundColor Cyan
-Write-Host "   ╚═════╝ ╚══════╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝      ╚═════╝    ╚═╝   " -ForegroundColor Cyan
+Write-Host "  ● BLINDSPOT" -ForegroundColor Cyan
+Write-Host "    Autonomous AI UX & Usability Testing Agent" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  Autonomous AI UX & Usability Testing Agent" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "To get started:" -ForegroundColor DarkGray
 Write-Host ""
