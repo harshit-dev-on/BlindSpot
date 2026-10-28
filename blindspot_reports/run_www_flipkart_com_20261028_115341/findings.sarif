@@ -1,0 +1,108 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "BlindSpot",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/harshit-dev-on/BlindSpot",
+          "rules": [
+            {
+              "id": "UX-FRICTION",
+              "name": "UX_FRICTION",
+              "shortDescription": {
+                "text": "Buttons missing accessible text or labels (1 elements)"
+              },
+              "helpUri": "https://www.w3.org/WAI/WCAG22/",
+              "defaultConfiguration": {
+                "level": "note"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "UX-FRICTION",
+          "level": "note",
+          "message": {
+            "text": "[UX-FRICTION] Buttons missing accessible text or labels (1 elements)\n\nDetails: Found 1 button element(s) with no discernible text content or aria-label. Users relying on screen readers hear 'button' with no indication of its action.\nElement: `body`"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://www.flipkart.com/"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "Selector: body"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "elementSelector": "body",
+            "suggestedFix": null,
+            "severity": "severitylevel.medium"
+          }
+        },
+        {
+          "ruleId": "UX-FRICTION",
+          "level": "note",
+          "message": {
+            "text": "[UX-FRICTION] Verify descriptive accessible labels on icon buttons and search controls\n\nDetails: Several interactive icon controls and buttons lack explicit 'aria-label' or discernible text content, presenting barriers for screen reader users.\nElement: `body`"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://www.flipkart.com/"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "Selector: body"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "elementSelector": "body",
+            "suggestedFix": null,
+            "severity": "severitylevel.medium"
+          }
+        },
+        {
+          "ruleId": "UX-FRICTION",
+          "level": "note",
+          "message": {
+            "text": "[UX-FRICTION] Ensure persistent high-contrast visible focus indicators during keyboard navigation\n\nDetails: Interactive links and form inputs should consistently provide high-contrast :focus-visible styling so keyboard-only users can clearly track their location on the page.\nElement: `body`"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://www.flipkart.com/"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "Selector: body"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "elementSelector": "body",
+            "suggestedFix": null,
+            "severity": "severitylevel.low"
+          }
+        }
+      ]
+    }
+  ]
+}

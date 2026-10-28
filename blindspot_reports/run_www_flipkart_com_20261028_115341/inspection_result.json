@@ -1,0 +1,1979 @@
+{
+  "timestamp": "2026-10-28T06:23:53.773894+00:00",
+  "requested_url": "https://www.flipkart.com",
+  "final_url": "https://www.flipkart.com/",
+  "context": "# Persona Blueprint: E-Commerce Shopper\n\n**Target Archetype:** High-Intent Online Consumer  \n**Audience:** Shoppers searching for specific electronics or retail products, evaluating prices, and navigating the checkout funnel.\n\n---\n\n### Persona 1: Priya - High-Intent E-Commerce Shopper\n- **Experience Level:** Intermediate\n- **Device & Interaction:** Standard Desktop & Trackpad\n- **Primary Goal:** Quickly find a target product, inspect specifications and user reviews, and add the product to the shopping cart.\n- **Likely Difficulties:** Unexpected login walls, unclosable promotional popups, hidden shipping costs, or obscured cart buttons.\n- **Accessibility Needs:** Standard Desktop Browsing\n\n#### Assigned Tasks:\n1. **Search for Target Product**:\n   - **Objective:** Locate the primary search input on the homepage and submit a query for \"Apple iPhone 16\".\n   - **Starting Conditions:** Starts on homepage.\n   - **Observable Success Criteria:** Search results page displayed, query \"Apple iPhone 16\" reflected in heading or input, product listings visible.\n   - **Evidence to Collect:** Search input value, search results header, product card titles.\n\n2. **Inspect Product Details**:\n   - **Objective:** Click on the top search result to open product specifications, price breakdown, and available options.\n   - **Starting Conditions:** Starts on search results listing page.\n   - **Observable Success Criteria:** Product details page loaded, specifications table or price tag visible.\n   - **Evidence to Collect:** Product title, price, delivery estimate.\n\n3. **Proceed to Cart**:\n   - **Objective:** Locate and trigger the \"Add to Cart\" or \"Buy Now\" button, and verify the cart drawer or page updates.\n   - **Starting Conditions:** Starts on product details page.\n   - **Observable Success Criteria:** Cart page opened, cart badge counter updated, or checkout button displayed.\n   - **Evidence to Collect:** Cart summary, checkout URL, total price.",
+  "title": "Online Shopping Site for Mobiles, Electronics, Furniture, Grocery, Lifestyle, Books & More. Best Offers!",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "browser": "chromium",
+  "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115341\\screenshot.png",
+  "result_json_path": "blindspot_reports\\run_www_flipkart_com_20261028_115341\\inspection_result.json",
+  "summary": {
+    "total_interactive_elements": 115,
+    "links_count": 109,
+    "buttons_count": 5,
+    "form_fields_count": 1,
+    "text_length": 1797
+  },
+  "interactive_elements": [
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/flights-travel-uhp-at-store?marketplace=FKT",
+      "bounding_box": {
+        "x": 190,
+        "y": 14,
+        "width": 130,
+        "height": 44
+      }
+    },
+    {
+      "element_type": "button",
+      "tag": "button",
+      "text": "Search Icon",
+      "aria_label": "Search for Products, Brands and More",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "submit",
+      "href": "",
+      "bounding_box": {
+        "x": 62,
+        "y": 78,
+        "width": 44,
+        "height": 40
+      }
+    },
+    {
+      "element_type": "input",
+      "tag": "input",
+      "text": "",
+      "aria_label": "",
+      "name": "q",
+      "id": "",
+      "placeholder": "Search for Products, Brands and More",
+      "input_type": "text",
+      "href": "",
+      "bounding_box": {
+        "x": 106,
+        "y": 78,
+        "width": 821,
+        "height": 40
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Login",
+      "aria_label": "Login",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/login?ret=/",
+      "bounding_box": {
+        "x": 977,
+        "y": 86,
+        "width": 68,
+        "height": 24
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "More",
+      "aria_label": "More",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "#",
+      "bounding_box": {
+        "x": 1089,
+        "y": 89,
+        "width": 34,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Cart",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/viewcart?marketplace=FLIPKART",
+      "bounding_box": {
+        "x": 1156,
+        "y": 86,
+        "width": 68,
+        "height": 24
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "For You",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/",
+      "bounding_box": {
+        "x": 48,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Fashion",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/ss-26-base-inline-at-store",
+      "bounding_box": {
+        "x": 130,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Mobiles",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/mobile-phones-store",
+      "bounding_box": {
+        "x": 212,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Electronics",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/new-elec-clp-march-at-store",
+      "bounding_box": {
+        "x": 294,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Beauty",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/bpc-bau-new-inline-at-store",
+      "bounding_box": {
+        "x": 376,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Home",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/home-kitchen-25-at-store",
+      "bounding_box": {
+        "x": 458,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Appliances",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/tv-and-appliances-inline-ab-at-store",
+      "bounding_box": {
+        "x": 540,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Toys, baby..",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/toysbc-new26-inline-at-store",
+      "bounding_box": {
+        "x": 621,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Food & Health",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/fnhc-2025-new-at-store",
+      "bounding_box": {
+        "x": 703,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Auto Accessories",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/aa-2025-new-at-store",
+      "bounding_box": {
+        "x": 785,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Sports & Fitness",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/sf-inline-2025-at-store",
+      "bounding_box": {
+        "x": 867,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Furniture",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/india-ka-furniture-studio-inlines-at-store",
+      "bounding_box": {
+        "x": 949,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Books",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/books-at-store",
+      "bounding_box": {
+        "x": 1031,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "2 Wheelers",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/twowheelers-at-store",
+      "bounding_box": {
+        "x": 1113,
+        "y": 133,
+        "width": 82,
+        "height": 71
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/big-bang-diwali-store?param=76543&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiSUFEIiwidmFsdWVUeXBlIjoiU0lOR0xFX1ZBTFVFRCJ9fX19fQ%3D%3D&nnc=DLEZBA2XSY0X_IAD",
+      "bounding_box": {
+        "x": 56,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/televisions/~cs-kpemxafxbc/pr?sid=ckf%2Cczl&collection-tab-name=43+TVs+HP-1&sort=popularity&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiSUFEIiwidmFsdWVUeXBlIjoiU0l",
+      "bounding_box": {
+        "x": 548,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/mivi-one-5g-green-128-gb/p/itm596121720eed0?pid=MOBHR3ZPGHBTGAUG&marketplace=FLIPKART&lid=LSTMOBHR3ZPGHBTGAUG0YU7DT&pageUID=1792249741149&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6I",
+      "bounding_box": {
+        "x": 1040,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/ai-nova-2-power-5g-midnight-black-128-gb/p/itm927158536cdda?pid=MOBHQZVXNRQKMMTQ&marketplace=FLIPKART&lid=LSTMOBHQZVXNRQKMMTQDUNCJJ&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCI",
+      "bounding_box": {
+        "x": 1532,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/vivo-t5x-5g-cosmic-green-128-gb/p/itm7da8aa253e72b?pid=MOBHQC8ZMRCP62TS&marketplace=FLIPKART&lid=LSTMOBHQC8ZMRCP62TSTXXKV0&hl_lid=LSTMOBHQC8ZMRCP62TSVC1CZB&pageUID=1793104981895&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZ",
+      "bounding_box": {
+        "x": 2024,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/audio-video/speakers/pr?sid=0pm%2C0o7&p%5B%5D=facets.fulfilled_by%255B%255D%3DF-Assured&sort=price_asc&p%5B%5D=facets.rating%255B%255D%3D4%25E2%2598%2585%2B%2526%2Babove&p%5B%5D=facets.type%255B%255D%3DParty%2BSpeaker&p%5B%5D=facets.price_range.from%3D3999&p%5B%5D=facets.price_range.to%3DMax&ctx=ey",
+      "bounding_box": {
+        "x": 2516,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/mens-footwear/~cs-j5bpt9apww/pr?sid=osp%2Ccil&collection-tab-name=Footwear&p%5B%5D=facets.brand%255B%255D%3DPUMA&p%5B%5D=facets.brand%255B%255D%3DADIDAS&p%5B%5D=facets.brand%255B%255D%3DREEBOK&param=4567&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cml",
+      "bounding_box": {
+        "x": 3008,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/google-pixel-11-frost-256-gb/p/itmc51935a8001b1?pid=MOBHPHNVEC2P4WV3&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HTEVfVkFMVUVEIn19fX19&n",
+      "bounding_box": {
+        "x": 3500,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/home-furnishing/bed-linen-blankets/bedsheets/pr?sid=jra%2Cknw%2Cqcw&marketplace=FLIPKART&p%5B%5D=facets.brand%255B%255D%3DRaymond%2BHome&p%5B%5D=facets.brand%255B%255D%3DBombay%2BDyeing&p%5B%5D=facets.brand%255B%255D%3DUrban%2BSpace&p%5B%5D=facets.brand%255B%255D%3Dhaus%2B%2526%2Bkinder&p%5B%5D=fac",
+      "bounding_box": {
+        "x": 3992,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/laptops/~cs-vzr4lvkh14/pr?sid=6bo%2Cb5g&collection-tab-name=Laptops&sort=price_asc&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HTEVfVkFM",
+      "bounding_box": {
+        "x": 4484,
+        "y": 226,
+        "width": 460,
+        "height": 224
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/health-care/~cs-y29mxkn5jt/pr?sid=hlc&collection-tab-name=Creatine&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HTEVfVkFMVUVEIn19fX19&nnc",
+      "bounding_box": {
+        "x": 56,
+        "y": 479,
+        "width": 1168,
+        "height": 260
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/apple-iphone-17-lavender-256-gb/p/itm5c650337c09ee?pid=MOBHQV9YDG7CGRAM&param=20002",
+      "bounding_box": {
+        "x": 68,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/laptops/~cs-nqsh87f1bg/pr?sid=6bo%2Cb5g&collection-tab-name=HP+Core+5&sort=price_asc&PARAM=7263",
+      "bounding_box": {
+        "x": 245,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/ckf/czl/~cs-cv5hqp88ve/pr?sid=ckf,czl&collection-tab-name=Top+Deal+BDS+",
+      "bounding_box": {
+        "x": 422,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/samsung-galaxy-s25-fe-5g-jetblack-128-gb/p/itm90e887b150eea?pid=MOBHQCH6FPTX5FZ2&lid=LSTMOBHQCH6FPTX5FZ26HBEZT&param=0987",
+      "bounding_box": {
+        "x": 599,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/wearable-smart-devices/smart-watches/pr?sid=ajy%2Cbuh&marketplace=FLIPKART&p%5B%5D=facets.availability%255B%255D%3DExclude%2BOut%2Bof%2BStock&sort=price_asc&param=710&p%5B%5D=facets.brand%255B%255D%3DGOBOULT&p%5B%5D=facets.price_range.from%3D1099&p%5B%5D=facets.price_range.to%3DMax",
+      "bounding_box": {
+        "x": 776,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/vivo-t5-5g-silver-green-128-gb/p/itm8fa150d1fa2d2?pid=MOBHQC8DQGZMMCB8&param=34567890",
+      "bounding_box": {
+        "x": 953,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/tablets/~cs-ue8mq0dmtp/pr?sid=tyy%2Chry&collection-tab-name=Moto+Neo+4&sort=price_asc&p%5B%5D=facets.availability%255B%255D%3DExclude%2BOut%2Bof%2BStock",
+      "bounding_box": {
+        "x": 1130,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/j9e/abm/8qx/~cs-2opro5a5ch/pr?sid=j9e,abm,8qx&collection-tab-name=BDS1+Top+Selections",
+      "bounding_box": {
+        "x": 1307,
+        "y": 815,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "button",
+      "tag": "button",
+      "text": "",
+      "aria_label": "Next Slide",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "",
+      "bounding_box": {
+        "x": 1166,
+        "y": 915,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "boAt, realme, Mivi & more Min 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/audio-video/pr?sid=0pm&p%5B%5D=facets.discount_range_v1%255B%255D%3D50%2525%2Bor%2Bmore&hpid=w2BGimYwATZXfn_vEkn1oap7_Hsxr70nj65vMAAFKlc%3D&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InZhbHVlQ2FsbG91dCI6eyJtdWx0aVZhbHVlZEF0dHJpYnV0ZSI6eyJrZXkiOiJ2YWx1ZUNhbGxvdXQiLCJpbmZlcmVuY2VUeXBlIjoiVkFMVUVfQ0F",
+      "bounding_box": {
+        "x": 76,
+        "y": 1160,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Best Deal Ever Min 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/furniture/shoe-racks-more/shoe-rack/~cs-bwqss6t2vc/pr?sid=wwe%2C0ye%2Cn0l&collection-tab-name=Shoe+racks&param=87123&hpid=hoDyLH28aPc7UJnDfdZQuqp7_Hsxr70nj65vMAAFKlc%3D&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InZhbHVlQ2FsbG91dCI6eyJtdWx0aVZhbHVlZEF0dHJpYnV0ZSI6eyJrZXkiOiJ2YWx1ZUNhbGxvdXQiLCJpbm",
+      "bounding_box": {
+        "x": 360,
+        "y": 1160,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Popular Special offer",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/all/~cs-92f0a6d355c1761ed79e06b6b19388cc/pr?sid=abc%2Cfi1&marketplace=FLIPKART&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InZhbHVlQ2FsbG91dCI6eyJtdWx0aVZhbHVlZEF0dHJpYnV0ZSI6eyJrZXkiOiJ2YWx1ZUNhbGxvdXQiLCJpbmZlcmVuY2VUeXBlIjoiVkFMVUVfQ0FMTE9VVCIsInZhbHVlcyI6WyJTcGVjaWFsIG9mZmVyIl0sInZhbHVlVHlwZSI6",
+      "bounding_box": {
+        "x": 644,
+        "y": 1160,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Deal of the day From ₹99",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/watches/wrist-watches/pr?sid=r18%2Cf13&p%5B%5D=facets.brand%255B%255D%3DShocknshop&p%5B%5D=facets.brand%255B%255D%3DCurren&p%5B%5D=facets.brand%255B%255D%3DWristy&p%5B%5D=facets.brand%255B%255D%3DFOGG&p%5B%5D=facets.brand%255B%255D%3DCHARLIEKEEN&p%5B%5D=facets.brand%255B%255D%3DLOUIS%2BDEVIN&p%5B%5",
+      "bounding_box": {
+        "x": 928,
+        "y": 1160,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/product/p/itme?pid=TMRHJCDGSXZ7ZRZY&param=65679",
+      "bounding_box": {
+        "x": 68,
+        "y": 1491,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/mens-footwear/~cs-0x2y7lfuvo/pr?sid=osp%2Ccil&collection-tab-name=Crocs&p%5B%5D=facets.discount_range_v1%255B%255D%3D60%2525%2Bor%2Bmore&param=678fgh",
+      "bounding_box": {
+        "x": 245,
+        "y": 1491,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "button",
+      "tag": "button",
+      "text": "",
+      "aria_label": "Next Slide",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "",
+      "bounding_box": {
+        "x": 1166,
+        "y": 1591,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/audio-video/~cs-j8w5yd96v9/pr?sid=0pm&collection-tab-name=ZEB-Party+Speakers&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HTEVfVkFMVUVEIn",
+      "bounding_box": {
+        "x": 56,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/beauty-and-grooming/~cs-jifht5uxvj/pr?sid=g9b&collection-tab-name=Serum%C2%B6m%3D12873681736&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU",
+      "bounding_box": {
+        "x": 323,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/kyh/~cs-eubhz6n5ub/pr?sid=kyh&collection-tab-name=Cuddles&pageCriteria=default&param=0889&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HT",
+      "bounding_box": {
+        "x": 590,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/bags-wallets-belts/luggage-travel/~cs-gf3o26zv20/pr?sid=reh%2Cplk&collection-tab-name=Safari_Magnum&sort=price_asc&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQi",
+      "bounding_box": {
+        "x": 857,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/water-purifiers/~cs-xaiutjb8de/pr?sid=j9e%2Cabm%2Ci45&collection-tab-name=EFL+-+WAP+&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HTEVfVk",
+      "bounding_box": {
+        "x": 1124,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/audio-video/~cs-0w394w8zgm/pr?sid=0pm&collection-tab-name=Alpha&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HTEVfVkFMVUVEIn19fX19&nnc=F0",
+      "bounding_box": {
+        "x": 1391,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/motorola-edge-70-fusion-snapdragon-pantone-blue-surf-128-gb/p/itmde3fff77e262b?pid=MOBHN973UHXUTABD&marketplace=FLIPKART&lid=LSTMOBHN973UHXUTABDAOG1CH&hl_lid=LSTMOBHN973UHXUTABD4AFG6E&pageUID=1792222081621&param=90000&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZ",
+      "bounding_box": {
+        "x": 1658,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/nothing-phone-4b-white-128-gb/p/itm939608b40adbb?pid=MOBHQENATV85KYCZ&marketplace=FLIPKART&lid=LSTMOBHQENATV85KYCZ0HUCMA&hl_lid=LSTMOBHQENATV85KYCZMZLNQI&pageUID=1792215793851&param=98870&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI",
+      "bounding_box": {
+        "x": 1925,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/health-care/~cs-e930rz874u/pr?sid=hlc&collection-tab-name=Reckit&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZXJlbmNlVHlwZSI6IlNDVCIsInZhbHVlIjoiQUQiLCJ2YWx1ZVR5cGUiOiJTSU5HTEVfVkFMVUVEIn19fX19&nnc=4",
+      "bounding_box": {
+        "x": 2192,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/boltt-ace-5g-sky-blue-64-gb/p/itm2eb0f483effdd?pid=MOBHPP59ARTH58SM&marketplace=FLIPKART&lid=LSTMOBHPP59ARTH58SMWE3WXO&pageUID=1791969473308&param=112244&ctx=eyJjYXJkQ29udGV4dCI6eyJhdHRyaWJ1dGVzIjp7InNvdXJjZUNvbnRlbnRUeXBlIjp7InNpbmdsZVZhbHVlQXR0cmlidXRlIjp7ImtleSI6InNvdXJjZUNvbnRlbnRUeXBlIiwiaW5mZ",
+      "bounding_box": {
+        "x": 2459,
+        "y": 1822,
+        "width": 235,
+        "height": 169
+      }
+    },
+    {
+      "element_type": "button",
+      "tag": "button",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "",
+      "bounding_box": {
+        "x": 1182,
+        "y": 1883,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/offers-list/recommended-for-you?screen=dynamic&pk=contentTags%3DGCD_THEME_5~marketplace%3DFLIPKART~widgetType%3DdealCardV3~contentType%3DpersonalisedRecommendation%2FC5&marketplace=FLIPKART",
+      "bounding_box": {
+        "x": 1168,
+        "y": 2034,
+        "width": 40,
+        "height": 24
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Mobile Skin Stickers Min. 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-0e2734d716610eebc089bedc830dd662/pr?sid=tyy,4mr,mr4,00w&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 76,
+        "y": 2075,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Power Banks Min. 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-5447acab9094df30966ed1ae80389723/pr?sid=tyy,4mr,fu6&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 360,
+        "y": 2075,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Mobiles Min. 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-b364eef2a83b8798cb08ea449878c98d/pr?sid=tyy,4io&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 644,
+        "y": 2075,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Mobile Holders Min. 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-7165b2352371229d9187ca70b07b75d7/pr?sid=tyy,4mr,vnf&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 928,
+        "y": 2075,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/womens-ethnic-sets/pr?sid=clo%2Ccfv%2Citg%2Ctys&p%5B%5D=facets.discount_range_v1%255B%255D%3D70%2525%2Bor%2Bmore&p%5B%5D=facets.pattern%255B%255D%3DEmbroidered&param=87655",
+      "bounding_box": {
+        "x": 68,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/health-care/health-supplements/protein-supplement/pr?sid=hlc%2Cetg%2C1rx&p%5B%5D=facets.type%255B%255D%3DCreatine&p%5B%5D=facets.type%255B%255D%3DWhey%2BProtein&p%5B%5D=facets.brand%255B%255D%3DMUSCLEBLAZE&p%5B%5D=facets.brand%255B%255D%3DWellcore&p%5B%5D=facets.brand%255B%255D%3DOptimum%2BNutritio",
+      "bounding_box": {
+        "x": 245,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/mens-footwear/~cs-j5bpt9apww/pr?sid=osp%2Ccil&collection-tab-name=Footwear&p%5B%5D=facets.brand%255B%255D%3DPUMA&p%5B%5D=facets.brand%255B%255D%3DADIDAS&p%5B%5D=facets.brand%255B%255D%3DREEBOK&param=1901",
+      "bounding_box": {
+        "x": 422,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/furniture/mattresses/bed-mattress/pr?sid=wwe%2Crg9%2C6t1&p%5B%5D=facets.price_range.from%3D2799&p%5B%5D=facets.price_range.to%3DMax&param=12345",
+      "bounding_box": {
+        "x": 599,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/watches/~cs-89er6ol9ik/pr?sid=r18%2Cf13&collection-tab-name=FS&p%5B%5D=facets.brand%255B%255D%3DFastrack&p%5B%5D=facets.brand%255B%255D%3DSONATA&p%5B%5D=facets.discount_range_v1%255B%255D%3D40%2525%2Bor%2Bmore&param=7683644",
+      "bounding_box": {
+        "x": 776,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/musical-instruments/drums-percussion/cajons/pr?sid=ypu%2Cttd%2C4pf&marketplace=FLIPKART&sort=recency_desc",
+      "bounding_box": {
+        "x": 953,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/all/~cs-o7j5i3scqe/pr?sid=all&collection-tab-name=Home+and+lighting+decor&param=1465367",
+      "bounding_box": {
+        "x": 1130,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/womens-footwear/~womens-sandals/pr?sid=osp%2Ciko&p%5B%5D=facets.brand%255B%255D%3DMOCHI&p%5B%5D=facets.brand%255B%255D%3DMETRO&p%5B%5D=facets.brand%255B%255D%3DAllen%2BSolly&p%5B%5D=facets.brand%255B%255D%3DCARLTON%2BLONDON&p%5B%5D=facets.price_range.from%3DMin&p%5B%5D=facets.price_range.to%3D899&p",
+      "bounding_box": {
+        "x": 1307,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/home-furnishing/bed-linen-blankets/bedsheets/pr?sid=jra%2Cknw%2Cqcw&marketplace=FLIPKART&p%5B%5D=facets.pattern%255B%255D%3DJaipuri%2BPrints&p%5B%5D=facets.price_range.from%3D179&p%5B%5D=facets.price_range.to%3DMax",
+      "bounding_box": {
+        "x": 1484,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/furniture/chairs/office-study-chairs/pr?sid=wwe%2Cy7b%2Cfoc&p%5B%5D=facets.price_range.from%3D2499&p%5B%5D=facets.price_range.to%3DMax&param=13579",
+      "bounding_box": {
+        "x": 1661,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/beauty-and-grooming/fragrances/deodorants/~cs-w4qc1auuvy/pr?sid=g9b,0yh,vp1&param=765678",
+      "bounding_box": {
+        "x": 1838,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/furniture/mattresses/bed-mattress/pr?sid=wwe%2Crg9%2C6t1&p%5B%5D=facets.price_range.from%3D2799&p%5B%5D=facets.price_range.to%3DMax&param=86139",
+      "bounding_box": {
+        "x": 2015,
+        "y": 2406,
+        "width": 165,
+        "height": 249
+      }
+    },
+    {
+      "element_type": "button",
+      "tag": "button",
+      "text": "",
+      "aria_label": "Next Slide",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "",
+      "bounding_box": {
+        "x": 1166,
+        "y": 2507,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/offers-list/best-value-deals-on-fashion?screen=dynamic&pk=contentTags%3DGCD_THEME_7~marketplace%3DFLIPKART~widgetType%3DdealCardV3~contentType%3DpersonalisedRecommendation%2FC5&marketplace=FLIPKART",
+      "bounding_box": {
+        "x": 1168,
+        "y": 2710,
+        "width": 40,
+        "height": 24
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Men's Cargos Min. 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-f91602f279d967320c0f6819dd6bbcad/pr?sid=clo,vua,rqy,nli&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 76,
+        "y": 2751,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Men's Vests Min. 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-00ef0c65a536e47d48dc8272ab414da4/pr?sid=clo,qfl,wp7,zpk&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 360,
+        "y": 2751,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Men's Caps Special offer",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-d80a645a8e8b1dddb2277f479f076052/pr?sid=clo,qd8,y9u,gy0&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 644,
+        "y": 2751,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Women's Sarees Min. 50% Off",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-c6d1c0bc13f17c317f6447e890166c33/pr?sid=clo,8on,zpd,9og&marketplace=FLIPKART&restrictLocale=true",
+      "bounding_box": {
+        "x": 928,
+        "y": 2751,
+        "width": 276,
+        "height": 231
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "VeganFragrances",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-a45ede722c0c3b4f65022d8c4db9d637/pr?sid=g9b,0yh,jhz&marketplace=FLIPKART",
+      "bounding_box": {
+        "x": 76,
+        "y": 3090,
+        "width": 276,
+        "height": 199
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Elevated Basic",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-6fcd89c6107cf400a6bffc4cd3733564/pr?sid=reh,4d7,ak9&marketplace=FLIPKART",
+      "bounding_box": {
+        "x": 360,
+        "y": 3090,
+        "width": 276,
+        "height": 199
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Cropped",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-5579d19936b11c33985bb57c3d22226c/pr?sid=clo,ash,ohw,36j&marketplace=FLIPKART",
+      "bounding_box": {
+        "x": 644,
+        "y": 3090,
+        "width": 276,
+        "height": 199
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "CanvasTrainer",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkart.com/all/~cs-4324c496a5c761962c226223e79b2d08/pr?sid=osp,cil,e1f&marketplace=FLIPKART",
+      "bounding_box": {
+        "x": 928,
+        "y": 3090,
+        "width": 276,
+        "height": 199
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Contact Us",
+      "aria_label": "Contact Us",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/helpcentre?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 60,
+        "y": 3585,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "About Us",
+      "aria_label": "About Us",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://corporate.flipkart.net/corporate-home",
+      "bounding_box": {
+        "x": 60,
+        "y": 3603,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Careers",
+      "aria_label": "Careers",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.flipkartcareers.com/?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 60,
+        "y": 3621,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Flipkart Stories",
+      "aria_label": "Flipkart Stories",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "http://stories.flipkart.com/?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 60,
+        "y": 3639,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Press",
+      "aria_label": "Press",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "http://stories.flipkart.com/category/top-stories/news/",
+      "bounding_box": {
+        "x": 60,
+        "y": 3657,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Corporate Information",
+      "aria_label": "Corporate Information",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/corporate-information",
+      "bounding_box": {
+        "x": 60,
+        "y": 3675,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Myntra",
+      "aria_label": "Myntra",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.myntra.com/",
+      "bounding_box": {
+        "x": 209,
+        "y": 3585,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Cleartrip",
+      "aria_label": "Cleartrip",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.cleartrip.com/",
+      "bounding_box": {
+        "x": 209,
+        "y": 3603,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Shopsy",
+      "aria_label": "Shopsy",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.shopsy.in",
+      "bounding_box": {
+        "x": 209,
+        "y": 3621,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Payments",
+      "aria_label": "Payments",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/payments",
+      "bounding_box": {
+        "x": 359,
+        "y": 3585,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Shipping",
+      "aria_label": "Shipping",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/shipping",
+      "bounding_box": {
+        "x": 359,
+        "y": 3603,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Cancellation & Returns",
+      "aria_label": "Cancellation & Returns",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/helpcentre?catalog=55c9c6edb000002e002c1701&view=CATALOG",
+      "bounding_box": {
+        "x": 359,
+        "y": 3621,
+        "width": 129,
+        "height": 36
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "FAQ",
+      "aria_label": "FAQ",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/helpcentre?catalog=55c9c8e2b0000023002c1702&view=CATALOG",
+      "bounding_box": {
+        "x": 359,
+        "y": 3657,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Cancellation & Returns",
+      "aria_label": "Cancellation & Returns",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/returnpolicy?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 508,
+        "y": 3585,
+        "width": 129,
+        "height": 36
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Terms Of Use",
+      "aria_label": "Terms Of Use",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/terms?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 508,
+        "y": 3621,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Security",
+      "aria_label": "Security",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/paymentsecurity?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 508,
+        "y": 3639,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Privacy",
+      "aria_label": "Privacy",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/privacypolicy?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 508,
+        "y": 3657,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Sitemap",
+      "aria_label": "Sitemap",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/sitemap?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 508,
+        "y": 3675,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Grievance Redressal",
+      "aria_label": "Grievance Redressal",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/grievance-redressal-mechanism?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 508,
+        "y": 3693,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "EPR Compliance",
+      "aria_label": "EPR Compliance",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/pages/ewaste-compliance-tnc?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 508,
+        "y": 3711,
+        "width": 129,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "FSSAI Food Safety Connect App",
+      "aria_label": "FSSAI Food Safety Connect App",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://fssai.gov.in/cms/food-safety-connect.php",
+      "bounding_box": {
+        "x": 508,
+        "y": 3729,
+        "width": 129,
+        "height": 36
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "Facebook",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.facebook.com/flipkart",
+      "bounding_box": {
+        "x": 691,
+        "y": 3748,
+        "width": 24,
+        "height": 15
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "Twitter",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.twitter.com/flipkart",
+      "bounding_box": {
+        "x": 731,
+        "y": 3748,
+        "width": 24,
+        "height": 15
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "YouTube",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.youtube.com/flipkart",
+      "bounding_box": {
+        "x": 771,
+        "y": 3748,
+        "width": 24,
+        "height": 15
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "",
+      "aria_label": "Instagram",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://www.instagram.com/flipkart",
+      "bounding_box": {
+        "x": 811,
+        "y": 3746,
+        "width": 20,
+        "height": 15
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "044-45614700",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "tel:044-45614700",
+      "bounding_box": {
+        "x": 1032,
+        "y": 3712,
+        "width": 86,
+        "height": 15
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "044-67415800",
+      "aria_label": "",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "tel:044-67415800",
+      "bounding_box": {
+        "x": 1129,
+        "y": 3712,
+        "width": 86,
+        "height": 15
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Become a Seller",
+      "aria_label": "Become a Seller",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "https://seller.flipkart.com/?utm_source=fkwebsite&utm_medium=websitedirect",
+      "bounding_box": {
+        "x": 132,
+        "y": 3831,
+        "width": 91,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Gift Cards",
+      "aria_label": "Gift Cards",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/the-gift-card-store?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 541,
+        "y": 3831,
+        "width": 58,
+        "height": 18
+      }
+    },
+    {
+      "element_type": "link",
+      "tag": "a",
+      "text": "Help Center",
+      "aria_label": "Help Center",
+      "name": "",
+      "id": "",
+      "placeholder": "",
+      "input_type": "",
+      "href": "/helpcentre?otracker=footer_navlinks",
+      "bounding_box": {
+        "x": 730,
+        "y": 3831,
+        "width": 68,
+        "height": 18
+      }
+    }
+  ],
+  "page_text": "Location not set\nSelect delivery location\nLogin\nMore\nCart\nFor You\nFashion\nMobiles\nElectronics\nBeauty\nHome\nAppliances\nToys, baby..\nFood & Health\nAuto Accessories\nSports & Fitness\nFurniture\nBooks\n2 Wheelers\nTop deals on tech\n  \nOn everybody's list\n   \nboAt, realme, Mivi & more\nMin 50% Off\n   \nBest Deal Ever\nMin 50% Off\n   \nPopular\nSpecial offer\n   \nDeal of the day\nFrom ₹99\nNew deals every hour\n  \nIn The Spotlight\nMust-have Electronics & Appliances\n     \nMobile Skin Stickers\nMin. 50% Off\n     \nPower Banks\nMin. 50% Off\n     \nMobiles\nMin. 50% Off\n     \nMobile Holders\nMin. 50% Off\nTop deals on everyday living\n  \nBest Value Deals on Fashion\n     \nMen's Cargos\nMin. 50% Off\n     \nMen's Vests\nMin. 50% Off\n     \nMen's Caps\nSpecial offer\n     \nWomen's Sarees\nMin. 50% Off\nTrends you may like\n     \nVeganFragrances\n     \nElevated Basic\n     \nCropped\n     \nCanvasTrainer\nHang on, loading content\nFlipkart - Your go-to place for Online Shopping\n+\nABOUT\nContact Us\nAbout Us\nCareers\nFlipkart Stories\nPress\nCorporate Information\nGROUP COMPANIES\nMyntra\nCleartrip\nShopsy\nHELP\nPayments\nShipping\nCancellation & Returns\nFAQ\nCONSUMER POLICY\nCancellation & Returns\nTerms Of Use\nSecurity\nPrivacy\nSitemap\nGrievance Redressal\nEPR Compliance\nFSSAI Food Safety Connect App\nMail Us:\n\nFlipkart Internet Private Limited,\n\nBuildings Alyssa, Begonia &\n\nClove Embassy Tech Village,\n\nOuter Ring Road, Devarabeesanahalli Village,\n\nBengaluru, 560103,\n\nKarnataka, India\n\nSocial:\nRegistered Office Address:\n\nFlipkart Internet Private Limited,\n\nBuildings Alyssa, Begonia &\n\nClove Embassy Tech Village,\n\nOuter Ring Road, Devarabeesanahalli Village,\n\nBengaluru, 560103,\n\nKarnataka, India\n\nCIN : U51109KA2012PTC066107\n\nTelephone: 044-45614700 / 044-67415800\n\nBecome a Seller\nAdvertise\nGift Cards\nHelp Center\n© 2007-2026 Flipkart.com"
+}

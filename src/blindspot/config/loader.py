@@ -116,6 +116,8 @@ PROVIDER_ALIASES: Dict[str, str] = {
     "google": "gemini",
     "vertex": "gemini",
     "claude": "anthropic",
+    "antigravity": "antigravity",
+    "agy": "antigravity",
 }
 
 
@@ -123,6 +125,7 @@ def parse_model_route(route: str) -> tuple[str, str, str]:
     """Parse a <provider>/<model> string into (category, provider, model).
 
     Supports formats like:
+      'antigravity/default'     -> ('local', 'antigravity', 'antigravity-brain')
       'google/gemini-2.5-flash' -> ('cloud', 'gemini', 'gemini-2.5-flash')
       'gemini/gemini-3.5-flash' -> ('cloud', 'gemini', 'gemini-3.5-flash')
       'openai/gpt-4o-mini'      -> ('cloud', 'openai', 'gpt-4o-mini')
@@ -135,10 +138,12 @@ def parse_model_route(route: str) -> tuple[str, str, str]:
         p_part, m_part = cleaned.split("/", 1)
         p = p_part.strip().lower()
         p = PROVIDER_ALIASES.get(p, p)
-        category = "local" if p == "ollama" else ("custom" if p in ("custom", "openai_compatible") else "cloud")
+        category = "local" if p in ("ollama", "antigravity") else ("custom" if p in ("custom", "openai_compatible") else "cloud")
         return category, p, m_part.strip()
 
     low = cleaned.lower()
+    if low.startswith("antigravity") or low.startswith("agy"):
+        return "local", "antigravity", "antigravity-brain"
     if low.startswith("gemini"):
         return "cloud", "gemini", cleaned
     if low.startswith("gpt") or low.startswith("o1") or low.startswith("o3"):

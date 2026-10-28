@@ -464,5 +464,30 @@ def test_scroll_command_help():
     assert "Perform a zero-AI live browser scrolling test" in result.stdout
 
 
+def test_inspect_with_iteration_flag(tmp_path: Path, monkeypatch):
+    """Verify --iteration creates an isolated iteration subfolder under reports root."""
+    monkeypatch.setenv("BLINDSPOT_REPORTS_DIR", str(tmp_path))
+    result = runner.invoke(
+        app,
+        [
+            "inspect",
+            "--url",
+            "https://example.com",
+            "--context",
+            "Documentation testing for iteration subfolders.",
+            "--iteration",
+            "1",
+            "--skip-execution",
+            "--skip-report",
+        ],
+    )
+    assert result.exit_code == 0
+    iteration_dir = tmp_path / "iteration_1"
+    assert iteration_dir.is_dir()
+    assert (iteration_dir / "inspection_result.json").exists()
+    assert (iteration_dir / "personas.json").exists()
+
+
+
 
 

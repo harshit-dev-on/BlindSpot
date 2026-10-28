@@ -19,6 +19,7 @@ from blindspot.ai.exceptions import (
 )
 from blindspot.ai.factory import create_provider
 from blindspot.ai.models import AIResponse, ProviderStatus
+from blindspot.ai.providers.antigravity import AntigravityProvider
 from blindspot.ai.providers.ollama import OllamaProvider
 from blindspot.ai.providers.openai_compatible import OpenAICompatibleProvider
 
@@ -30,6 +31,7 @@ __all__ = [
     "AIResponse",
     "AIStructuredOutputError",
     "AITimeoutError",
+    "AntigravityProvider",
     "BaseAIProvider",
     "CURATED_MODELS",
     "DEFAULT_BASE_URLS",

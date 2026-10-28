@@ -228,6 +228,7 @@ def print_provider_list(
     table.add_column("Status", style="green")
 
     providers_info = [
+        ("antigravity", "Local/Bridge", "(None - Antigravity IDE)", "Supported"),
         ("ollama", "Local", "(None - Free & Offline)", "Supported"),
         ("gemini", "Cloud", "GEMINI_API_KEY", "Supported"),
         ("openai", "Cloud", "OPENAI_API_KEY", "Supported"),
@@ -502,6 +503,9 @@ def print_report_summary(
 
     console.print(f"  [dim]Output[/dim]    [#60a5fa]{json_path}[/]")
     console.print(f"  [dim]Report[/dim]    [#22c55e]{html_path}[/]")
+    md_path = json_path.parent / "report.md"
+    if md_path.exists():
+        console.print(f"  [dim]Markdown[/dim]  [#38bdf8]{md_path}[/]")
     console.print(f"  [dim]View[/dim]      [bold #22c55e]blindspot view {report_id}[/]\n")
 
     console.print(

@@ -19,6 +19,8 @@ def tool_inspect_website(
     headed: bool = False,
     wait_for_completion: bool = False,
     timeout_seconds: int = 60,
+    output_dir: Optional[str] = None,
+    iteration: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Start an automated BlindSpot website UX inspection and testing run.
 
@@ -29,6 +31,8 @@ def tool_inspect_website(
         headed: Whether to display a visible browser window on the host desktop.
         wait_for_completion: If True, blocks until the run finishes or timeout is reached.
         timeout_seconds: Maximum seconds to wait when wait_for_completion is True.
+        output_dir: Optional custom directory to store inspection artifacts.
+        iteration: Optional iteration name or number (e.g. 'iteration_1').
 
     Returns:
         Structured dictionary containing run_id, status, target_url, output_dir, and instructions.
@@ -69,6 +73,8 @@ def tool_inspect_website(
         personas=clamped_personas,
         headed=headed,
         browser="chromium",
+        output_dir=output_dir,
+        iteration=iteration,
     )
 
     record = job_manager.create_run(req)

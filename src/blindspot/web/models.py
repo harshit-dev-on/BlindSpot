@@ -14,6 +14,8 @@ class CreateRunRequest(BaseModel):
     browser: str = Field(default="chromium", description="Browser engine: chromium, firefox, or webkit.")
     ai_provider: Optional[str] = Field(default=None, description="Optional override for AI provider.")
     ai_model: Optional[str] = Field(default=None, description="Optional override for AI model identifier.")
+    output_dir: Optional[str] = Field(default=None, description="Optional custom directory for artifacts.")
+    iteration: Optional[str] = Field(default=None, description="Optional iteration name or number (e.g. 'iteration_1').")
 
 
 class RunStatusResponse(BaseModel):

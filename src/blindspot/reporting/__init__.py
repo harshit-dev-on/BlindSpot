@@ -7,6 +7,7 @@ from blindspot.reporting.analysis import (
 )
 from blindspot.reporting.generator import generate_ux_report
 from blindspot.reporting.html_renderer import render_html_report
+from blindspot.reporting.markdown_renderer import render_markdown_report
 from blindspot.reporting.models import (
     BlindSpotReport,
     FindingCategory,
@@ -26,6 +27,7 @@ __all__ = [
     "AIUXAnalyzer",
     "DeduplicatorAndPrioritizer",
     "render_html_report",
+    "render_markdown_report",
     "generate_ux_report",
     "build_sarif_report",
     "write_sarif_file",

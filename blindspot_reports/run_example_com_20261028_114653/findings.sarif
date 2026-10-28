@@ -1,0 +1,56 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "BlindSpot",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/harshit-dev-on/BlindSpot",
+          "rules": [
+            {
+              "id": "UX-FRICTION",
+              "name": "UX_FRICTION",
+              "shortDescription": {
+                "text": "Improve search field contrast"
+              },
+              "helpUri": "https://www.w3.org/WAI/WCAG22/",
+              "defaultConfiguration": {
+                "level": "note"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "UX-FRICTION",
+          "level": "note",
+          "message": {
+            "text": "[UX-FRICTION] Improve search field contrast\n\nDetails: Mock finding for CLI tests.\nElement: `body`"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "https://example.com"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "Selector: body"
+                  }
+                }
+              }
+            }
+          ],
+          "properties": {
+            "elementSelector": "body",
+            "suggestedFix": null,
+            "severity": "severitylevel.medium"
+          }
+        }
+      ]
+    }
+  ]
+}

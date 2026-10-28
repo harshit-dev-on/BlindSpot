@@ -1,0 +1,32 @@
+{
+  "target_url": "https://example.com",
+  "timestamp": "2026-10-28T06:16:58.034664+00:00",
+  "browser": "chromium",
+  "headless": true,
+  "personas": [
+    {
+      "persona_id": "persona_1",
+      "persona_name": "Taylor - Web Developer",
+      "task_results": [
+        {
+          "task_id": "task_p1_1",
+          "persona_id": "persona_1",
+          "task_objective": "Locate quickstart guide",
+          "status": "success",
+          "start_time": "2026-10-16T12:00:00Z",
+          "end_time": "2026-10-16T12:00:05Z",
+          "initial_url": "https://example.com",
+          "final_url": "https://example.com/quickstart",
+          "actions_taken": [],
+          "evidence": [
+            "Quickstart guide observed"
+          ],
+          "evidence_screenshots": [],
+          "notes": null,
+          "error_message": null
+        }
+      ]
+    }
+  ],
+  "results_file_path": null
+}

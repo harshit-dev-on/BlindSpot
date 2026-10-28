@@ -27,6 +27,7 @@ class PipelineConfig:
     url: str
     context: str
     output_dir: Optional[Path] = None
+    iteration: Optional[str] = None
     personas: int = 3
     browser: str = "chromium"
     headless: bool = True
@@ -106,10 +107,16 @@ def run_pipeline(
         raise ValueError(f"Invalid Context: {context_res.error_message}")
 
     run_id = generate_run_id()
+    reports_root = Path(os.environ.get("BLINDSPOT_REPORTS_DIR", "blindspot_reports" if Path("blindspot_reports").is_dir() else "reports"))
     if config.output_dir:
         run_output_dir = Path(config.output_dir)
+    elif getattr(config, "iteration", None):
+        iter_name = str(config.iteration).strip()
+        if not iter_name.startswith("iteration"):
+            iter_name = f"iteration_{iter_name}"
+        run_output_dir = reports_root / iter_name
     else:
-        run_output_dir = Path("reports") / run_id
+        run_output_dir = reports_root / run_id
 
     run_output_dir.mkdir(parents=True, exist_ok=True)
 

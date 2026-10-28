@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlindSpot UX Report - https://example.com/</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #131b2e;
+      --card-border: #1e293b;
+      --header-bg: #101827;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.15);
+      --red: #ef4444;
+      --orange: #f97316;
+      --yellow: #eab308;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --slate: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 4rem;
+    }
+    header.site-header {
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+    .header-content { display: flex; flex-direction: column; gap: 0.5rem; }
+    .brand { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); font-weight: 700; }
+    .title { font-size: 1.85rem; font-weight: 800; color: #fff; word-break: break-all; }
+    .meta-line { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem; color: var(--text-muted); }
+
+    /* KPI Stats Bar */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .kpi-val { font-size: 1.8rem; font-weight: 800; color: #fff; }
+    .kpi-val.green { color: var(--green); }
+    .kpi-val.red { color: var(--red); }
+    .kpi-val.orange { color: var(--orange); }
+    .kpi-val.accent { color: var(--accent); }
+    .kpi-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; }
+
+    /* Disclaimer Alert */
+    .disclaimer-banner {
+      background: rgba(30, 41, 59, 0.7);
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.25rem;
+      border-radius: 4px;
+      margin-bottom: 2.5rem;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+    .disclaimer-banner strong { color: var(--accent); }
+
+    /* Headings */
+    h2.section-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .category-group { margin-bottom: 3rem; }
+
+    /* Cards */
+    .finding-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      transition: border-color 0.2s ease;
+    }
+    .finding-card:hover { border-color: rgba(56, 189, 248, 0.4); }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .rank-badge {
+      background: #0f172a;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-verified { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-observation { background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .badge-improvement { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }
+
+    .badge-critical { background: #dc2626; color: #fff; }
+    .badge-high { background: #ea580c; color: #fff; }
+    .badge-medium { background: #ca8a04; color: #fff; }
+    .badge-low { background: #2563eb; color: #fff; }
+    .badge-info { background: #475569; color: #fff; }
+
+    .confidence-badge { font-size: 0.75rem; color: var(--text-muted); background: #0f172a; padding: 0.2rem 0.5rem; border-radius: 4px; }
+    .priority-score { font-size: 0.85rem; font-weight: 700; color: var(--accent); }
+
+    .card-title { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+    .card-desc { color: #cbd5e1; font-size: 0.95rem; margin-bottom: 1rem; }
+
+    /* Tags */
+    .tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .tag { font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #0f172a; color: var(--text-muted); border: 1px solid var(--card-border); }
+    .tag.persona-tag { border-color: rgba(168, 85, 247, 0.4); color: #d8b4fe; }
+    .tag.task-tag { border-color: rgba(59, 130, 246, 0.4); color: #93c5fd; }
+    .tag.url-tag { border-color: rgba(34, 197, 94, 0.4); color: #86efac; word-break: break-all; }
+
+    .finding-section { margin: 1rem 0; }
+    .section-subtitle { font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .repro-list, .evidence-list { margin-left: 1.25rem; font-size: 0.9rem; color: #cbd5e1; }
+    .repro-list li, .evidence-list li { margin-bottom: 0.35rem; }
+    code { background: #0b0f19; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85rem; color: #e2e8f0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    /* Recommendations Box */
+    .recommendation-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1.25rem 0;
+    }
+    .rec-item { font-size: 0.92rem; color: #e2e8f0; margin-bottom: 0.5rem; }
+    .rec-item.benefit { color: #a7f3d0; margin-bottom: 0; }
+    .rec-item strong { color: #fff; }
+
+    /* Screenshots Grid */
+    .screenshots-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem; }
+    .screenshot-box {
+      width: 200px;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #0b0f19;
+      display: flex;
+      flex-direction: column;
+    }
+    .screenshot-box img { width: 100%; height: 120px; object-fit: cover; display: block; border-bottom: 1px solid var(--card-border); }
+    .screenshot-box.missing { height: 120px; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); padding: 0.5rem; }
+    .placeholder-icon { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .screenshot-label { font-size: 0.7rem; color: var(--text-muted); padding: 0.25rem 0.5rem; word-break: break-all; }
+
+    .card-footer { font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid #1e293b; padding-top: 0.75rem; }
+    .empty-state { color: var(--text-muted); font-style: italic; padding: 1rem 0; }
+
+    /* Personas Table */
+    table.data-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.9rem; }
+    table.data-table th, table.data-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
+    table.data-table th { background: #0f172a; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
+    table.data-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .dim { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* Limitations Box */
+    .limitations-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    .limitations-box ul { margin-left: 1.5rem; color: var(--text-muted); font-size: 0.85rem; }
+    .limitations-box li { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-content">
+      <span class="brand">BlindSpot Automated UX Testing Report</span>
+      <h1 class="title">https://example.com/</h1>
+      <div class="meta-line">
+        <span><strong>Context:</strong> # Persona Blueprint: First-Time Exploratory Visitor
+
+**Target Archetype:** First-Time Web Explorer  
+**Audience:** Potential customers arriving on the website for the very first time, evaluating service credibility, exploring main categories, and discovering customer support policies.
+
+---
+
+### Persona 1: Jordan - First-Time Exploratory Visitor
+- **Experience Level:** Novice to Intermediate
+- **Device &amp; Interaction:** Standard Desktop Browser
+- **Primary Goal:** Understand what products or services the platform offers, browse featured categories, and locate customer support or contact information.
+- **Likely Difficulties:** Overwhelming visual clutter, ambiguous navigation labels, hard-to-find return/refund policies, hidden customer care contact details.
+- **Accessibility Needs:** Standard Desktop Browsing
+
+#### Assigned Tasks:
+1. **Evaluate Homepage Clarity &amp; Value Proposition**:
+   - **Objective:** Inspect the homepage hero banner, value proposition tagline, and primary navigation bar to identify core offerings.
+   - **Starting Conditions:** Starts on homepage.
+   - **Observable Success Criteria:** Main banner text observed, primary categories identified, navigation links reviewed.
+   - **Evidence to Collect:** Page title, hero headline, top navigation category names.
+
+2. **Browse Featured Category or Service**:
+   - **Objective:** Select one of the primary featured category links or banners to explore product listings or service catalog.
+   - **Starting Conditions:** Starts on homepage.
+   - **Observable Success Criteria:** Category listing page loaded, breadcrumbs or category title displayed.
+   - **Evidence to Collect:** Category page URL, category heading, number of items displayed.
+
+3. **Locate Customer Support &amp; Help Center**:
+   - **Objective:** Scroll to the footer and locate the Customer Support, Help Center, or Contact Us link.
+   - **Starting Conditions:** Starts on homepage.
+   - **Observable Success Criteria:** Page scrolled to footer, Help Center / Support / Contact Us link located and verified.
+   - **Evidence to Collect:** Footer link text, support page URL.</span>
+        <span>•</span>
+        <span><strong>Generated:</strong> 2026-10-28 06:06:39 UTC</span>
+        <span>•</span>
+        <span><strong>Engine:</strong> chromium (Headless)</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- KPI Summary Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-val accent">1</div>
+        <div class="kpi-label">Simulated Personas</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">3</div>
+        <div class="kpi-label">Tasks Executed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val green">0</div>
+        <div class="kpi-label">Tasks Passed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val red">1</div>
+        <div class="kpi-label">Tasks Failed</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val orange">2</div>
+        <div class="kpi-label">Inconclusive</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val red">1</div>
+        <div class="kpi-label">Verified Defects</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val orange">1</div>
+        <div class="kpi-label">UX Observations</div>
+      </div>
+    </section>
+
+    <!-- Methodology & Statistical Disclaimer -->
+    <div class="disclaimer-banner">
+      <strong>Research Methodology Notice:</strong> Simulated user personas are synthetic models used for heuristic discovery. Their actions and feedback do not constitute real user data or claim statistical significance.
+    </div>
+
+    <!-- Group 1: Objectively Verified Issues -->
+    <section class="category-group" id="verified-issues">
+      <h2 class="section-title">
+        <span style="color: var(--red);">●</span> Objectively Verified Defects (1)
+      </h2>
+      <p class="card-desc">Functional bugs, navigation failures, action crashes, and structural accessibility defects confirmed by browser execution.</p>
+      
+    <article class="finding-card severity-high" id="finding_1">
+      <header class="card-header">
+        <div class="header-left">
+          <span class="rank-badge">#1</span>
+          <span class="badge badge-verified">Objectively Verified Issue</span>
+          <span class="badge badge-high">High</span>
+          <span class="confidence-badge" title="Confidence: 100%">Confidence: 100%</span>
+        </div>
+        <div class="priority-score">Score: 91.0</div>
+      </header>
+
+      <h3 class="card-title">Failed Task Execution: Scroll to the footer and locate the Customer Support, Help C</h3>
+      <p class="card-desc">During testing for persona &#x27;Jordan - First-Time Exploratory Visitor&#x27;, task &#x27;task_1_3&#x27; failed to complete. Maximum action limit (8) reached without meeting success criteria.</p>
+
+      <div class="tags-container"><span class="tag persona-tag">Persona: persona_custom_1</span><span class="tag task-tag">Task: task_1_3</span><span class="tag url-tag">URL: https://www.iana.org/help/example-domains</span></div>
+      <div class="finding-section">  <h4 class="section-subtitle">Reproduction Steps</h4>  <ol class="repro-list"><li>Start at URL: https://example.com/</li><li>Step 1: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li><li>Step 2: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li><li>Step 3: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li><li>Step 4: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li><li>Step 5: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li><li>Step 6: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li><li>Step 7: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li><li>Step 8: Execute scroll on &#x27;page&#x27; (Scroll down to browse available items and observe layout.)</li></ol></div>
+      <div class="finding-section">  <h4 class="section-subtitle">Supporting Evidence</h4>  <ul class="evidence-list"><li><code>Task execution status: FAILURE</code></li><li><code>Error observed: Maximum action limit (8) reached without meeting success criteria.</code></li></ul></div>
+      <div class="finding-section">  <h4 class="section-subtitle">Visual Evidence</h4>  <div class="screenshots-grid"><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step0_baseline.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step0_baseline.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step0_baseline.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step1.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step1.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step1.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step2.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step2.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step2.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step3.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step3.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step3.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step4.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step4.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step4.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step5.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step5.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step5.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step6.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step6.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step6.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step7.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step7.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step7.png</span></div><div class="screenshot-box">  <a href="evidence/persona_custom_1/task_1_3/task_1_3_step8.png" target="_blank" rel="noopener">    <img src="evidence/persona_custom_1/task_1_3/task_1_3_step8.png" alt="Evidence screenshot" loading="lazy" />  </a>  <span class="screenshot-label">task_1_3_step8.png</span></div></div></div>
+
+      <div class="recommendation-box">
+        <div class="rec-item">
+          <strong>Recommended Fix:</strong> Ensure the target interaction element is consistently rendered, accessible in the DOM, and that navigation paths are clearly discoverable by users.
+        </div>
+        <div class="rec-item benefit">
+          <strong>Expected Benefit:</strong> Allows users to complete this essential journey without getting blocked or abandoning the workflow.
+        </div>
+      </div>
+
+      <footer class="card-footer">
+        <span class="reasoning-text"><em>Priority Rationale:</em> Ranked based on: Directly blocked task completion; Objectively verified by browser execution; High severity; impacts 1 persona(s); 100% confidence.</span>
+      </footer>
+    </article>
+    
+    </section>
+
+    <!-- Group 2: Usability Observations -->
+    <section class="category-group" id="usability-observations">
+      <h2 class="section-title">
+        <span style="color: var(--orange);">●</span> Usability Observations (1)
+      </h2>
+      <p class="card-desc">Friction points, ambiguous calls to action, confusing flow steps, or feedback deficiencies observed during simulated journeys.</p>
+      
+    <article class="finding-card severity-medium" id="finding_2">
+      <header class="card-header">
+        <div class="header-left">
+          <span class="rank-badge">#2</span>
+          <span class="badge badge-observation">Usability Observation</span>
+          <span class="badge badge-medium">Medium</span>
+          <span class="confidence-badge" title="Confidence: 90%">Confidence: 90%</span>
+        </div>
+        <div class="priority-score">Score: 27.0</div>
+      </header>
+
+      <h3 class="card-title">Verify descriptive accessible labels on icon buttons and search controls</h3>
+      <p class="card-desc">Several interactive icon controls and buttons lack explicit &#x27;aria-label&#x27; or discernible text content, presenting barriers for screen reader users.</p>
+
+      <div class="tags-container"><span class="tag url-tag">URL: https://example.com/</span></div>
+      <div class="finding-section">  <h4 class="section-subtitle">Reproduction Steps</h4>  <ol class="repro-list"><li>Navigate to website using keyboard navigation (Tab key).</li><li>Focus header controls and observe announcement in screen reader.</li></ol></div>
+      
+      
+
+      <div class="recommendation-box">
+        <div class="rec-item">
+          <strong>Recommended Fix:</strong> Add explicit aria-label attributes (e.g. aria-label=&#x27;Search&#x27; or aria-label=&#x27;Cart&#x27;) to all icon-only buttons.
+        </div>
+        <div class="rec-item benefit">
+          <strong>Expected Benefit:</strong> Enables assistive technology users to understand and trigger interactive controls.
+        </div>
+      </div>
+
+      <footer class="card-footer">
+        <span class="reasoning-text"><em>Priority Rationale:</em> Ranked based on: Medium severity; 90% confidence.</span>
+      </footer>
+    </article>
+    
+    </section>
+
+    <!-- Group 3: Potential Improvements -->
+    <section class="category-group" id="potential-improvements">
+      <h2 class="section-title">
+        <span style="color: var(--accent);">●</span> Potential Improvements (1)
+      </h2>
+      <p class="card-desc">Constructive opportunities to enhance overall user delight, streamline journeys, and elevate conversion.</p>
+      
+    <article class="finding-card severity-low" id="finding_3">
+      <header class="card-header">
+        <div class="header-left">
+          <span class="rank-badge">#3</span>
+          <span class="badge badge-improvement">Potential Improvement</span>
+          <span class="badge badge-low">Low</span>
+          <span class="confidence-badge" title="Confidence: 85%">Confidence: 85%</span>
+        </div>
+        <div class="priority-score">Score: 8.5</div>
+      </header>
+
+      <h3 class="card-title">Ensure persistent high-contrast visible focus indicators during keyboard navigation</h3>
+      <p class="card-desc">Interactive links and form inputs should consistently provide high-contrast :focus-visible styling so keyboard-only users can clearly track their location on the page.</p>
+
+      <div class="tags-container"><span class="tag url-tag">URL: https://example.com/</span></div>
+      <div class="finding-section">  <h4 class="section-subtitle">Reproduction Steps</h4>  <ol class="repro-list"><li>Tab through page links and buttons.</li><li>Verify focus outline contrast against page background.</li></ol></div>
+      
+      
+
+      <div class="recommendation-box">
+        <div class="rec-item">
+          <strong>Recommended Fix:</strong> Implement CSS :focus-visible outlines with at least 3:1 contrast ratio against adjacent colors.
+        </div>
+        <div class="rec-item benefit">
+          <strong>Expected Benefit:</strong> Significantly improves navigation velocity for keyboard and motor-impaired users.
+        </div>
+      </div>
+
+      <footer class="card-footer">
+        <span class="reasoning-text"><em>Priority Rationale:</em> Ranked based on: Low severity; 85% confidence.</span>
+      </footer>
+    </article>
+    
+    </section>
+
+    <!-- Tested Personas Overview -->
+    <section class="category-group" id="personas-overview">
+      <h2 class="section-title">Simulated Persona Profiles</h2>
+      <div class="finding-card" style="padding: 0; overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Persona Archetype</th>
+              <th>Proficiency</th>
+              <th>Browsing Style / Needs</th>
+              <th>Assigned Tasks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td><strong>Jordan - First-Time Exploratory Visitor</strong> <span class="dim">(persona_custom_1)</span></td>
+          <td>Novice to Intermediate</td>
+          <td>Standard Desktop Browsing</td>
+          <td>3 tasks</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Limitations -->
+    <section class="limitations-box">
+      <h3 style="font-size: 1rem; color: #fff; margin-bottom: 0.75rem;">Audit Limitations & Boundary Conditions</h3>
+      <ul>
+        <li>Simulated persona testing provides qualitative heuristic insights and does not replace empirical usability testing with human participants.</li><li>Accessibility evaluation is limited to structural DOM heuristics and does not constitute full WCAG 2.2 AA certification.</li><li>Testing was executed in an automated browser environment; client anti-bot systems or dynamic third-party scripts may affect observations.</li>
+      </ul>
+    </section>
+
+  </main>
+
+</body>
+</html>

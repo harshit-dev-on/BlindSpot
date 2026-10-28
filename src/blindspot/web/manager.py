@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import re
 import threading
@@ -40,8 +41,12 @@ class RunRecord:
 class RunManager:
     """Coordinates active test runs, background threads, and event tracking."""
 
-    def __init__(self, reports_root: Path = Path("reports"), max_concurrent: int = 1) -> None:
-        self.reports_root = reports_root.resolve()
+    def __init__(self, reports_root: Optional[Path] = None, max_concurrent: int = 1) -> None:
+        if reports_root is None:
+            default_dir = Path(os.environ.get("BLINDSPOT_REPORTS_DIR", "blindspot_reports" if Path("blindspot_reports").is_dir() else "reports"))
+            self.reports_root = default_dir.resolve()
+        else:
+            self.reports_root = reports_root.resolve()
         self.max_concurrent = max_concurrent
         self._runs: Dict[str, RunRecord] = {}
         self._lock = threading.Lock()
@@ -50,7 +55,15 @@ class RunManager:
     def create_run(self, req: CreateRunRequest) -> RunRecord:
         """Create and queue a new test run record."""
         run_id = generate_run_id()
-        run_dir = (self.reports_root / run_id).resolve()
+        if req.output_dir:
+            run_dir = Path(req.output_dir).resolve()
+        elif req.iteration:
+            iter_name = str(req.iteration).strip()
+            if not iter_name.startswith("iteration"):
+                iter_name = f"iteration_{iter_name}"
+            run_dir = (self.reports_root / iter_name).resolve()
+        else:
+            run_dir = (self.reports_root / run_id).resolve()
         run_dir.mkdir(parents=True, exist_ok=True)
 
         record = RunRecord(

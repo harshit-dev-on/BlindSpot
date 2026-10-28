@@ -252,8 +252,8 @@ class BrowserInspector:
             target_dir.mkdir(parents=True, exist_ok=True)
             return target_dir
 
-        # Default unique directory under reports/
-        reports_dir = Path("reports")
+        # Default unique directory under blindspot_reports/, reports/, or BLINDSPOT_REPORTS_DIR
+        reports_dir = Path(os.environ.get("BLINDSPOT_REPORTS_DIR", "blindspot_reports" if Path("blindspot_reports").is_dir() else "reports"))
         host = urlsplit(url).netloc or "page"
         clean_host = re.sub(r"[^a-zA-Z0-9]+", "_", host).strip("_")
         timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")

@@ -35,9 +35,18 @@ def test_provider_list_command():
     result = runner.invoke(app, ["provider", "list"])
     assert result.exit_code == 0
     assert "BlindSpot AI Providers" in result.stdout
+    assert "antigravity" in result.stdout
     assert "ollama" in result.stdout
     assert "gemini" in result.stdout
     assert "openai" in result.stdout
+
+
+def test_antigravity_provider_test():
+    result = runner.invoke(app, ["provider", "test", "--provider", "antigravity"])
+    assert result.exit_code == 0
+    assert "antigravity" in result.stdout
+    assert "ONLINE" in result.stdout or "READY" in result.stdout
+
 
 
 def test_provider_test_success_mocked():

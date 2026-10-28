@@ -1,0 +1,74 @@
+{
+  "website_url": "https://example.com/",
+  "context": "# Persona Blueprint: First-Time Exploratory Visitor\n\n**Target Archetype:** First-Time Web Explorer  \n**Audience:** Potential customers arriving on the website for the very first time, evaluating service credibility, exploring main categories, and discovering customer support policies.\n\n---\n\n### Persona 1: Jordan - First-Time Exploratory Visitor\n- **Experience Level:** Novice to Intermediate\n- **Device & Interaction:** Standard Desktop Browser\n- **Primary Goal:** Understand what products or services the platform offers, browse featured categories, and locate customer support or contact information.\n- **Likely Difficulties:** Overwhelming visual clutter, ambiguous navigation labels, hard-to-find return/refund policies, hidden customer care contact details.\n- **Accessibility Needs:** Standard Desktop Browsing\n\n#### Assigned Tasks:\n1. **Evaluate Homepage Clarity & Value Proposition**:\n   - **Objective:** Inspect the homepage hero banner, value proposition tagline, and primary navigation bar to identify core offerings.\n   - **Starting Conditions:** Starts on homepage.\n   - **Observable Success Criteria:** Main banner text observed, primary categories identified, navigation links reviewed.\n   - **Evidence to Collect:** Page title, hero headline, top navigation category names.\n\n2. **Browse Featured Category or Service**:\n   - **Objective:** Select one of the primary featured category links or banners to explore product listings or service catalog.\n   - **Starting Conditions:** Starts on homepage.\n   - **Observable Success Criteria:** Category listing page loaded, breadcrumbs or category title displayed.\n   - **Evidence to Collect:** Category page URL, category heading, number of items displayed.\n\n3. **Locate Customer Support & Help Center**:\n   - **Objective:** Scroll to the footer and locate the Customer Support, Help Center, or Contact Us link.\n   - **Starting Conditions:** Starts on homepage.\n   - **Observable Success Criteria:** Page scrolled to footer, Help Center / Support / Contact Us link located and verified.\n   - **Evidence to Collect:** Footer link text, support page URL.",
+  "website_summary": "Custom human-authored persona blueprint (1 personas).",
+  "personas": [
+    {
+      "id": "persona_custom_1",
+      "name": "Jordan - First-Time Exploratory Visitor",
+      "description": "Jordan - First-Time Exploratory Visitor. Goal: Understand what products or services the platform offers, browse featured categories, and locate customer support or contact information.",
+      "experience_level": "Novice to Intermediate",
+      "goals": [
+        "Understand what products or services the platform offers, browse featured categories, and locate customer support or contact information."
+      ],
+      "likely_difficulties": [
+        "Overwhelming visual clutter, ambiguous navigation labels, hard-to-find return/refund policies, hidden customer care contact details."
+      ],
+      "accessibility_needs": "Standard Desktop Browsing",
+      "tasks": [
+        {
+          "id": "task_1_1",
+          "objective": "Inspect the homepage hero banner, value proposition tagline, and primary navigation bar to identify core offerings.",
+          "starting_conditions": "Starts on current page",
+          "success_criteria": [
+            "Main banner text observed",
+            "primary categories identified",
+            "navigation links reviewed."
+          ],
+          "evidence_to_collect": [
+            "Page title",
+            "hero headline",
+            "top navigation category names."
+          ],
+          "is_verified": true,
+          "uncertainty_notes": null
+        },
+        {
+          "id": "task_1_2",
+          "objective": "Select one of the primary featured category links or banners to explore product listings or service catalog.",
+          "starting_conditions": "Starts on current page",
+          "success_criteria": [
+            "Category listing page loaded",
+            "breadcrumbs or category title displayed."
+          ],
+          "evidence_to_collect": [
+            "Category page URL",
+            "category heading",
+            "number of items displayed."
+          ],
+          "is_verified": true,
+          "uncertainty_notes": null
+        },
+        {
+          "id": "task_1_3",
+          "objective": "Scroll to the footer and locate the Customer Support, Help Center, or Contact Us link.",
+          "starting_conditions": "Starts on current page",
+          "success_criteria": [
+            "Page scrolled to footer",
+            "Help Center / Support / Contact Us link located and verified."
+          ],
+          "evidence_to_collect": [
+            "Footer link text",
+            "support page URL.\""
+          ],
+          "is_verified": true,
+          "uncertainty_notes": null
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-10-28T06:05:37.641832+00:00",
+  "model_used": "antigravity-brain",
+  "provider_used": "antigravity",
+  "plan_file_path": "blindspot_reports\\iteration_1_demo\\personas.json"
+}

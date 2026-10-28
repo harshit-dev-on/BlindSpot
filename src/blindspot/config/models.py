@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 VALID_CATEGORIES: Tuple[str, ...] = ("local", "cloud", "custom", "hybrid")
 
 VALID_PROVIDERS: Tuple[str, ...] = (
+    "antigravity",
     "ollama",
     "gemini",
     "openai",

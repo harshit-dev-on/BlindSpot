@@ -124,7 +124,9 @@ def main(
         Optional[Path],
         typer.Option(
             "--instruction-file",
-            help="Path to file containing custom instructions.",
+            "--persona-file",
+            "--personas-file",
+            help="Path to markdown or text file containing custom persona instructions.",
             show_default=False,
         ),
     ] = None,
@@ -197,6 +199,14 @@ def main(
             show_default=False,
         ),
     ] = None,
+    iteration: Annotated[
+        Optional[str],
+        typer.Option(
+            "--iteration",
+            help="Iteration identifier or number (creates subfolder under reports directory, e.g. iteration_1).",
+            show_default=False,
+        ),
+    ] = None,
     skip_ai: Annotated[
         bool,
         typer.Option(
@@ -249,6 +259,13 @@ def main(
     effective_personas = personas if personas is not None else 3
     effective_concurrency = concurrency if concurrency is not None else 1
 
+    if iteration and not output_dir:
+        iter_name = str(iteration).strip()
+        if not iter_name.startswith("iteration"):
+            iter_name = f"iteration_{iter_name}"
+        reports_base = Path(os.environ.get("BLINDSPOT_REPORTS_DIR", "blindspot_reports" if Path("blindspot_reports").is_dir() else "reports"))
+        output_dir = reports_base / iter_name
+
     if effective_target:
         inspect(
             url=effective_target,
@@ -291,6 +308,7 @@ def main(
     inspect(
         url=chosen_target,
         context=chosen_instruction,
+        output_dir=output_dir,
         headed=effective_headed,
         personas=effective_personas,
         concurrency=effective_concurrency,
@@ -684,7 +702,15 @@ def inspect(
         typer.Option(
             "--output-dir",
             "-o",
-            help="Custom directory to store artifacts (default: unique folder in reports/).",
+            help="Custom directory to store artifacts (default: unique folder in reports/ or blindspot_reports/).",
+            show_default=False,
+        ),
+    ] = None,
+    iteration: Annotated[
+        Optional[str],
+        typer.Option(
+            "--iteration",
+            help="Iteration identifier or number (creates subfolder under reports directory, e.g. iteration_1).",
             show_default=False,
         ),
     ] = None,
@@ -768,7 +794,9 @@ def inspect(
         Optional[Path],
         typer.Option(
             "--instruction-file",
-            help="Path to file containing custom instructions.",
+            "--persona-file",
+            "--personas-file",
+            help="Path to markdown or text file containing custom persona instructions.",
             show_default=False,
         ),
     ] = None,
@@ -843,6 +871,13 @@ def inspect(
     )
     if instruction_file and instruction_file.is_file():
         effective_context = instruction_file.read_text(encoding="utf-8").strip()
+
+    if iteration and not output_dir:
+        iter_name = str(iteration).strip()
+        if not iter_name.startswith("iteration"):
+            iter_name = f"iteration_{iter_name}"
+        reports_base = Path(os.environ.get("BLINDSPOT_REPORTS_DIR", "blindspot_reports" if Path("blindspot_reports").is_dir() else "reports"))
+        output_dir = reports_base / iter_name
 
     if model:
         _, parsed_prov, parsed_mod = parse_model_route(model)
@@ -1182,28 +1217,39 @@ def view_cmd(
     """Open and view completed or running BlindSpot audit report in the default browser."""
     import webbrowser
 
-    reports_dir = Path("reports")
+    reports_dirs = []
+    if os.environ.get("BLINDSPOT_REPORTS_DIR"):
+        reports_dirs.append(Path(os.environ["BLINDSPOT_REPORTS_DIR"]))
+    reports_dirs.extend([Path("blindspot_reports"), Path("reports")])
+
     target_report_html = None
 
     if run:
         p = Path(run)
         if p.is_file() and p.suffix == ".html":
             target_report_html = p
-        elif (reports_dir / run / "report.html").is_file():
-            target_report_html = reports_dir / run / "report.html"
         elif (p / "report.html").is_file():
             target_report_html = p / "report.html"
+        else:
+            for r_dir in reports_dirs:
+                if (r_dir / run / "report.html").is_file():
+                    target_report_html = r_dir / run / "report.html"
+                    break
+                elif (r_dir / f"iteration_{run}" / "report.html").is_file():
+                    target_report_html = r_dir / f"iteration_{run}" / "report.html"
+                    break
 
     if not target_report_html:
-        # Find latest run in reports/
-        if reports_dir.is_dir():
-            candidates = sorted(
-                [d for d in reports_dir.iterdir() if d.is_dir() and (d / "report.html").is_file()],
-                key=lambda x: x.stat().st_mtime,
-                reverse=True,
-            )
-            if candidates:
-                target_report_html = candidates[0] / "report.html"
+        # Find latest run across reports directories
+        all_candidates = []
+        for r_dir in reports_dirs:
+            if r_dir.is_dir():
+                all_candidates.extend(
+                    [d for d in r_dir.iterdir() if d.is_dir() and (d / "report.html").is_file()]
+                )
+        if all_candidates:
+            all_candidates.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+            target_report_html = all_candidates[0] / "report.html"
 
     if not target_report_html or not target_report_html.is_file():
         print_error(

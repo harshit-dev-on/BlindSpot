@@ -507,3 +507,12 @@ def test_generate_ux_report_end_to_end(
     assert "BlindSpot Automated UX Testing Report" in html_content
     assert "Objectively Verified Defects" in html_content
     assert "Simulated Persona Profiles" in html_content
+
+    # 4. Check Markdown file on disk
+    md_path = tmp_path / "report.md"
+    assert md_path.exists()
+    md_content = md_path.read_text(encoding="utf-8")
+    assert "# 🔍 BlindSpot UX & Accessibility Audit Report" in md_content
+    assert "Executive Summary" in md_content
+    assert "Prioritized UX & Accessibility Findings" in md_content
+

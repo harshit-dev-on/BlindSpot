@@ -38,7 +38,7 @@ def validate_environment(config: Optional[BlindSpotConfig] = None) -> None:
 
     # Check API key if cloud provider
     provider = (ai.provider or "").lower()
-    if provider and provider != "ollama":
+    if provider and provider not in ("ollama", "antigravity"):
         has_key = bool(
             ai.api_key
             or os.environ.get("LLM_API_KEY")

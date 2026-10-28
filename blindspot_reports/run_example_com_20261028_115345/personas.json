@@ -1,0 +1,52 @@
+{
+  "website_url": "https://example.com",
+  "context": "A technical documentation portal",
+  "website_summary": "Technical docs with navigation links and code examples.",
+  "personas": [
+    {
+      "id": "persona_1",
+      "name": "Taylor - Web Developer",
+      "description": "Testing technical documentation site.",
+      "experience_level": "Intermediate",
+      "goals": [
+        "Find quickstart"
+      ],
+      "likely_difficulties": [
+        "Hidden search bar"
+      ],
+      "accessibility_needs": "Standard",
+      "tasks": [
+        {
+          "id": "task_p1_1",
+          "objective": "Locate quickstart guide",
+          "starting_conditions": "Starts on homepage",
+          "success_criteria": [
+            "Quickstart guide opens"
+          ],
+          "evidence_to_collect": [
+            "Screenshot of quickstart page"
+          ],
+          "is_verified": true,
+          "uncertainty_notes": null
+        },
+        {
+          "id": "task_p1_2",
+          "objective": "Search for API reference",
+          "starting_conditions": "Starts on homepage",
+          "success_criteria": [
+            "API reference table located"
+          ],
+          "evidence_to_collect": [
+            "Text of API table"
+          ],
+          "is_verified": false,
+          "uncertainty_notes": "Assumes site has API search bar"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-10-28T06:23:45.211166+00:00",
+  "model_used": "mock-model",
+  "provider_used": "mock-provider",
+  "plan_file_path": null
+}

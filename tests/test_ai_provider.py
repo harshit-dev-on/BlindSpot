@@ -285,6 +285,12 @@ def test_factory_creation():
     assert isinstance(p2, UnifiedAIAdapter)
     assert p2.name == "custom"
 
+    antigravity_cfg = AIConfig(provider="antigravity", model="antigravity-brain")
+    p3 = create_provider(antigravity_cfg)
+    assert isinstance(p3, BaseAIProvider)
+    assert p3.name == "antigravity"
+
+
 
 def test_unified_adapter_gemini_litellm_mock():
     from blindspot.ai.adapter import UnifiedAIAdapter
@@ -318,3 +324,66 @@ def test_unified_adapter_missing_key_status():
     status = adapter.check_health()
     assert status.is_reachable is False
     assert "Missing API key" in status.message
+
+
+def test_antigravity_provider_direct():
+    from blindspot.ai.providers.antigravity import AntigravityProvider
+    from blindspot.personas.models import PersonaPlanPayload
+    from blindspot.execution.models import AgentAction
+
+    provider = AntigravityProvider()
+    status = provider.check_health()
+    assert status.is_reachable is True
+    assert status.model_available is True
+    assert "Antigravity" in status.message
+
+    # Test Persona Plan generation
+    plan = provider.generate_structured(
+        prompt='WEBSITE INTENDED CONTEXT & AUDIENCE: "Search and order iPhone on Flipkart"',
+        schema=PersonaPlanPayload,
+    )
+    assert isinstance(plan, PersonaPlanPayload)
+    assert len(plan.personas) > 0
+    assert any("iPhone" in p.description or "Shopper" in p.name for p in plan.personas)
+
+    # Test Action selection
+    action = provider.generate_structured(
+        prompt="Objective: Search for Apple iPhone\n@e1 <input> (text) Search products\n@e2 <button> (submit) Search",
+        schema=AgentAction,
+    )
+    assert isinstance(action, AgentAction)
+    assert action.action.value in ("fill", "click")
+
+
+def test_antigravity_markdown_persona_parsing():
+    from pathlib import Path
+    from blindspot.ai.providers.antigravity import AntigravityProvider
+    from blindspot.personas.models import PersonaPlanPayload
+
+    provider = AntigravityProvider()
+
+    # Read the e-commerce shopper markdown persona file
+    shopper_md = Path("personas/e_commerce_shopper.md").read_text(encoding="utf-8")
+    plan = provider.generate_structured(
+        prompt=f'WEBSITE INTENDED CONTEXT & AUDIENCE: "{shopper_md}"',
+        schema=PersonaPlanPayload,
+    )
+    assert isinstance(plan, PersonaPlanPayload)
+    assert len(plan.personas) >= 1
+    p1 = plan.personas[0]
+    assert "Priya" in p1.name
+    assert len(p1.tasks) == 3
+    assert any("search" in t.objective.lower() for t in p1.tasks)
+
+    # Read the keyboard accessibility markdown persona file
+    a11y_md = Path("personas/accessibility_keyboard_user.md").read_text(encoding="utf-8")
+    plan_a11y = provider.generate_structured(
+        prompt=f'WEBSITE INTENDED CONTEXT & AUDIENCE: "{a11y_md}"',
+        schema=PersonaPlanPayload,
+    )
+    assert isinstance(plan_a11y, PersonaPlanPayload)
+    assert len(plan_a11y.personas) >= 1
+    assert "Alex" in plan_a11y.personas[0].name
+    assert len(plan_a11y.personas[0].tasks) == 3
+
+

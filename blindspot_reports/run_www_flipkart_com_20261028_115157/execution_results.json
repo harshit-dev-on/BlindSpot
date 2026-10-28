@@ -1,0 +1,357 @@
+{
+  "target_url": "https://www.flipkart.com/",
+  "timestamp": "2026-10-28T06:23:28.250789+00:00",
+  "browser": "chromium",
+  "headless": false,
+  "personas": [
+    {
+      "persona_id": "persona_custom_1",
+      "persona_name": "Priya - High-Intent E-Commerce Shopper",
+      "task_results": [
+        {
+          "task_id": "task_1_1",
+          "persona_id": "persona_custom_1",
+          "task_objective": "Locate the primary search input on the homepage and submit a query for \"Apple iPhone 16\".",
+          "status": "inconclusive",
+          "start_time": "2026-10-28T06:22:18.671511+00:00",
+          "end_time": "2026-10-28T06:22:39.206347+00:00",
+          "initial_url": "https://www.flipkart.com/",
+          "final_url": "https://www.flipkart.com/search?q=Apple+iPhone+16&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=off&as=off",
+          "actions_taken": [
+            {
+              "step": 1,
+              "action": {
+                "action": "scroll",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": null,
+                "press_enter": false,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": null,
+                "value": null,
+                "reasoning": "Explore page content."
+              },
+              "timestamp": "2026-10-28T06:22:25.768974+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/",
+              "page_title": "Online Shopping Site for Mobiles, Electronics, Furniture, Grocery, Lifestyle, Books & More. Best Offers!",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step1.png"
+            },
+            {
+              "step": 2,
+              "action": {
+                "action": "fill",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": "Apple iPhone 16",
+                "press_enter": true,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": "@e3",
+                "value": "Apple iPhone 16",
+                "reasoning": "Focus and type 'Apple iPhone 16' into main search input field @e3."
+              },
+              "timestamp": "2026-10-28T06:22:31.041326+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/search?q=Apple+iPhone+16&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=off&as=off",
+              "page_title": "Apple IPhone 16- Buy Products Online at Best Price in India - All Categories | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step2.png"
+            },
+            {
+              "step": 3,
+              "action": {
+                "action": "scroll",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": null,
+                "press_enter": false,
+                "key": null,
+                "direction": "down",
+                "amount": 600,
+                "target": null,
+                "value": null,
+                "reasoning": "Scroll down to browse available items and observe layout."
+              },
+              "timestamp": "2026-10-28T06:22:35.457464+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/search?q=Apple+iPhone+16&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=off&as=off",
+              "page_title": "Apple IPhone 16- Buy Products Online at Best Price in India - All Categories | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step3.png"
+            },
+            {
+              "step": 4,
+              "action": {
+                "action": "finish",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": null,
+                "press_enter": false,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": null,
+                "value": null,
+                "reasoning": "Observed search and interactive journey executed successfully."
+              },
+              "timestamp": "2026-10-28T06:22:39.152084+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/search?q=Apple+iPhone+16&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=off&as=off",
+              "page_title": "Apple IPhone 16- Buy Products Online at Best Price in India - All Categories | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step4.png"
+            }
+          ],
+          "evidence": [],
+          "evidence_screenshots": [
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step0_baseline.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step1.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step2.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step3.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_1\\task_1_1_step4.png"
+          ],
+          "notes": null,
+          "error_message": "Agent finished task, but success criteria were unconfirmed: Observed search and interactive journey executed successfully."
+        },
+        {
+          "task_id": "task_1_2",
+          "persona_id": "persona_custom_1",
+          "task_objective": "Click on the top search result to open product specifications, price breakdown, and available options.",
+          "status": "inconclusive",
+          "start_time": "2026-10-28T06:22:39.218978+00:00",
+          "end_time": "2026-10-28T06:22:56.229387+00:00",
+          "initial_url": "https://www.flipkart.com/",
+          "final_url": "https://www.flipkart.com/viewcart?exploreMode=true&preference=FLIPKART",
+          "actions_taken": [
+            {
+              "step": 1,
+              "action": {
+                "action": "fill",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": "laptops",
+                "press_enter": true,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": "@e4",
+                "value": "laptops",
+                "reasoning": "Focus and type 'laptops' into main search input field @e4."
+              },
+              "timestamp": "2026-10-28T06:22:43.600303+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/search?q=laptops&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=off&as=off",
+              "page_title": "Apple IPhone 16- Buy Products Online at Best Price in India - All Categories | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step1.png"
+            },
+            {
+              "step": 2,
+              "action": {
+                "action": "fill",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": "laptops",
+                "press_enter": true,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": "@e3",
+                "value": "laptops",
+                "reasoning": "Focus and type 'laptops' into main search input field @e3."
+              },
+              "timestamp": "2026-10-28T06:22:48.076113+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/search?q=laptops&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off",
+              "page_title": "Laptops- Buy Products Online at Best Price in India - All Categories | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step2.png"
+            },
+            {
+              "step": 3,
+              "action": {
+                "action": "click",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": null,
+                "press_enter": false,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": "@e2",
+                "value": null,
+                "reasoning": "Click @e2 (a) to proceed with purchase journey."
+              },
+              "timestamp": "2026-10-28T06:22:52.776796+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/viewcart?exploreMode=true&preference=FLIPKART",
+              "page_title": "Shopping Cart | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step3.png"
+            },
+            {
+              "step": 4,
+              "action": {
+                "action": "finish",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": null,
+                "press_enter": false,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": null,
+                "value": null,
+                "reasoning": "Observed search and interactive journey executed successfully."
+              },
+              "timestamp": "2026-10-28T06:22:56.200463+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/viewcart?exploreMode=true&preference=FLIPKART",
+              "page_title": "Shopping Cart | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step4.png"
+            }
+          ],
+          "evidence": [],
+          "evidence_screenshots": [
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step0_baseline.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step1.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step2.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step3.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_2\\task_1_2_step4.png"
+          ],
+          "notes": null,
+          "error_message": "Agent finished task, but success criteria were unconfirmed: Observed search and interactive journey executed successfully."
+        },
+        {
+          "task_id": "task_1_3",
+          "persona_id": "persona_custom_1",
+          "task_objective": "Locate and trigger the \"Add to Cart\" or \"Buy Now\" button, and verify the cart drawer or page updates.",
+          "status": "inconclusive",
+          "start_time": "2026-10-28T06:22:56.247470+00:00",
+          "end_time": "2026-10-28T06:23:16.467972+00:00",
+          "initial_url": "https://www.flipkart.com/",
+          "final_url": "https://www.flipkart.com/viewcart?exploreMode=true&preference=FLIPKART",
+          "actions_taken": [
+            {
+              "step": 1,
+              "action": {
+                "action": "fill",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": "laptops",
+                "press_enter": true,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": "@e2",
+                "value": "laptops",
+                "reasoning": "Focus and type 'laptops' into main search input field @e2."
+              },
+              "timestamp": "2026-10-28T06:23:02.145079+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/search?q=laptops&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off",
+              "page_title": "Laptops- Buy Products Online at Best Price in India - All Categories | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step1.png"
+            },
+            {
+              "step": 2,
+              "action": {
+                "action": "fill",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": "laptops",
+                "press_enter": true,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": "@e3",
+                "value": "laptops",
+                "reasoning": "Focus and type 'laptops' into main search input field @e3."
+              },
+              "timestamp": "2026-10-28T06:23:06.617657+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/search?q=laptops&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off",
+              "page_title": "Laptops- Buy Products Online at Best Price in India - All Categories | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step2.png"
+            },
+            {
+              "step": 3,
+              "action": {
+                "action": "click",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": null,
+                "press_enter": false,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": "@e2",
+                "value": null,
+                "reasoning": "Click @e2 (a) to proceed with purchase journey."
+              },
+              "timestamp": "2026-10-28T06:23:12.132385+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/viewcart?exploreMode=true&preference=FLIPKART",
+              "page_title": "Shopping Cart | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step3.png"
+            },
+            {
+              "step": 4,
+              "action": {
+                "action": "finish",
+                "mark": null,
+                "x": null,
+                "y": null,
+                "text": null,
+                "press_enter": false,
+                "key": null,
+                "direction": "down",
+                "amount": 400,
+                "target": null,
+                "value": null,
+                "reasoning": "Observed search and interactive journey executed successfully."
+              },
+              "timestamp": "2026-10-28T06:23:16.176366+00:00",
+              "success": true,
+              "error": null,
+              "page_url": "https://www.flipkart.com/viewcart?exploreMode=true&preference=FLIPKART",
+              "page_title": "Shopping Cart | Flipkart.com",
+              "screenshot_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step4.png"
+            }
+          ],
+          "evidence": [],
+          "evidence_screenshots": [
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step0_baseline.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step1.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step2.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step3.png",
+            "blindspot_reports\\run_www_flipkart_com_20261028_115157\\evidence\\persona_custom_1\\task_1_3\\task_1_3_step4.png"
+          ],
+          "notes": null,
+          "error_message": "Agent finished task, but success criteria were unconfirmed: Observed search and interactive journey executed successfully."
+        }
+      ]
+    }
+  ],
+  "results_file_path": "blindspot_reports\\run_www_flipkart_com_20261028_115157\\execution_results.json"
+}

@@ -26,21 +26,29 @@ Activate this skill when:
    - If testing a local development server, you **must** append `--allow-local` to satisfy SSRF security guardrails.
 
 2. **Execute BlindSpot**:
-   Run the audit via CLI or MCP tool:
+   Run the audit via CLI or MCP tool, specifying the iteration:
    ```powershell
-   blindspot inspect --url "<TARGET_URL>" --context "<PURPOSE_AND_AUDIENCE>" --personas 2
+   blindspot inspect --url "<TARGET_URL>" --context "<PURPOSE_AND_AUDIENCE>" --personas 2 --iteration 1
    ```
-   *(For local servers, include `--allow-local`).*
+   *(For custom paths: `-o blindspot_reports/iteration_1`. For local servers: append `--allow-local`).*
 
 3. **Locate and Ingest Output Artifacts**:
-   Locate the newest folder in `reports/` (e.g. `reports/run_<host>_<timestamp>/`).
-   Read `report.json` to extract:
+   Locate the iteration folder in `blindspot_reports/` (e.g. `blindspot_reports/iteration_1/` or `blindspot_reports/run_<host>_<timestamp>/`).
+   Each iteration folder is completely self-contained and stores:
+   - `report.md`: Clean, comprehensive markdown report viewable directly in your editor preview.
+   - `report.html`: Interactive visual dashboard with screenshots, action filters, and SARIF exporter.
+   - `report.json`: Machine-readable results and metrics.
+   - `personas.json`: Persona profiles and test tasks.
+   - `findings.sarif`: Static analysis findings.
+   - `screenshot.png`: Full-page initial viewport crawl.
+   - `evidence/`: Step-by-step action screenshots and captured DOM states.
+
+   Read `report.json` or `report.md` to extract:
    - Summary statistics (passed vs. failed tasks, defect counts by category).
    - Findings classified by taxonomy:
      - `verified_issue`: Objective functional or DOM structural failures.
      - `usability_observation`: User friction, ambiguous labels, navigation confusion.
      - `potential_improvement`: Opportunities for clarity, conversion, or layout enhancement.
-   - Note the path to `report.html` for visual browser presentation.
 
 4. **Formulate Developer Remediation**:
    Synthesize findings into the standardized output format below.
